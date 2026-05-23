@@ -37,11 +37,11 @@
   /* ---- styles ---------------------------------------------------- */
   var css =
   ".mech-addon{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;box-sizing:border-box;}" +
-  ".mech-adwrap{max-width:1240px;margin:22px auto 0;padding:0 18px;}" +
+  ".mech-adwrap{width:100%;max-width:1240px;margin:14px auto 6px;padding:0 18px;}" +
   ".mech-adph{border:2px dashed #9db8d6;border-radius:12px;background:#eaf2fb;color:#5a6b7b;" +
     "text-align:center;padding:22px 14px;font-size:12.5px;letter-spacing:.3px;}" +
   ".mech-adph b{color:#1d4e89;}" +
-  ".mech-foot{margin:26px auto 8px;max-width:1240px;padding:16px 18px 22px;border-top:1px solid #d4dae2;" +
+  ".mech-foot{width:100%;margin:6px auto 14px;max-width:1240px;padding:6px 18px 14px;border-bottom:1px solid #d4dae2;" +
     "display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:12.5px;color:#5a6b7b;}" +
   ".mech-foot .coffee{display:inline-flex;align-items:center;gap:7px;text-decoration:none;background:#FFDD00;" +
     "color:#222;font-weight:800;border-radius:9px;padding:9px 15px;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.12);}" +
@@ -84,7 +84,7 @@
       wrap.innerHTML = '<div class="mech-adph"><b>Ad space</b> — set <code>adsenseClient</code> in ' +
         '<b>site-addons.js</b> to show Google AdSense here.</div>';
     }
-    document.body.appendChild(wrap);
+    document.body.insertBefore(wrap, document.body.firstChild);
   }
 
   function loadAds() {
@@ -117,7 +117,7 @@
       '<a class="lnk" href="' + CFG.privacyUrl + '">Privacy Policy</a>' +
       '<a class="lnk" href="#" id="mechCookieSettings">Cookie settings</a>' +
       (aff ? '<div class="disc">Some links are affiliate links — we may earn a commission at no extra cost to you.</div>' : "");
-    document.body.appendChild(f);
+    document.body.insertBefore(f, document.body.firstChild);
     var cs = document.getElementById("mechCookieSettings");
     if (cs) cs.addEventListener("click", function (e) {
       e.preventDefault();
@@ -148,8 +148,8 @@
   }
 
   /* ---- init ------------------------------------------------------ */
-  buildAd();
-  buildFooter();
+  buildFooter();      // prepended first
+  buildAd();          // prepended second → ends up above the footer (top of page)
   if (choice === "accepted") loadAds();
   else if (choice !== "declined") showBanner();
 })();
