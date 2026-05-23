@@ -21,15 +21,6 @@
     .free-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);color:var(--accent);border:0.5px solid rgba(29,78,137,0.3);border-radius:100px;padding:5px 14px;font-size:14px;font-weight:600;margin-bottom:1.5rem;}
     .home-link{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:var(--radius-md);font-size:14px;font-weight:700;letter-spacing:.3px;text-decoration:none;border:1px solid var(--accent);color:var(--accent);background:var(--surface);transition:background .12s,color .12s;margin-bottom:1.25rem;}
     .home-link:hover{background:var(--accent);color:#fff;}
-    .lang-switcher{position:relative;display:inline-block;float:right;margin-bottom:1rem;}
-    .lang-dropdown-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border2);border-radius:var(--radius-md);background:var(--surface);color:var(--text);transition:background 0.12s;}
-    .lang-dropdown-btn:hover{background:var(--surface2);}
-    .lang-dropdown-btn i{font-size:14px;color:var(--text3);}
-    .lang-dropdown-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:100;min-width:140px;display:none;}
-    .lang-dropdown-menu.open{display:block;}
-    .lang-option{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:14px;cursor:pointer;color:var(--text);transition:background 0.1s;}
-    .lang-option:hover{background:var(--surface2);}
-    .lang-option.selected{background:var(--accent-light);color:var(--accent);font-weight:600;}
     #drop-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:3rem 2rem;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;background:var(--surface);}
     #drop-zone:hover,#drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light);}
     #drop-zone .upload-icon{font-size:48px;color:var(--text3);margin-bottom:12px;display:block;transition:color 0.15s;}
@@ -169,17 +160,6 @@
     <p>Upload an equipment list — classifies each item by description. Manually adjust any type using the dropdown in each row.</p>
   </header>
   <div class="free-badge"><i class="ti ti-check"></i> 100% Free — runs entirely in your browser</div>
-  <div class="lang-switcher" id="lang-switcher">
-    <button class="lang-dropdown-btn" onclick="toggleLangMenu()">
-      <span id="lang-flag">🇬🇧</span>
-      <span id="lang-label">English</span>
-      <i class="ti ti-chevron-down"></i>
-    </button>
-    <div class="lang-dropdown-menu" id="lang-menu">
-      <div class="lang-option selected" id="lang-en" onclick="setLang('en')">🇬🇧 English</div>
-      <div class="lang-option" id="lang-ru" onclick="setLang('ru')">🇷🇺 Russian</div>
-    </div>
-  </div>
 
   <div id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('file-input').click()">
     <i class="ti ti-file-upload upload-icon"></i>
@@ -288,17 +268,11 @@ const KEYWORDS={'Pump':['pump','pumping','booster','feeder pump','centrifugal pu
 const KW_MAP=[];
 Object.entries(KEYWORDS).forEach(([type,kws])=>kws.forEach(kw=>KW_MAP.push({kw:kw.toLowerCase(),type})));
 KW_MAP.sort((a,b)=>b.kw.length-a.kw.length);
-const KW_EN=KW_MAP.filter(k=>/^[a-z]/.test(k.kw));
-const KW_RU=KW_MAP.filter(k=>/^[а-яё]/.test(k.kw));
-let ACTIVE_KW=KW_EN;
-function toggleLangMenu(){document.getElementById('lang-menu').classList.toggle('open');}
-function setLang(lang){ACTIVE_KW=lang==='en'?KW_EN:KW_RU;document.getElementById('lang-en').classList.toggle('selected',lang==='en');document.getElementById('lang-ru').classList.toggle('selected',lang==='ru');document.getElementById('lang-flag').textContent=lang==='en'?'🇬🇧':'🇷🇺';document.getElementById('lang-label').textContent=lang==='en'?'English':'Russian';document.getElementById('lang-menu').classList.remove('open');}
-document.addEventListener('click',e=>{const sw=document.getElementById('lang-switcher');if(sw&&!sw.contains(e.target))document.getElementById('lang-menu').classList.remove('open');});
+const ACTIVE_KW=KW_MAP.filter(k=>/^[a-z]/.test(k.kw)); // English keywords only
 function isSelectedLang(text){
   if(!text)return false;
   const hasCyrillic=/[а-яёА-ЯЁ]/.test(text);
   const hasLatin=/[a-zA-Z]/.test(text);
-  if(ACTIVE_KW===KW_RU)return hasCyrillic;
   return !hasCyrillic||hasLatin;
 }
 function classifyByDescription(d){const s=(d||'').toLowerCase();for(const{kw,type}of ACTIVE_KW){if(s.includes(kw))return type;}return'Other';}
