@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HVAC Heat Load Calculation — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e;
+    --navy-2:#1d4e89;
+    --navy-dark:#12304e;
+    --bg:#e7ebf0;
+    --card:#ffffff;
+    --line:#d4dae2;
+    --row-alt:#f4f7fa;
+    --calc-bg:#eaf2fb;
+    --accent:#1d4e89;
+    --good:#1f7a4d;
+    --warn:#b4690e;
+    --text:#1c2733;
+    --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.4; padding:18px;
+  }
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:40px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 16px; border-radius:8px; font-size:30px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:2px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:260px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis ul{margin:0; padding-left:18px; font-size:13px; color:var(--muted);}
+
+  .printbtn{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px;
+    padding:10px 16px; font-size:13px; font-weight:700; letter-spacing:.4px;
+    box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s; margin-top:12px;
+  }
+  .printbtn:hover{background:var(--navy);}
+  .printbtn:active{transform:translateY(1px);}
+  .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  .btnrow .printbtn{margin-top:0;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  /* ---------- Grid ---------- */
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:30px;} .pill{font-size:24px;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:span 3;}
+  .card.span2{grid-column:span 2;}
+  @media(max-width:980px){ .card.wide{grid-column:span 2;} .card.span2{grid-column:span 2;} }
+  @media(max-width:660px){ .card.wide,.card.span2{grid-column:span 1;} }
+
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.5px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:34px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:12px 14px; flex:1;}
+  .body .lead{font-weight:700; color:var(--navy); margin:0 0 8px; font-size:13px;}
+  .note{font-size:11.5px; color:var(--muted); margin-top:8px;}
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:8px 10px; font-size:13.5px; color:var(--navy); text-align:center; margin:6px 0;}
+  .where{font-size:12px; color:var(--muted); margin:6px 0;}
+  .where b{color:var(--text);}
+
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th,td{text-align:left; padding:5px 7px; border-bottom:1px solid var(--line);}
+  thead th{background:var(--row-alt); color:var(--navy); font-weight:700; border-bottom:2px solid var(--line);}
+  tbody tr:nth-child(even){background:var(--row-alt);}
+  td.c,th.c{text-align:center; white-space:nowrap;}
+
+  ul.tight{margin:4px 0; padding-left:18px; font-size:12.5px;}
+  ul.tight li{margin:3px 0;}
+
+  /* ---------- Calculator ---------- */
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:11px; margin-top:12px;}
+  .calc h5{margin:0 0 8px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+  .field label{flex:1 1 auto; font-size:12px;}
+  .field input, .field select{flex:0 0 auto; width:120px; padding:6px 8px; border:1px solid #b9c7d6; border-radius:7px; font-size:12.5px; background:#fff; color:var(--text);}
+  .field select{width:155px;}
+  .field input:focus,.field select:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .result{margin-top:8px; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:9px 11px; font-size:13px;}
+  .result .big{font-size:18px; font-weight:800; color:var(--navy); display:block; margin-top:2px;}
+  .result small{color:var(--muted); font-size:11px;}
+  .result .tag{display:inline-block; background:var(--navy-2); color:#fff; font-size:10.5px; padding:2px 7px; border-radius:20px; margin-right:5px;}
+
+  /* dynamic surfaces */
+  table.dyn input, table.dyn select{width:100%; padding:4px 5px; border:1px solid #b9c7d6; border-radius:6px; font-size:11.5px; background:#fff;}
+  table.dyn td{padding:4px 4px; border-bottom:1px solid #dbe5ef;}
+  table.dyn .rowQ{font-weight:700; color:var(--navy); text-align:right; white-space:nowrap;}
+  .del{background:#c0392b; color:#fff; border:none; border-radius:6px; width:24px; height:24px; cursor:pointer; font-size:12px; line-height:1;}
+  .addbtn{background:var(--good); color:#fff; border:none; border-radius:7px; padding:6px 12px; font-size:12px; font-weight:700; cursor:pointer; margin-top:6px;}
+  .addbtn:hover{filter:brightness(.93);}
+
+  /* overview */
+  .loads2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media(max-width:660px){ .loads2{grid-template-columns:1fr;} }
+  .loadbox h6{margin:0 0 6px; font-size:12px; letter-spacing:.5px;}
+  .loadbox.ext h6{color:#c0392b;} .loadbox.int h6{color:var(--navy-2);}
+  .loadbox ol{margin:0; padding-left:20px; font-size:12.5px;}
+  .loadbox li{margin:4px 0;}
+  .chain{display:flex; flex-wrap:wrap; align-items:center; gap:8px; justify-content:center; margin:6px 0;}
+  .chip{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:8px; padding:8px 10px; font-size:12px; text-align:center; color:var(--navy); font-weight:600;}
+  .chip.tot{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .plus{font-weight:800; color:var(--navy-2); font-size:16px;}
+
+  /* TOTAL card */
+  .totalcard h3{background:var(--navy-dark);}
+  .breakdown{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:12px;}
+  @media(max-width:660px){ .breakdown{grid-template-columns:repeat(2,1fr);} }
+  .qbox{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:10px; text-align:center;}
+  .qbox .lab{font-size:11px; color:var(--muted);}
+  .qbox .v{font-size:18px; font-weight:800; color:var(--navy); display:block; margin-top:3px;}
+  .totrow{display:flex; flex-wrap:wrap; align-items:center; gap:16px; justify-content:space-between;}
+  .qtotal{font-size:15px;}
+  .qtotal b{font-size:24px; color:var(--navy); display:block;}
+  .capbox{background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:12px; padding:14px 20px; text-align:center; min-width:240px;}
+  .capbox .lab{font-size:12px; letter-spacing:1px; opacity:.85;}
+  .capbox .cap{font-size:30px; font-weight:800; margin-top:2px;}
+  .capbox small{opacity:.8; font-size:11px;}
+  .sf-field{display:flex; align-items:center; gap:8px; font-size:13px;}
+  .sf-field select{padding:6px 8px; border-radius:7px; border:1px solid #b9c7d6;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+
+  @media print{
+    @page{ size:A4 landscape; margin:10mm; }
+    html,body{ background:#fff; padding:0; }
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:11px; }
+    .wrap{ max-width:none; }
+    .no-print{ display:none !important; }
+    .card,.calc,.qbox,.basis{ break-inside:avoid; page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>HEAT LOAD <span class="pill">CALCULATION</span></h1>
+      <div class="sub">SECTIONS · SOURCES · DETAILED METHOD · INTERACTIVE</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>WHAT IS HEAT LOAD?</h4>
+      <ul>
+        <li>Total heat entering a conditioned space</li>
+        <li>From external + internal sources</li>
+        <li>Sized to hold the design indoor temperature</li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1.1 SOURCES -->
+    <section class="card span2">
+      <h3><span class="num">1.1</span> SECTIONS &amp; SOURCES OF HEAT LOAD <span class="ico">🏠</span></h3>
+      <div class="body">
+        <div class="loads2">
+          <div class="loadbox ext">
+            <h6>EXTERNAL LOADS (enter from outside)</h6>
+            <ol>
+              <li><b>Solar Radiation</b> — through walls, windows, roof</li>
+              <li><b>Heat Conduction</b> — through walls, roof, floors, partitions</li>
+              <li><b>Ventilation &amp; Infiltration</b> — outside air enters the building</li>
+            </ol>
+          </div>
+          <div class="loadbox int">
+            <h6>INTERNAL LOADS (generated inside)</h6>
+            <ol start="4">
+              <li><b>Lighting</b> — heat generated by lamps</li>
+              <li><b>People</b> — heat generated by occupants</li>
+              <li><b>Appliances &amp; Equipment</b> — electrical devices</li>
+            </ol>
+          </div>
+        </div>
+        <div class="note" style="text-align:center;font-weight:700;color:#c0392b;">TOTAL HEAT LOAD = SUM OF ALL LOADS (to maintain the design indoor temperature)</div>
+      </div>
+    </section>
+
+    <!-- 1.2 METHOD -->
+    <section class="card">
+      <h3><span class="num">1.2</span> METHOD <span class="ico">➗</span></h3>
+      <div class="body">
+        <p class="note">Each source is calculated separately, then summed.</p>
+        <div class="chain">
+          <span class="chip">Q<sub>solar</sub></span><span class="plus">+</span>
+          <span class="chip">Q<sub>trans</sub></span><span class="plus">+</span>
+          <span class="chip">Q<sub>vent</sub></span><span class="plus">+</span>
+          <span class="chip">Q<sub>internal</sub></span><span class="plus">=</span>
+          <span class="chip tot">Q<sub>total</sub></span>
+        </div>
+        <div class="formula">Q<sub>total</sub> = Q<sub>solar</sub> + Q<sub>trans</sub> + Q<sub>vent</sub> + Q<sub>internal</sub></div>
+        <div class="note" style="text-align:center;">Unit: Watt (W)</div>
+      </div>
+    </section>
+
+    <!-- GLOBAL DESIGN CONDITIONS -->
+    <section class="card">
+      <h3><span class="num">ΔT</span> DESIGN CONDITIONS <span class="ico">🌡️</span></h3>
+      <div class="body">
+        <p class="note">Drives ΔT for conduction &amp; ventilation. <span class="formula" style="display:inline-block;padding:2px 8px;margin:0;">ΔT = T<sub>out</sub> − T<sub>in</sub></span></p>
+        <div class="calc">
+          <div class="field"><label>Outside design temp T<sub>out</sub> (°C)</label><input id="T_out" type="number" step="0.5" value="40"></div>
+          <div class="field"><label>Inside design temp T<sub>in</sub> (°C)</label><input id="T_in" type="number" step="0.5" value="24"></div>
+          <div class="result"><span class="tag">ΔT</span><span class="big" id="dT_display">16 °C</span><small>applied to new surfaces &amp; ventilation</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.3.1 SOLAR -->
+    <section class="card">
+      <h3><span class="num">1.3.1</span> SOLAR — Q<sub style="color:#fff">solar</sub> <span class="ico">☀️</span></h3>
+      <div class="body">
+        <div class="formula">Q<sub>solar</sub> = A<sub>g</sub> × SC × CLF</div>
+        <div class="where"><b>A<sub>g</sub></b> glazing area (m²) · <b>SC</b> shading coeff. · <b>CLF</b> cooling load factor</div>
+        <table>
+          <thead><tr><th>Glass</th><th class="c">SC<br>Clear</th><th class="c">SC<br>Refl.</th><th class="c">CLF<br>Single</th><th class="c">CLF<br>Double</th></tr></thead>
+          <tbody id="glassTable"></tbody>
+        </table>
+        <div class="note">* CLF depends on orientation, glass type &amp; time of day. SC values approximate.</div>
+
+        <div class="calc">
+          <h5>Solar Calculator</h5>
+          <div class="field"><label>Glazing area A<sub>g</sub> (m²)</label><input id="s_area" type="number" step="1" value="10"></div>
+          <div class="field"><label>Glass type</label><select id="s_glass"></select></div>
+          <div class="field"><label>Coating (SC)</label><select id="s_coat"><option value="Clear">Clear</option><option value="Reflective">Reflective</option></select></div>
+          <div class="field"><label>Glazing (CLF)</label><select id="s_glaze"><option value="Single">Single 6 mm</option><option value="Double">Double 6 mm air space</option></select></div>
+          <div class="result" id="s_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.3.2 CONDUCTION -->
+    <section class="card">
+      <h3><span class="num">1.3.2</span> CONDUCTION — Q<sub style="color:#fff">trans</sub> <span class="ico">🧱</span></h3>
+      <div class="body">
+        <div class="formula">Q<sub>trans</sub> = U × A × ΔT &nbsp;(W)</div>
+        <div class="where"><b>U</b> heat transfer coeff. (W/m²·°C) · <b>A</b> area (m²) · <b>ΔT</b> = T<sub>out</sub> − T<sub>in</sub></div>
+        <table>
+          <thead><tr><th>Surface (typical U)</th><th class="c">U</th></tr></thead>
+          <tbody>
+            <tr><td>Exterior wall (brick + plaster)</td><td class="c">1.80</td></tr>
+            <tr><td>Concrete roof (20 cm)</td><td class="c">2.00</td></tr>
+            <tr><td>Lightweight roof (metal deck)</td><td class="c">1.50</td></tr>
+            <tr><td>Solid floor (20 cm concrete)</td><td class="c">5.80</td></tr>
+            <tr><td>Single glazing (6 mm)</td><td class="c">3.00</td></tr>
+          </tbody>
+        </table>
+
+        <div class="calc">
+          <h5>Conduction Calculator (multi-surface)</h5>
+          <table class="dyn">
+            <thead><tr><th>Surface</th><th>U</th><th>A m²</th><th>ΔT</th><th class="c">Q (W)</th><th></th></tr></thead>
+            <tbody id="surfBody"></tbody>
+          </table>
+          <button class="addbtn" id="addSurf">+ Add surface</button>
+          <div class="result" id="trans_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.3.3 VENTILATION -->
+    <section class="card">
+      <h3><span class="num">1.3.3</span> VENTILATION — Q<sub style="color:#fff">vent</sub> <span class="ico">💨</span></h3>
+      <div class="body">
+        <div class="formula">Q<sub>vent</sub> = 1.2 × CFM × ΔT &nbsp;(W)</div>
+        <div class="where"><b>CFM</b> outdoor air flow (ft³/min) · <b>ΔT</b> temp diff (°C) · <b>1.2</b> air density factor (W/(CFM·°C))</div>
+        <div class="calc">
+          <h5>Ventilation Calculator</h5>
+          <div class="field"><label>Outdoor air flow (CFM)</label><input id="v_cfm" type="number" step="10" value="200"></div>
+          <div class="field"><label>ΔT (°C)</label><input id="v_dt" type="number" step="1" value="16"></div>
+          <div class="result" id="v_out"></div>
+        </div>
+        <div class="note">Tip: 1 L/s = 2.12 CFM &nbsp;·&nbsp; 1 m³/h = 0.589 CFM</div>
+      </div>
+    </section>
+
+    <!-- 1.3.4 INTERNAL -->
+    <section class="card">
+      <h3><span class="num">1.3.4</span> INTERNAL — Q<sub style="color:#fff">internal</sub> <span class="ico">💡</span></h3>
+      <div class="body">
+        <div class="formula">Q<sub>internal</sub> = Σ Q<sub>i</sub></div>
+        <table>
+          <thead><tr><th>Internal source</th><th class="c">Heat gain</th></tr></thead>
+          <tbody>
+            <tr><td>People (sitting, sensible)</td><td class="c">75 W / person</td></tr>
+            <tr><td>Lighting</td><td class="c">15 W / m²</td></tr>
+            <tr><td>Office equip (PC + monitor)</td><td class="c">150 W / device</td></tr>
+            <tr><td>Other equipment</td><td class="c">350 W / device</td></tr>
+            <tr><td>Miscellaneous</td><td class="c">per spec</td></tr>
+          </tbody>
+        </table>
+
+        <div class="calc">
+          <h5>Internal Load Calculator</h5>
+          <div class="field"><label>People (× 75 W)</label><input id="i_people" type="number" step="1" value="6"></div>
+          <div class="field"><label>Lit floor area m² (× 15 W)</label><input id="i_light" type="number" step="1" value="50"></div>
+          <div class="field"><label>Office devices (× 150 W)</label><input id="i_office" type="number" step="1" value="6"></div>
+          <div class="field"><label>Other devices (× 350 W)</label><input id="i_other" type="number" step="1" value="1"></div>
+          <div class="field"><label>Miscellaneous (W)</label><input id="i_misc" type="number" step="10" value="0"></div>
+          <div class="result" id="i_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.4 TOTAL -->
+    <section class="card wide totalcard">
+      <h3><span class="num">1.4</span> TOTAL HEAT LOAD &amp; REQUIRED CAPACITY <span class="ico">📊</span></h3>
+      <div class="body">
+        <div class="breakdown">
+          <div class="qbox"><span class="lab">Q<sub>solar</sub></span><span class="v" id="b_solar">0 W</span></div>
+          <div class="qbox"><span class="lab">Q<sub>trans</sub></span><span class="v" id="b_trans">0 W</span></div>
+          <div class="qbox"><span class="lab">Q<sub>vent</sub></span><span class="v" id="b_vent">0 W</span></div>
+          <div class="qbox"><span class="lab">Q<sub>internal</sub></span><span class="v" id="b_internal">0 W</span></div>
+        </div>
+        <div class="totrow">
+          <div class="qtotal">Q<sub>total</sub> = Q<sub>solar</sub>+Q<sub>trans</sub>+Q<sub>vent</sub>+Q<sub>internal</sub><b id="b_total">0 W</b></div>
+          <div class="sf-field no-print">
+            <label>Safety factor:</label>
+            <select id="sf"><option value="1.1">+10 % (×1.10)</option><option value="1.15">+15 % (×1.15)</option><option value="1.2">+20 % (×1.20)</option></select>
+          </div>
+          <div class="capbox">
+            <div class="lab">REQUIRED CAPACITY</div>
+            <div class="cap" id="b_cap">0.00 kW</div>
+            <small id="b_capnote">= Q<sub>total</sub> × 1.10 / 1000</small>
+          </div>
+        </div>
+        <div class="note">Formula: Required Capacity (kW) = Q<sub>total</sub> × (1.1 – 1.2) / 1000 · select equipment ≥ this value.</div>
+      </div>
+    </section>
+
+  </div>
+  <footer>Interactive heat-load calculator built from the source sheet · preliminary estimate — verify against detailed CLTD/RTS methods &amp; local codes.</footer>
+</div>
+
+<script>
+/* ===== DATA ===== */
+const glass = {
+  "Clear":  {scC:0.87, scR:0.10, clfS:0.15, clfD:0.20},
+  "Tinted": {scC:0.59, scR:0.17, clfS:0.25, clfD:0.30},
+  "Gray":   {scC:0.59, scR:0.17, clfS:0.25, clfD:0.30},
+  "Bronze": {scC:0.49, scR:0.12, clfS:0.20, clfD:0.25},
+  "Green":  {scC:0.70, scR:0.20, clfS:0.30, clfD:0.35}
+};
+const uvals = {
+  "Exterior wall (brick + plaster)":1.80,
+  "Concrete roof (20 cm)":2.00,
+  "Lightweight roof (metal deck)":1.50,
+  "Solid floor (20 cm concrete)":5.80,
+  "Single glazing (6 mm)":3.00,
+  "Custom":null
+};
+
+/* ===== HELPERS ===== */
+const $=id=>document.getElementById(id);
+const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
+const W=x=>f(x)+" W";
+
+/* ===== BUILD ===== */
+(function(){
+  let h="";
+  for(const k in glass){const g=glass[k];
+    h+=`<tr><td>${k}</td><td class="c">${g.scC}</td><td class="c">${g.scR}</td><td class="c">${g.clfS}</td><td class="c">${g.clfD}</td></tr>`;}
+  $("glassTable").innerHTML=h;
+  for(const k in glass){const o=document.createElement("option");o.value=k;o.textContent=k;$("s_glass").appendChild(o);}
+})();
+
+/* surfaces */
+function surfOptions(sel){return Object.keys(uvals).map(k=>`<option value="${k}"${k===sel?" selected":""}>${k}</option>`).join("");}
+function addSurface(type="Exterior wall (brick + plaster)",area=20){
+  const dt=n($("T_out").value)-n($("T_in").value);
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
+    <td><select class="surfType">${surfOptions(type)}</select></td>
+    <td><input class="surfU" type="number" step="0.1" value="${uvals[type]??1.0}"></td>
+    <td><input class="surfA" type="number" step="1" value="${area}"></td>
+    <td><input class="surfDT" type="number" step="1" value="${dt}"></td>
+    <td class="rowQ">0</td>
+    <td><button class="del" title="remove">✕</button></td>`;
+  $("surfBody").appendChild(tr);
+}
+$("addSurf").addEventListener("click",()=>{addSurface("Concrete roof (20 cm)",40);recalc();});
+addSurface("Exterior wall (brick + plaster)",30);
+addSurface("Concrete roof (20 cm)",40);
+addSurface("Single glazing (6 mm)",10);
+
+/* ===== EVENTS ===== */
+function syncDT(){
+  const dt=n($("T_out").value)-n($("T_in").value);
+  document.querySelectorAll(".surfDT").forEach(el=>el.value=dt);
+  $("v_dt").value=dt;
+}
+document.addEventListener("input",onChange);
+document.addEventListener("change",onChange);
+document.addEventListener("click",e=>{ if(e.target.classList.contains("del")){e.target.closest("tr").remove();recalc();} });
+function onChange(e){
+  const t=e.target;
+  if(t.classList&&t.classList.contains("surfType")){
+    const u=uvals[t.value];
+    if(u!=null) t.closest("tr").querySelector(".surfU").value=u;
+  }
+  if(t.id==="T_out"||t.id==="T_in") syncDT();
+  recalc();
+}
+
+/* ===== RECALC ===== */
+function recalc(){
+  // ΔT display
+  const dt=n($("T_out").value)-n($("T_in").value);
+  $("dT_display").textContent=f(dt,1)+" °C";
+
+  // SOLAR
+  const g=glass[$("s_glass").value];
+  const sc=$("s_coat").value==="Reflective"?g.scR:g.scC;
+  const clf=$("s_glaze").value==="Double"?g.clfD:g.clfS;
+  const qSolar=n($("s_area").value)*sc*clf;
+  $("s_out").innerHTML=`<span class="tag">SC ${sc} · CLF ${clf}</span><span class="big">${f(qSolar,1)} W</span><small>= A<sub>g</sub> ${f(n($("s_area").value),1)} m² × ${sc} × ${clf}</small>`;
+
+  // TRANS
+  let qTrans=0;
+  document.querySelectorAll("#surfBody tr").forEach(tr=>{
+    const u=n(tr.querySelector(".surfU").value);
+    const a=n(tr.querySelector(".surfA").value);
+    const d=n(tr.querySelector(".surfDT").value);
+    const q=u*a*d; qTrans+=q;
+    tr.querySelector(".rowQ").textContent=f(q);
+  });
+  $("trans_out").innerHTML=`<span class="tag">Σ U·A·ΔT</span><span class="big">${W(qTrans)}</span><small>sum of all surfaces above</small>`;
+
+  // VENT
+  const qVent=1.2*n($("v_cfm").value)*n($("v_dt").value);
+  $("v_out").innerHTML=`<span class="tag">1.2 × CFM × ΔT</span><span class="big">${W(qVent)}</span><small>= 1.2 × ${f(n($("v_cfm").value))} × ${f(n($("v_dt").value),1)}</small>`;
+
+  // INTERNAL
+  const ip=n($("i_people").value)*75, il=n($("i_light").value)*15, io=n($("i_office").value)*150, ix=n($("i_other").value)*350, im=n($("i_misc").value);
+  const qInt=ip+il+io+ix+im;
+  $("i_out").innerHTML=`<span class="tag">Σ Q<sub>i</sub></span><span class="big">${W(qInt)}</span><small>people ${f(ip)} · light ${f(il)} · office ${f(io)} · other ${f(ix)} · misc ${f(im)} W</small>`;
+
+  // TOTAL
+  const qTotal=qSolar+qTrans+qVent+qInt;
+  $("b_solar").textContent=W(qSolar);
+  $("b_trans").textContent=W(qTrans);
+  $("b_vent").textContent=W(qVent);
+  $("b_internal").textContent=W(qInt);
+  $("b_total").textContent=W(qTotal);
+  const sf=parseFloat($("sf").value);
+  const cap=qTotal*sf/1000;
+  $("b_cap").textContent=f(cap,2)+" kW";
+  $("b_capnote").innerHTML=`= ${f(qTotal)} W × ${sf} / 1000 &nbsp;(${f(cap*3.412/12,2)} TR-ish: ${f(cap/3.517,2)} TR)`;
+}
+
+recalc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

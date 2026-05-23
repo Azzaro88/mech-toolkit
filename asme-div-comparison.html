@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASME VIII — Div 1 vs Div 2 vs Div 3</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:30px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:21px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1.5px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:240px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+  .basis a{color:var(--navy-2); word-break:break-all;}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.4px; display:flex; align-items:center; gap:10px;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .tablewrap{overflow-x:auto;}
+
+  table.cmp{width:100%; border-collapse:collapse; font-size:12.5px; min-width:900px;}
+  table.cmp th,table.cmp td{border:1px solid var(--line); padding:9px 11px; vertical-align:top; text-align:left;}
+  table.cmp thead th{background:var(--navy); color:#fff; font-weight:700; position:sticky; top:0; font-size:13px;}
+  table.cmp thead th:first-child{background:var(--navy-dark);}
+  table.cmp tbody tr:nth-child(even){background:var(--row-alt);}
+  table.cmp td.param{font-weight:700; color:var(--navy); background:#e7eef6; width:13%; white-space:nowrap;}
+  table.cmp tbody tr:nth-child(even) td.param{background:#dde7f1;}
+  table.cmp td .code{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px;}
+  col.cdiv{width:29%;}
+
+  .src{font-size:12px; color:var(--muted); margin-top:12px;}
+  .src a{color:var(--navy-2);}
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  @media print{ @page{size:A4 landscape; margin:8mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:9.5px;} .wrap{max-width:none;} .no-print{display:none!important;} table.cmp{min-width:0;} table.cmp thead th{font-size:10px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>ASME VIII — <span class="pill">DIV 1 · 2 · 3</span></h1>
+      <div class="sub">DIFFERENCE BETWEEN SECTION VIII DIVISIONS</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>SOURCE</h4>
+      <p><a href="https://letsfab.in/difference-between-asme-section-viii-div1-div2-and-div3/" target="_blank" rel="noopener">letsfab.in — Difference between ASME Section VIII Div1, Div2 and Div3</a></p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h3>DIFFERENCE BETWEEN ASME SECTION VIII DIV 1, DIV 2 &amp; DIV 3 <span class="ico">📗</span></h3>
+    <div class="tablewrap">
+      <table class="cmp">
+        <colgroup><col><col class="cdiv"><col class="cdiv"><col class="cdiv"></colgroup>
+        <thead>
+          <tr><th>Parameter</th><th>ASME Section VIII — Div 1</th><th>ASME Section VIII — Div 2</th><th>ASME Section VIII — Div 3</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="param">Code Published Year</td>
+            <td>Less than 1940</td>
+            <td>Year — 1968</td>
+            <td>Year — 1997</td>
+          </tr>
+          <tr>
+            <td class="param">Code Pressure Limits</td>
+            <td>Up to 3000 psig</td>
+            <td>No limits; usually more than 600 psig</td>
+            <td>No limit; usually more than 10,000 psig</td>
+          </tr>
+          <tr>
+            <td class="param">Organization Structure</td>
+            <td>General, Construction Type &amp; Material — <span class="code">U, UG, UW, UF, UB, UCS, UNF, UCI, UCL, UCD, UHT, ULT</span></td>
+            <td>General, Material, Design, Fabrication and others — <span class="code">AG, AM, AD, AF, AR, AI, AT, AS</span></td>
+            <td>Like Division 2 — <span class="code">KG, KM, KD, KF, KR, KE, KT, KS</span></td>
+          </tr>
+          <tr>
+            <td class="param">Design Safety Factor</td>
+            <td>Design safety factor is <b>3.5</b></td>
+            <td>Design safety factor is <b>3</b></td>
+            <td>Based on yield with reduction factor; yield-to-tensile strength ratio less than 0.7</td>
+          </tr>
+          <tr>
+            <td class="param">Code Design Rules</td>
+            <td>Membrane — maximum stress, generally elastic analysis. Very detailed design rules with quality (joint efficiency) factors. Little stress analysis required; pure membrane without consideration of discontinuities, controlling stress concentration to a safety factor of 3.5 or higher.</td>
+            <td>Shell of revolution — max. shear stress, generally elastic analysis (membrane + bending). Fairly detailed design rules. In addition, discontinuities, fatigue and other stress-analysis considerations may be required unless exempted (guidance in Appendix 4, 5 and 6).</td>
+            <td>Maximum shear stress; elastic/plastic analyses and more. Some design rules provided; fatigue analysis required; fracture-mechanics evaluation required unless proven leak-before-burst. Residual stresses become significant and may be positive factors (e.g. autofrettage).</td>
+          </tr>
+          <tr>
+            <td class="param">Experimental Stress Analysis</td>
+            <td>Normally not required</td>
+            <td>Introduced and may be required</td>
+            <td>Experimental design verification, but may be exempted</td>
+          </tr>
+          <tr>
+            <td class="param">Material &amp; Impact Testing</td>
+            <td>Few restrictions on materials; impact required unless exempted; extensive exemptions under UG-20, UCS 66/67.</td>
+            <td>More restrictions on materials; impact required in general, with rules similar to Division 1.</td>
+            <td>Even more restrictive than Division 2 with different requirements. Fracture-toughness testing for fracture-mechanics evaluation; CTOD testing and establishment of K<sub>Ic</sub> and/or J<sub>Ic</sub> values.</td>
+          </tr>
+          <tr>
+            <td class="param">NDT Requirements</td>
+            <td>NDT requirements may be exempted through an increased design factor.</td>
+            <td>More stringent NDT requirements; extensive use of RT as well as UT, MT and PT.</td>
+            <td>Even more restrictive than Division 2; UT used for all butt welds, RT otherwise; extensive use of PT and MT.</td>
+          </tr>
+          <tr>
+            <td class="param">Welding &amp; Fabrication</td>
+            <td>Different types with butt welds and others.</td>
+            <td>Extensive use/requirement of butt welds and full-penetration welds, including non-pressure attachment welds.</td>
+            <td>Butt welds and extensive use of other construction methods such as threaded, layered, wire-wound, interlocking strip-wound, and others.</td>
+          </tr>
+          <tr>
+            <td class="param">User</td>
+            <td>User or designated agent to provide specifications (see U-2(a)).</td>
+            <td>User's Design Specification with detailed design requirements (see AG-301.1); includes AD-160 for fatigue evaluation.</td>
+            <td>User's Design Specification with more specific details (see KG-310), including contained-fluid data, useful operating life expected and others. Designer defines.</td>
+          </tr>
+          <tr>
+            <td class="param">Manufacturer</td>
+            <td>Manufacturer to declare compliance in data report.</td>
+            <td>Manufacturer's Design Report certifying design specification and code compliance in addition to data report.</td>
+            <td>Same as Division 2.</td>
+          </tr>
+          <tr>
+            <td class="param">Professional Engineer Certification</td>
+            <td>Normally not required.</td>
+            <td>Professional Engineer's certification of User's Design Specification as well as Manufacturer's Design Report; PE shall be experienced in pressure-vessel design.</td>
+            <td>Same as Division 2, but the PE shall be experienced in high-pressure vessel design and shall not sign for both User and Manufacturer.</td>
+          </tr>
+          <tr>
+            <td class="param">Safety Relief Valve</td>
+            <td>UV Stamp</td>
+            <td>UV Stamp</td>
+            <td>UV3 Stamp</td>
+          </tr>
+          <tr>
+            <td class="param">Code Stamp &amp; Marking</td>
+            <td>U Stamp with additional markings including <span class="code">W, P, B, RES; L, UB, DF; RT, HT</span></td>
+            <td>U2 Stamp with additional marking including <span class="code">H</span></td>
+            <td>U3 Stamp with additional marking denoting construction type; <span class="code">HT, PS, WL, M, F, W, UQT, WW, SW</span></td>
+          </tr>
+          <tr>
+            <td class="param">Hydrostatic Pressure Test</td>
+            <td><b>1.3 ×</b> MAWP</td>
+            <td><b>1.25 ×</b> MAWP</td>
+            <td><b>1.25 ×</b> MAWP</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="src">Source: <a href="https://letsfab.in/difference-between-asme-section-viii-div1-div2-and-div3/" target="_blank" rel="noopener">https://letsfab.in/difference-between-asme-section-viii-div1-div2-and-div3/</a></p>
+  <footer>Reference comparison of ASME BPVC Section VIII Divisions 1, 2 &amp; 3 · for study/quick reference — always consult the current code.</footer>
+</div>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

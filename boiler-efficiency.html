@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boiler Efficiency Calculation — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:40px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 16px; border-radius:8px; font-size:30px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:2px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:260px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);}
+  .printbtn:active{transform:translateY(1px);}
+  .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:30px;} .pill{font-size:24px;} }
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; align-items:stretch;}
+  @media(max-width:660px){ .duo{grid-template-columns:1fr;} }
+  .botrow{display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-top:16px; align-items:start;}
+  @media(max-width:660px){ .botrow{grid-template-columns:1fr;} }
+  .rightcol{display:flex; flex-direction:column; gap:16px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:span 3;} .card.span2{grid-column:span 2;}
+  @media(max-width:980px){ .card.wide{grid-column:span 2;} .card.span2{grid-column:span 2;} }
+  @media(max-width:660px){ .card.wide,.card.span2{grid-column:span 1;} }
+
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.5px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:24px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:14px; flex:1;}
+
+  .define{background:#eef6ef; border:1px solid #bcdcc0; border-radius:9px; padding:12px 14px; font-size:14px; color:#234a2c;}
+
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:10px 12px; font-size:14px; color:var(--navy); text-align:center; margin:8px 0;}
+  .frac{display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; margin:0 6px;}
+  .frac .t{padding:0 6px 2px;} .frac .b{border-top:2px solid var(--navy); padding:2px 6px 0;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); vertical-align:top;}
+  thead th{background:#dbe7f3; color:var(--navy); font-weight:700; border-bottom:2px solid var(--line);}
+  tbody tr:nth-child(even){background:var(--row-alt);}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .muted{color:var(--muted);}
+  ul.tight{margin:4px 0; padding-left:18px; font-size:13px;} ul.tight li{margin:6px 0;}
+
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:12px;}
+  .calc h5{margin:0 0 10px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:9px;}
+  .field label{flex:1 1 auto; font-size:12.5px;}
+  .field input{flex:0 0 auto; width:130px; padding:7px 9px; border:1px solid #b9c7d6; border-radius:7px; font-size:13px; background:#fff;}
+  .field input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .loadex{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; margin-top:2px;}
+  .loadex:hover{background:var(--navy);}
+
+  .steps{margin-top:12px; display:grid; gap:8px;}
+  .step{background:#fff; border:1px solid #cfe0f3; border-radius:9px; padding:9px 12px; font-size:13px;}
+  .step .lab{font-weight:700; color:var(--navy-2); font-size:11.5px; letter-spacing:.4px;}
+  .step .val{font-family:ui-monospace,Menlo,Consolas,monospace; color:var(--text); margin-top:3px;}
+  .effbox{background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:12px; padding:16px; text-align:center; margin-top:12px;}
+  .effbox .lab{font-size:12px; letter-spacing:1px; opacity:.85;}
+  .effbox .eff{font-size:38px; font-weight:800; margin-top:2px;}
+  .effbox .bar{height:10px; background:rgba(255,255,255,.25); border-radius:6px; margin-top:10px; overflow:hidden;}
+  .effbox .bar i{display:block; height:100%; background:#5ec27e; border-radius:6px; transition:width .25s;}
+
+  .ex{background:#eef6ef; border:1px solid #bcdcc0; border-radius:9px; padding:10px 12px; font-size:12.5px;}
+  .ex h6{margin:0 0 6px; color:#234a2c; font-size:12.5px; letter-spacing:.4px;}
+  .ex .mono{display:block; margin:3px 0;}
+  .ex .res{margin-top:8px; background:#fff7e0; border:1px solid #e9cf8a; border-radius:8px; padding:8px 10px; font-weight:800; color:#7a5a10; text-align:center;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+
+  @media print{
+    @page{ size:A4 portrait; margin:10mm; }
+    html,body{ background:#fff; padding:0; }
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:11px; }
+    .wrap{ max-width:none; }
+    .no-print{ display:none !important; }
+    .card,.calc,.step,.effbox,.ex{ break-inside:avoid; page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>BOILER <span class="pill">EFFICIENCY</span></h1>
+      <div class="sub">HEAT FLOW · FORMULA · LIVE CALCULATION</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>1 · WHAT IS BOILER EFFICIENCY?</h4>
+      <p>The ratio of useful heat absorbed by the water/steam to the total heat supplied by the fuel.</p>
+    </div>
+  </header>
+
+  <div class="duo">
+
+    <!-- 2 DIAGRAM -->
+    <section class="card">
+      <h3><span class="num">2</span> BOILER HEAT FLOW DIAGRAM <span class="ico">🔥</span></h3>
+      <div class="body">
+        <svg viewBox="0 0 780 430" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">
+          <defs>
+            <marker id="aR" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e23b2e"/></marker>
+            <marker id="aB" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2b8fd6"/></marker>
+            <marker id="aK" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#222"/></marker>
+            <marker id="aO" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#f0a500"/></marker>
+            <marker id="aP" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#7d4fa0"/></marker>
+            <linearGradient id="cyl" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f3f5f7"/><stop offset="0.5" stop-color="#e2e7ec"/><stop offset="1" stop-color="#cdd4db"/>
+            </linearGradient>
+            <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#d6edfb"/><stop offset="1" stop-color="#9fd1f2"/>
+            </linearGradient>
+          </defs>
+
+          <!-- base / support -->
+          <rect x="252" y="300" width="216" height="9" rx="3" fill="#b3bac2"/>
+          <rect x="236" y="312" width="248" height="13" rx="3" fill="#9aa3ad"/>
+          <rect x="270" y="325" width="22" height="18" fill="#9aa3ad"/>
+          <rect x="428" y="325" width="22" height="18" fill="#9aa3ad"/>
+
+          <!-- chimney + smoke -->
+          <rect x="424" y="92" width="40" height="9" rx="2" fill="#aab1ba"/>
+          <rect x="430" y="100" width="28" height="60" fill="#c2c8cf" stroke="#8a939d" stroke-width="2"/>
+          <g fill="#c9ced4">
+            <ellipse cx="446" cy="84" rx="11" ry="8" opacity=".9"/>
+            <ellipse cx="456" cy="68" rx="14" ry="10" opacity=".75"/>
+            <ellipse cx="442" cy="52" rx="17" ry="12" opacity=".55"/>
+            <ellipse cx="458" cy="38" rx="20" ry="13" opacity=".4"/>
+          </g>
+
+          <!-- boiler shell -->
+          <rect x="244" y="150" width="240" height="130" rx="64" ry="64" fill="url(#cyl)" stroke="#7f8993" stroke-width="3"/>
+          <!-- water -->
+          <rect x="266" y="206" width="196" height="58" rx="12" fill="url(#water)"/>
+          <g fill="#ffffff" opacity=".85">
+            <circle cx="300" cy="224" r="3.5"/><circle cx="330" cy="234" r="2.8"/><circle cx="356" cy="220" r="3.2"/>
+            <circle cx="386" cy="232" r="2.6"/><circle cx="414" cy="222" r="3.4"/><circle cx="342" cy="248" r="2.4"/>
+          </g>
+          <!-- flames -->
+          <g>
+            <path d="M300 300 q-8 -22 6 -34 q-2 16 10 18 q10 -8 4 -22 q16 12 12 32 q-2 12 -16 12 z" fill="#f7941d"/>
+            <path d="M340 302 q-10 -26 7 -40 q-3 18 11 20 q11 -9 5 -26 q19 14 14 38 q-3 14 -19 14 z" fill="#f4661f"/>
+            <path d="M384 302 q-10 -26 7 -40 q-3 18 11 20 q11 -9 5 -26 q19 14 14 38 q-3 14 -19 14 z" fill="#f7941d"/>
+            <path d="M426 300 q-8 -22 6 -34 q-2 16 10 18 q10 -8 4 -22 q16 12 12 32 q-2 12 -16 12 z" fill="#f4661f"/>
+          </g>
+
+          <!-- 1 Steam Out (red, up) -->
+          <line x1="364" y1="150" x2="364" y2="72" stroke="#e23b2e" stroke-width="4" marker-end="url(#aR)"/>
+          <text x="364" y="60" text-anchor="middle" font-size="15" font-weight="700" fill="#173a5e">Steam Out</text>
+
+          <!-- 2 Feed Water In (blue, →) -->
+          <line x1="120" y1="198" x2="242" y2="198" stroke="#2b8fd6" stroke-width="4" marker-end="url(#aB)"/>
+          <text x="116" y="193" text-anchor="end" font-size="15" font-weight="700" fill="#173a5e">Feed Water In</text>
+
+          <!-- 3 Fuel In (black, →) -->
+          <line x1="118" y1="300" x2="290" y2="300" stroke="#222" stroke-width="4" marker-end="url(#aK)"/>
+          <text x="114" y="296" text-anchor="end" font-size="15" font-weight="700" fill="#173a5e">Fuel In</text>
+          <text x="114" y="314" text-anchor="end" font-size="12.5" fill="#5a6b7b">(Heat Supplied)</text>
+
+          <!-- 4 Flue gas loss (red, →) -->
+          <line x1="464" y1="118" x2="582" y2="118" stroke="#e23b2e" stroke-width="4" marker-end="url(#aR)"/>
+          <text x="590" y="114" font-size="14" font-weight="700" fill="#173a5e">Heat Loss in</text>
+          <text x="590" y="131" font-size="14" font-weight="700" fill="#173a5e">Flue Gas</text>
+
+          <!-- 5 Radiation & convection (orange, →) -->
+          <line x1="484" y1="212" x2="582" y2="212" stroke="#f0a500" stroke-width="4" marker-end="url(#aO)"/>
+          <text x="590" y="208" font-size="14" font-weight="700" fill="#173a5e">Heat Loss due to</text>
+          <text x="590" y="225" font-size="14" font-weight="700" fill="#173a5e">Radiation &amp; Convection</text>
+
+          <!-- 6 Blowdown (purple, →) -->
+          <line x1="484" y1="270" x2="582" y2="270" stroke="#7d4fa0" stroke-width="4" marker-end="url(#aP)"/>
+          <text x="590" y="266" font-size="14" font-weight="700" fill="#173a5e">Heat Loss due to</text>
+          <text x="590" y="283" font-size="14" font-weight="700" fill="#173a5e">Blowdown</text>
+        </svg>
+        <div class="define" style="margin-top:10px;">Useful output = heat that ends up in the steam. Everything leaving on the right (flue gas, radiation/convection, blowdown) is a loss that lowers efficiency.</div>
+      </div>
+    </section>
+
+    <!-- 3 FORMULA -->
+    <section class="card">
+      <h3><span class="num">3</span> EFFICIENCY FORMULA <span class="ico">📐</span></h3>
+      <div class="body">
+        <div class="formula">
+          η&nbsp;% =
+          <span class="frac"><span class="t">Heat Absorbed by Water/Steam</span><span class="b">Heat Supplied by Fuel</span></span>
+          × 100
+        </div>
+        <ul class="tight">
+          <li><b>Q₁</b> = m × (h<sub>s</sub> − h<sub>f</sub>) &nbsp;<span class="muted">heat into steam</span></li>
+          <li><b>Q₂</b> = m<sub>f</sub> × GCV &nbsp;<span class="muted">heat from fuel</span></li>
+          <li><b>η</b> = (Q₁ / Q₂) × 100</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="grid">
+
+    <!-- 4 DETAILS -->
+    <section class="card wide">
+      <h3><span class="num">4</span> CALCULATION DETAILS <span class="ico">📋</span></h3>
+      <div class="body">
+        <table>
+          <thead><tr><th style="width:34%">Item</th><th>How to Calculate</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Heat Absorbed by Water/Steam (Q₁)</td>
+              <td><span class="mono">Q₁ = m × (h<sub>s</sub> − h<sub>f</sub>)</span><br>
+                <span class="muted">m = mass of steam generated (kg) · h<sub>s</sub> = enthalpy of steam (kJ/kg) · h<sub>f</sub> = enthalpy of feed water (kJ/kg)</span></td>
+            </tr>
+            <tr>
+              <td>Heat Supplied by Fuel (Q₂)</td>
+              <td><span class="mono">Q₂ = m<sub>f</sub> × GCV</span><br>
+                <span class="muted">m<sub>f</sub> = mass of fuel consumed (kg) · GCV = Gross Calorific Value (kJ/kg)</span></td>
+            </tr>
+            <tr>
+              <td>Boiler Efficiency (η)</td>
+              <td><span class="mono">η (%) = (Q₁ / Q₂) × 100</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="botrow">
+
+    <!-- 5 CALCULATOR -->
+    <section class="card">
+      <h3><span class="num">5</span> LIVE EFFICIENCY CALCULATOR <span class="ico">⚙️</span></h3>
+      <div class="body">
+        <div class="calc">
+          <h5>Inputs (use kJ &amp; kg)</h5>
+          <div class="field"><label>Steam generated &nbsp;m (kg)</label><input id="m" type="number" step="1" value="1000"></div>
+          <div class="field"><label>Enthalpy of steam &nbsp;h<sub>s</sub> (kJ/kg)</label><input id="hs" type="number" step="1" value="2750"></div>
+          <div class="field"><label>Enthalpy of feed water &nbsp;h<sub>f</sub> (kJ/kg)</label><input id="hf" type="number" step="1" value="250"></div>
+          <div class="field"><label>Fuel consumed &nbsp;m<sub>f</sub> (kg)</label><input id="mf" type="number" step="1" value="120"></div>
+          <div class="field"><label>GCV of fuel (kJ/kg)</label><input id="gcv" type="number" step="100" value="40000"></div>
+          <button class="loadex" id="loadEx">↺ Load example values</button>
+
+          <div class="steps">
+            <div class="step"><span class="lab">STEP 1 · Heat Absorbed Q₁ = m × (h<sub>s</sub> − h<sub>f</sub>)</span><div class="val" id="o_q1"></div></div>
+            <div class="step"><span class="lab">STEP 2 · Heat Supplied Q₂ = m<sub>f</sub> × GCV</span><div class="val" id="o_q2"></div></div>
+            <div class="step"><span class="lab">STEP 3 · Efficiency η = (Q₁ / Q₂) × 100</span><div class="val" id="o_q3"></div></div>
+          </div>
+
+          <div class="effbox">
+            <div class="lab">BOILER EFFICIENCY</div>
+            <div class="eff" id="o_eff">0 %</div>
+            <div class="bar"><i id="o_bar" style="width:0%"></i></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rightcol">
+
+    <!-- ! NOTES -->
+    <section class="card">
+      <h3><span class="num">!</span> IMPORTANT NOTES <span class="ico">📝</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>Use consistent units (kJ and kg).</li>
+          <li>GCV should be used for boiler efficiency calculation.</li>
+          <li>Losses reduce efficiency (flue gas, radiation, blowdown, etc.).</li>
+          <li>Higher efficiency means better fuel utilization.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- WORKED EXAMPLE -->
+    <section class="card">
+      <h3><span class="num">★</span> WORKED EXAMPLE <span class="ico">🧮</span></h3>
+      <div class="body">
+        <div class="ex">
+          <h6>Given</h6>
+          <span class="mono">m = 1000 kg · h<sub>s</sub> = 2750 · h<sub>f</sub> = 250</span>
+          <span class="mono">m<sub>f</sub> = 120 kg · GCV = 40,000 kJ/kg</span>
+          <h6 style="margin-top:8px;">Steps</h6>
+          <span class="mono">Q₁ = 1000 × (2750 − 250) = 2,500,000 kJ</span>
+          <span class="mono">Q₂ = 120 × 40,000 = 4,800,000 kJ</span>
+          <span class="mono">η = (2,500,000 / 4,800,000) × 100</span>
+          <div class="res">Boiler Efficiency = 52.08 %</div>
+        </div>
+      </div>
+    </section>
+    </div>
+
+  </div>
+  <footer>Interactive boiler-efficiency calculator built from the source sheet · uses GCV (gross calorific value) basis.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
+
+  function calc(){
+    const m=n($("m").value), hs=n($("hs").value), hf=n($("hf").value), mf=n($("mf").value), gcv=n($("gcv").value);
+    const q1=m*(hs-hf);
+    const q2=mf*gcv;
+    const eff=q2!==0 ? q1/q2*100 : 0;
+    $("o_q1").innerHTML=`= ${f(m)} × (${f(hs)} − ${f(hf)}) = <b>${f(q1)} kJ</b>`;
+    $("o_q2").innerHTML=`= ${f(mf)} × ${f(gcv)} = <b>${f(q2)} kJ</b>`;
+    $("o_q3").innerHTML=`= (${f(q1)} / ${f(q2)}) × 100 = <b>${f(eff,2)} %</b>`;
+    $("o_eff").textContent=`${f(eff,2)} %`;
+    $("o_bar").style.width=Math.max(0,Math.min(100,eff))+"%";
+  }
+  $("loadEx").addEventListener("click",()=>{
+    $("m").value=1000; $("hs").value=2750; $("hf").value=250; $("mf").value=120; $("gcv").value=40000; calc();
+  });
+  document.addEventListener("input",e=>{ if(["m","hs","hf","mf","gcv"].includes(e.target.id)) calc(); });
+  calc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Equipment Classifier</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--bg:#e7ebf0;--surface:#fff;--surface2:#f0f3f7;--border:rgba(23,58,94,0.14);--border2:rgba(23,58,94,0.26);--text:#173a5e;--text2:#5a6b7b;--text3:#92a1b2;--radius-md:8px;--radius-lg:14px;--accent:#1d4e89;--accent-light:#eaf2fb;--danger:#a32d2d;--danger-bg:#fcebeb;--danger-border:rgba(163,45,45,0.25);}
+    @media(prefers-color-scheme:dark){:root{--bg:#0f1f33;--surface:#16263b;--surface2:#1d3147;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);--text:#e8eef5;--text2:#a0b0c2;--text3:#6b7d92;--accent:#6aa6e0;--accent-light:#11304f;--danger:#e24b4a;--danger-bg:#2a1010;--danger-border:rgba(226,75,74,0.3);}}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem;font-size:16px;}
+    .container{max-width:1200px;margin:0 auto;}
+    header{margin-bottom:2rem;}
+    header h1{font-size:26px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px;}
+    header h1 i{font-size:26px;color:var(--accent);}
+    header p{font-size:16px;color:var(--text2);margin-top:4px;}
+    .free-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);color:var(--accent);border:0.5px solid rgba(29,78,137,0.3);border-radius:100px;padding:5px 14px;font-size:14px;font-weight:600;margin-bottom:1.5rem;}
+    .home-link{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:var(--radius-md);font-size:14px;font-weight:700;letter-spacing:.3px;text-decoration:none;border:1px solid var(--accent);color:var(--accent);background:var(--surface);transition:background .12s,color .12s;margin-bottom:1.25rem;}
+    .home-link:hover{background:var(--accent);color:#fff;}
+    .lang-switcher{position:relative;display:inline-block;float:right;margin-bottom:1rem;}
+    .lang-dropdown-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border2);border-radius:var(--radius-md);background:var(--surface);color:var(--text);transition:background 0.12s;}
+    .lang-dropdown-btn:hover{background:var(--surface2);}
+    .lang-dropdown-btn i{font-size:14px;color:var(--text3);}
+    .lang-dropdown-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:100;min-width:140px;display:none;}
+    .lang-dropdown-menu.open{display:block;}
+    .lang-option{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:14px;cursor:pointer;color:var(--text);transition:background 0.1s;}
+    .lang-option:hover{background:var(--surface2);}
+    .lang-option.selected{background:var(--accent-light);color:var(--accent);font-weight:600;}
+    #drop-zone{border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:3rem 2rem;text-align:center;cursor:pointer;transition:background 0.15s,border-color 0.15s;background:var(--surface);}
+    #drop-zone:hover,#drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light);}
+    #drop-zone .upload-icon{font-size:48px;color:var(--text3);margin-bottom:12px;display:block;transition:color 0.15s;}
+    #drop-zone:hover .upload-icon,#drop-zone.drag-over .upload-icon{color:var(--accent);}
+    #drop-zone strong{font-size:18px;font-weight:500;color:var(--text);}
+    #drop-zone p{font-size:15px;color:var(--text2);margin-top:6px;}
+    #drop-zone .formats{display:flex;justify-content:center;gap:8px;margin-top:14px;flex-wrap:wrap;}
+    .fmt-badge{padding:4px 12px;border-radius:100px;font-size:13px;font-weight:500;background:var(--surface2);color:var(--text2);border:0.5px solid var(--border);}
+    #file-input{display:none;}
+    .status-bar{margin-top:1.25rem;padding:14px 16px;border-radius:var(--radius-md);border:0.5px solid var(--border);background:var(--surface);font-size:15px;display:none;align-items:center;gap:12px;color:var(--text2);}
+    .status-bar.visible{display:flex;}
+    .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #error-msg{display:none;margin-top:1rem;padding:12px 16px;border-radius:var(--radius-md);font-size:15px;background:var(--danger-bg);color:var(--danger);border:0.5px solid var(--danger-border);}
+    #results{display:none;margin-top:1.75rem;}
+    .section-label{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:1.75rem;}
+    .metric-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;}
+    .metric-card .m-label{font-size:14px;color:var(--text2);margin-bottom:6px;}
+    .metric-card .m-value{font-size:30px;font-weight:600;color:var(--text);}
+    .type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;margin-bottom:1.75rem;}
+    .type-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.12s;}
+    .type-card:hover{border-color:var(--border2);}
+    .type-card.active{border:1.5px solid var(--accent);}
+    .type-icon-wrap{width:42px;height:42px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+    .type-name{font-size:15px;font-weight:500;color:var(--text);}
+    .type-count{font-size:13px;color:var(--text2);margin-top:2px;}
+    .list-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:10px;}
+    .list-toggle{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+    .list-header:hover .list-toggle{color:var(--text2);}
+    #list-body{overflow:hidden;transition:max-height 0.35s ease,opacity 0.35s ease;max-height:5000px;opacity:1;}
+    #list-body.collapsed{max-height:0!important;opacity:0;pointer-events:none;}
+    .toolbar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+    .search-wrap{position:relative;flex:1;min-width:180px;}
+    .search-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--text3);pointer-events:none;}
+    .search-wrap input{width:100%;padding:9px 10px 9px 36px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;}
+    .search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(29,78,137,0.12);}
+    .filter-select{padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--surface);color:var(--text);font-size:15px;outline:none;cursor:pointer;}
+    .clear-filter{font-size:14px;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;display:none;}
+    .clear-filter.visible{display:inline;}
+    .table-wrap{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1.5rem;overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:15px;min-width:700px;}
+    th{padding:11px 16px;text-align:left;font-weight:500;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:var(--text2);border-bottom:0.5px solid var(--border);background:var(--surface2);white-space:nowrap;cursor:pointer;user-select:none;}
+    th:hover{color:var(--text);}
+    th .sort-icon{font-size:11px;margin-left:4px;opacity:0.4;}
+    th.sorted .sort-icon{opacity:1;color:var(--accent);}
+    td{padding:10px 16px;color:var(--text);border-bottom:0.5px solid var(--border);vertical-align:middle;word-break:break-word;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:var(--surface2);}
+    td.num{color:var(--text2);font-size:14px;width:42px;white-space:nowrap;} td.td-type{width:185px;white-space:nowrap;}
+    #no-results-row td{text-align:center;color:var(--text3);padding:2rem;font-size:15px;}
+    .type-select{font-size:13px;font-weight:600;border-radius:20px;padding:5px 12px;border:1.5px solid transparent;cursor:pointer;outline:none;max-width:170px;width:100%;}
+    .type-select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--radius-md);font-size:15px;font-weight:500;cursor:pointer;border:0.5px solid var(--border2);background:var(--surface);color:var(--text);transition:background 0.12s;}
+    .btn:hover{background:var(--surface2);}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent;}
+    .btn.primary:hover{opacity:0.88;}
+    /* Settings */
+    .settings-wrap{margin-top:1.75rem;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+    .settings-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;user-select:none;border-bottom:0.5px solid transparent;transition:border-color 0.15s;}
+    .settings-header.open{border-bottom-color:var(--border);}
+    .settings-header-left{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--text);}
+    .settings-header-left i{color:var(--accent);font-size:18px;}
+    .settings-toggle{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+    .settings-body{padding:20px;display:none;}
+    .settings-body.open{display:block;}
+    .settings-section-title{font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;margin-top:20px;}
+    .settings-section-title:first-child{margin-top:0;}
+    .settings-table{width:100%;border-collapse:collapse;font-size:14px;}
+    .settings-table th{text-align:left;padding:6px 10px;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--text3);border-bottom:0.5px solid var(--border);}
+    .settings-table td{padding:7px 10px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:middle;}
+    .settings-table tr:last-child td{border-bottom:none;}
+    .settings-input{width:80px;padding:5px 8px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text);font-size:14px;text-align:right;outline:none;}
+    .settings-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(29,78,137,0.12);}
+    .settings-input-name{width:100%;padding:5px 8px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text);font-size:14px;outline:none;}
+    .settings-input-name:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(29,78,137,0.12);}
+    .settings-two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}.settings-col{min-width:0;}.settings-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:0.5px solid var(--border);}.settings-row:last-child{border-bottom:none;}.settings-row-label{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}.settings-input{width:55px;font-size:14px;padding:3px 6px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text);text-align:right;outline:none;flex-shrink:0;}.settings-input:focus{border-color:var(--accent);}.settings-input-name{font-size:14px;padding:3px 6px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text);outline:none;flex:1;min-width:0;}.settings-input-name:focus{border-color:var(--accent);}.settings-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border);}.settings-matrix{width:100%;border-collapse:collapse;font-size:13px;}.settings-matrix th{padding:5px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);border-bottom:0.5px solid var(--border);white-space:nowrap;}.settings-matrix th.act-col{text-align:left;min-width:130px;}.settings-matrix td{padding:4px 6px;border-bottom:0.5px solid var(--border);text-align:center;vertical-align:middle;}.settings-matrix td.act-name{text-align:left;font-size:13px;color:var(--text);white-space:nowrap;}.settings-matrix tr:last-child td{border-bottom:none;}.matrix-input{width:50px;font-size:13px;padding:3px 5px;border:0.5px solid var(--border2);border-radius:var(--radius-md);background:var(--bg);color:var(--text);text-align:center;outline:none;}.matrix-input:focus{border-color:var(--accent);}
+    /* Role bar chart */
+    .role-bar-chart{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.75rem;}
+    .role-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    .role-bar-row:last-child{margin-bottom:0;}
+    .role-bar-name{font-size:13px;font-weight:500;color:var(--text);width:200px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .role-bar-track{flex:1;height:24px;background:var(--surface2);border-radius:6px;overflow:hidden;}
+    .role-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;transition:width 0.6s cubic-bezier(.4,0,.2,1);min-width:50px;}
+    .role-bar-fill span{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;}
+    .role-bar-val{font-size:13px;font-weight:600;width:55px;text-align:right;flex-shrink:0;}
+    /* Role line chart */
+    .role-chart{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.75rem;}
+    .role-chart-title{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:1rem;}
+    .role-chart-inner{display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;}
+    .role-svg-wrap{flex:1;min-width:300px;}
+    .role-legend{display:flex;flex-direction:column;gap:6px;min-width:200px;}
+    .role-legend-item{display:flex;align-items:center;gap:8px;font-size:13px;}
+    .role-legend-line{width:22px;height:3px;border-radius:2px;flex-shrink:0;}
+    .role-legend-label{flex:1;color:var(--text);}
+    .role-legend-val{font-weight:600;color:var(--text2);font-size:12px;}
+    /* Charts row */
+    .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.75rem;}
+    .charts-row .cat-chart{margin-bottom:0;}
+    .charts-row .donut-wrap{margin-bottom:0;}
+    /* Donut chart */
+    .donut-wrap{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;}
+    
+    .donut-title{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:1.25rem;}
+    .donut-inner{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;}
+    .donut-svg{flex-shrink:0;}
+    .donut-legend{display:flex;flex-direction:column;gap:8px;flex:1;min-width:180px;}
+    .donut-legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);}
+    .donut-legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+    .donut-legend-label{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .donut-legend-pct{font-weight:600;color:var(--text2);font-size:12px;}
+    /* Manhours */
+    #manhours-panel{display:none;margin-top:1.75rem;}
+    .mh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:1.75rem;}
+    .mh-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;}
+    .mh-card .mh-label{font-size:13px;color:var(--text2);margin-bottom:4px;}
+    .mh-card .mh-value{font-size:24px;font-weight:600;color:var(--text);}
+    .mh-card.total{border-color:var(--accent);background:var(--accent-light);}
+    .mh-card.total .mh-value{color:var(--accent);font-size:30px;}
+    .cat-chart{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;}
+    .cat-chart-title{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);margin-bottom:1.25rem;}
+    .cat-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+    .cat-bar-row:last-child{margin-bottom:0;}
+    .cat-bar-label{font-size:13px;font-weight:500;color:var(--text);width:130px;flex-shrink:0;}
+    .cat-bar-track{flex:1;height:22px;background:var(--surface2);border-radius:6px;overflow:hidden;}
+    .cat-bar-fill{height:100%;border-radius:6px;transition:width 0.6s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;padding-left:8px;min-width:40px;}
+    .cat-bar-fill span{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;}
+    .cat-bar-total{font-size:13px;font-weight:600;width:50px;text-align:right;flex-shrink:0;}
+  </style>
+</head>
+<body>
+<div class="container">
+  <a class="home-link" href="index.html"><i class="ti ti-home"></i> Home</a>
+  <header>
+    <h1><i class="ti ti-table-import"></i> Equipment Classifier</h1>
+    <p>Upload an equipment list — classifies each item by description. Manually adjust any type using the dropdown in each row.</p>
+  </header>
+  <div class="free-badge"><i class="ti ti-check"></i> 100% Free — runs entirely in your browser</div>
+  <div class="lang-switcher" id="lang-switcher">
+    <button class="lang-dropdown-btn" onclick="toggleLangMenu()">
+      <span id="lang-flag">🇬🇧</span>
+      <span id="lang-label">English</span>
+      <i class="ti ti-chevron-down"></i>
+    </button>
+    <div class="lang-dropdown-menu" id="lang-menu">
+      <div class="lang-option selected" id="lang-en" onclick="setLang('en')">🇬🇧 English</div>
+      <div class="lang-option" id="lang-ru" onclick="setLang('ru')">🇷🇺 Russian</div>
+    </div>
+  </div>
+
+  <div id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('file-input').click()">
+    <i class="ti ti-file-upload upload-icon"></i>
+    <strong>Drop your equipment file here</strong>
+    <p>or click to browse</p>
+    <div class="formats">
+      <span class="fmt-badge">Excel .xlsx</span><span class="fmt-badge">Excel .xls</span><span class="fmt-badge">CSV</span><span class="fmt-badge">PDF</span><span class="fmt-badge">Word .docx</span>
+    </div>
+    <input type="file" id="file-input" accept=".xlsx,.xls,.pdf,.docx,.doc,.csv" onchange="handleFile(this.files[0])" />
+  </div>
+  <div id="error-msg" role="alert"></div>
+  <div class="status-bar" id="status-bar"><div class="spinner"></div><span id="status-text">Reading file...</span></div>
+  <div id="results">
+    <p class="section-label">Summary</p>
+    <div class="summary-grid" id="summary-grid"></div>
+    <p class="section-label">Equipment by type <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--text3)">-- click to filter</span></p>
+    <div class="type-grid" id="type-grid"></div>
+    <div class="settings-wrap" id="settings-wrap" style="display:none">
+      <div class="settings-header" id="settings-header" onclick="toggleSettings()">
+        <div class="settings-header-left"><i class="ti ti-adjustments-horizontal"></i>Calculation settings</div>
+        <span class="settings-toggle"><span id="settings-toggle-label">Expand to adjust</span><i id="settings-chevron" class="ti ti-chevron-down"></i></span>
+      </div>
+      <div class="settings-body" id="settings-body">
+        <div class="settings-two-col">
+          <div class="settings-col">
+            <div class="settings-section-title">Activities &amp; Manhours per item</div>
+            <div id="activities-tbody"></div>
+          </div>
+          <div class="settings-col">
+            <div class="settings-section-title">Type multipliers</div>
+            <div id="multipliers-tbody"></div>
+          </div>
+        </div>
+        <div class="settings-section-title" style="margin-top:20px">Role distribution per activity (%)</div>
+        <div style="overflow-x:auto;"><table class="settings-matrix" id="roles-matrix"></table></div>
+        <div class="settings-footer">
+          <button class="btn" onclick="resetSettings()"><i class="ti ti-refresh"></i> Reset to defaults</button>
+          <button class="btn primary" onclick="applySettings()"><i class="ti ti-check"></i> Apply &amp; Recalculate</button>
+        </div>
+      </div>
+    </div>
+    <p class="section-label" style="margin-top:1.75rem">Full equipment list</p>
+    <div class="toolbar">
+      <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="search-input" placeholder="Search description..." oninput="applyFilters()" /></div>
+      <select class="filter-select" id="type-filter" onchange="applyFilters()"><option value="">All types</option></select>
+      <button class="clear-filter" id="clear-btn" onclick="clearFilters()">x Clear filters</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortBy('idx')"># <span class="sort-icon ti ti-selector"></span></th>
+          <th onclick="sortBy('description')">Description <span class="sort-icon ti ti-selector"></span></th>
+          <th onclick="sortBy('type')">Type <span class="sort-icon ti ti-selector"></span></th>
+        </tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="calculateManhours()"><i class="ti ti-calculator"></i> Calculate Manhours</button>
+      <button class="btn primary" id="export-btn" style="display:none" onclick="exportCSV()"><i class="ti ti-download"></i> Save Classified as CSV</button>
+    </div>
+    <div id="manhours-panel">
+      <p class="section-label" style="margin-top:1.75rem">Manhours estimate</p>
+      <div class="mh-grid" id="mh-grid"></div>
+      <div class="charts-row" id="charts-row" style="display:none">
+        <div class="donut-wrap" id="donut-wrap">
+          <div class="donut-title">Activities share of total manhours</div>
+          <div class="donut-inner">
+            <svg class="donut-svg" id="donut-svg" width="160" height="160" viewBox="0 0 200 200"></svg>
+            <div class="donut-legend" id="donut-legend"></div>
+          </div>
+        </div>
+        <div class="cat-chart" id="cat-chart">
+          <div class="cat-chart-title">Manhours by equipment category</div>
+          <div class="donut-inner">
+            <svg class="donut-svg" id="cat-svg" width="160" height="160" viewBox="0 0 200 200"></svg>
+            <div class="donut-legend" id="cat-legend"></div>
+          </div>
+        </div>
+      </div>
+      <div class="role-bar-chart" id="role-bar-chart" style="display:none">
+        <div class="role-chart-title">Manhours by role</div>
+        <div id="role-bars"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const TYPE_ORDER=['Pump','Compressor','Column','Heat Exchanger','Reactor','Separator','Filter','Tank / Reservoir','Vessel','Fan / Blower','Package Unit','Conveyor','Agitator / Mixer','Other'];
+const TYPE_CATEGORY={'Pump':'Rotating equipment','Compressor':'Rotating equipment','Fan / Blower':'Rotating equipment','Conveyor':'Rotating equipment','Agitator / Mixer':'Rotating equipment','Column':'Static equipment','Heat Exchanger':'Static equipment','Reactor':'Static equipment','Separator':'Static equipment','Filter':'Static equipment','Tank / Reservoir':'Static equipment','Vessel':'Static equipment','Package Unit':'Packaged equipment'};
+const DEFAULT_ACTIVITIES=[{name:'Spec analysis',hours:0.5},{name:'DS Final',hours:8},{name:'RFQ',hours:4},{name:'TBE',hours:8},{name:'VCR',hours:12},{name:'Vendor doc review',hours:8},{name:'Indirect',hours:0.5}];
+const DEFAULT_MULTIPLIERS={'Pump':0.9,'Compressor':1.0,'Column':1.3,'Heat Exchanger':1.1,'Reactor':1.5,'Separator':1.1,'Filter':1.0,'Tank / Reservoir':1.0,'Vessel':1.0,'Fan / Blower':1.0,'Package Unit':1.5,'Conveyor':1.0,'Agitator / Mixer':1.0};
+// Settings matrix: 3 columns (Lead, Senior, Equipment Engineer)
+const MATRIX_ROLES=['Discipline Lead','Senior Mech. Engineer','Equipment Engineer'];
+// Stats breakdown: Equipment Engineer splits into 3 by category
+const STAT_ROLES=['Discipline Lead','Senior Mech. Engineer','Static Equip. Engineer','Rotating Equip. Engineer','Package Equip. Engineer'];
+const ROLE_COLORS_MAP={'Discipline Lead':'#3b82f6','Senior Mech. Engineer':'#8b5cf6','Static Equip. Engineer':'#10b981','Rotating Equip. Engineer':'#f59e0b','Package Equip. Engineer':'#ef4444','Equipment Engineer':'#10b981'};
+// Matrix: ROLE_MATRIX[activityIndex][roleIndex] = percentage (3 cols)
+function makeDefaultMatrix(){return [[5,60,35],[5,30,65],[5,30,65],[5,30,65],[5,60,35],[5,30,65],[15,50,35]];}
+let ROLE_MATRIX=makeDefaultMatrix();
+let ACTIVITIES=DEFAULT_ACTIVITIES.map(a=>({...a}));
+let TYPE_MULTIPLIER={...DEFAULT_MULTIPLIERS};
+const TYPE_COLORS={'Pump':{bg:'#dbeafe',text:'#1e3a8a'},'Compressor':{bg:'#ede9fe',text:'#3730a3'},'Column':{bg:'#e0f2fe',text:'#075985'},'Heat Exchanger':{bg:'#fef3c7',text:'#92400e'},'Reactor':{bg:'#fee2e2',text:'#991b1b'},'Separator':{bg:'#f3e8ff',text:'#6b21a8'},'Filter':{bg:'#fef9c3',text:'#854d0e'},'Tank / Reservoir':{bg:'#dcfce7',text:'#166534'},'Vessel':{bg:'#d1fae5',text:'#065f46'},'Fan / Blower':{bg:'#ffedd5',text:'#9a3412'},'Package Unit':{bg:'#fce7f3',text:'#9d174d'},'Conveyor':{bg:'#fdf2f8',text:'#86198f'},'Agitator / Mixer':{bg:'#f0fdf4',text:'#14532d'},'Other':{bg:'#f3f4f6',text:'#374151'}};
+const TYPE_ICONS={'Pump':'ti-ripple','Compressor':'ti-air','Column':'ti-columns','Heat Exchanger':'ti-wave-square','Reactor':'ti-atom','Separator':'ti-layout-rows','Filter':'ti-filter','Tank / Reservoir':'ti-database','Vessel':'ti-cylinder','Fan / Blower':'ti-wind','Package Unit':'ti-package','Conveyor':'ti-arrows-right','Agitator / Mixer':'ti-rotate-clockwise','Other':'ti-tool'};
+const KEYWORDS={'Pump':['pump','pumping','booster','feeder pump','centrifugal pump','reciprocating pump','dosing pump','metering pump','booster pump','charge pump','transfer pump','feed pump','injection pump','circulating pump','submersible pump','screw pump','gear pump','diaphragm pump','piston pump','plunger pump','lobe pump','progressive cavity','vacuum pump','sump pump','cargo pump','fire pump','cooling water pump','condensate pump','reflux pump','насос','насосный','центробежный насос','поршневой насос','дозировочный насос','дозирующий насос','подпорный насос','питательный насос','инжекционный насос','циркуляционный насос','погружной насос','шестеренный насос','мембранный насос','плунжерный насос','вакуумный насос','пожарный насос','конденсатный насос','насосный агрегат','насосная установка'],'Compressor':['compressor','compression','centrifugal compressor','reciprocating compressor','screw compressor','rotary compressor','gas compressor','air compressor','booster compressor','recompressor','turbocompressor','expander compressor','компрессор','компрессорный','центробежный компрессор','поршневой компрессор','винтовой компрессор','ротационный компрессор','газовый компрессор','воздушный компрессор','турбокомпрессор','бустерный компрессор','компрессорная установка'],'Column':['column','tower','stripper','distillation column','distillation tower','absorber tower','absorber column','debutanizer','depropanizer','deethanizer','demethanizer','rectifier','fractionator','scrubbing tower','scrubbing column','quench tower','caustic tower','amine contactor','glycol contactor','packed column','tray column','packed tower','tray tower','wash tower','extraction column','stripping column','adsorption column','absorption column','regeneration column','колонна','башня','ректификационная колонна','абсорбционная колонна','десорбционная колонна','отпарная колонна','экстракционная колонна','адсорбционная колонна','фракционирующая колонна','ректификатор','отпарник','стриппер'],'Heat Exchanger':['heat exchanger','shell and tube','tube and shell','plate exchanger','spiral exchanger','double pipe exchanger','fin fan','cooler','air cooler','product cooler','water cooler','oil cooler','gas cooler','heater','process heater','strip heater','immersion heater','condenser','reboiler','vaporizer','evaporator','preheater','pre-heater','aftercooler','intercooler','waste heat recovery','fired heater','furnace','economizer','теплообменник','теплообменный аппарат','кожухотрубный теплообменник','пластинчатый теплообменник','спиральный теплообменник','холодильник','воздушный холодильник','маслоохладитель','газоохладитель','нагреватель','подогреватель','предварительный подогреватель','конденсатор','ребойлер','испаритель','рекуператор','огневой подогреватель','экономайзер','теплоутилизатор','воздухоохладитель','аппарат воздушного охлаждения','охладитель'],'Reactor':['reactor','reaction vessel','chemical reactor','fixed bed reactor','fluidized bed reactor','cstr','plug flow reactor','pfr','batch reactor','tubular reactor','packed bed reactor','catalytic reactor','hydrotreater','hydrocracker','reformer','converter','cracker','polymerization reactor','oxidation reactor','hydrogenation reactor','реактор','химический реактор','реакционный аппарат','реакционный сосуд','каталитический реактор','трубчатый реактор','гидроочиститель','гидрокрекер','риформер','конвертер','крекер','десорбер'],'Separator':['separator','three-phase separator','two-phase separator','liquid-liquid separator','gas-liquid separator','oil-water separator','test separator','production separator','inlet separator','wellhead separator','hydrocyclone','vane pack','demister','mist eliminator','coalescer','centrifuge','decanter','degasser','сепаратор','газовый сепаратор','нефтегазовый сепаратор','трёхфазный сепаратор','двухфазный сепаратор','жидкостный сепаратор','входной сепаратор','нефтеводяной сепаратор','гидроциклон','каплеотбойник','туманоуловитель','коалесцер','центрифуга','декантер','дегазатор','газоотделитель','масловлагоотделитель','отстойник'],'Filter':['filter','filtration','strainer','screen','basket strainer','y-strainer','duplex strainer','cartridge filter','bag filter','sand filter','multimedia filter','auto-strainer','self-cleaning filter','disc filter','drum filter','vacuum filter','pressure filter','candle filter','leaf filter','nutsche filter','rotary filter','belt filter','membrane filter','microfiltration','ultrafiltration','nanofiltration','reverse osmosis','ro unit','ion exchange','demineralizer','softener','activated carbon filter','coalescence filter','фильтр','фильтрация','сетчатый фильтр','корзинчатый фильтр','патронный фильтр','мешочный фильтр','песчаный фильтр','барабанный фильтр','вакуумный фильтр','напорный фильтр','свечной фильтр','листовой фильтр','мембранный фильтр','обратный осмос','ионный обмен','умягчитель','деминерализатор','угольный фильтр','самоочищающийся фильтр'],'Tank / Reservoir':['tank','storage tank','hopper','atmospheric tank','cone roof tank','fixed roof tank','floating roof tank','bullet tank','sphere tank','horton sphere','day tank','fuel tank','product tank','slop tank','crude tank','water tank','chemical tank','tote tank','reservoir','retention basin','holding tank','sump','pit','pond','lagoon','basin','cistern','trough','chute','bath','plating bath','quench bath','dip tank','process bath','pot','melting pot','dip pot','galvanizing pot','zinc pot','резервуар','ёмкость','емкость','бак','хранилище','накопительный бак','резервуар для хранения','атмосферный резервуар','шаровой резервуар','горизонтальный резервуар','вертикальный резервуар','топливный бак','нефтяной резервуар','водяной бак','приёмный резервуар','дренажный бак','сборник','зумпф','лоток','ванна','воронка','бункер','поддон','приямок'],'Vessel':['vessel','pressure vessel','drum','absorber','scrubber','accumulator','surge drum','flash drum','knockout drum','knock-out drum','slug catcher','suction drum','buffer vessel','blowdown drum','flare drum','pulsation dampener','saturator','carbonator','gas holder','gasometer','digester','autoclave','reactor vessel','ejector','pressure drum','сосуд','сосуд давления','аппарат','аккумулятор','буферная ёмкость','буферный сосуд','напорный сосуд','скруббер','абсорбер','сатуратор','дигестер','автоклав','флеш-сепаратор','дренажный сосуд','сбросная ёмкость','газгольдер','газовый аккумулятор','гаситель пульсаций','эжектор'],'Fan / Blower':['fan','blower','air blower','centrifugal fan','axial fan','induced draft fan','forced draft fan','id fan','fd fan','cooling fan','ventilator','exhaust fan','supply fan','air handling unit','roots blower','positive displacement blower','regenerative blower','high pressure blower','low pressure blower','process blower','вентилятор','дымосос','дутьевой вентилятор','осевой вентилятор','центробежный вентилятор','воздуходувка','нагнетатель воздуха','вытяжной вентилятор','приточный вентилятор','воздухонагнетатель','турбовоздуходувка'],'Package Unit':['chiller','water chiller','air chiller','process chiller','absorption chiller','centrifugal chiller','screw chiller','scroll chiller','refrigeration unit','refrigeration machine','chilled water unit','cooling tower','cooling tower unit','induced draft cooling tower','forced draft cooling tower','natural draft cooling tower','crossflow cooling tower','counterflow cooling tower','wet cooling tower','dry cooling tower','hybrid cooling tower','evaporative cooler','evaporative cooling','adiabatic cooler','flare','flare stack','flare tip','elevated flare','ground flare','enclosed ground flare','multipoint ground flare','flare system','flare knockout drum','flare header','emergency flare','pilot flare','thermal oxidizer','incinerator','waste gas burner','package unit','packaged unit','skid','skid-mounted','package skid','modular unit','pre-assembled unit','dryer','drier','spray dryer','rotary dryer','fluidized bed dryer','drum dryer','freeze dryer','tray dryer','flash dryer','belt dryer','boiler','steam boiler','fire tube boiler','water tube boiler','waste heat boiler','heat recovery steam generator','hrsg','package boiler','electric boiler','granulator','vibrating extractor','roll crusher','bin extractor','чиллер','холодильная машина','холодильный агрегат','холодильная установка','градирня','испарительная градирня','вентиляторная градирня','башенная градирня','мокрая градирня','сухая градирня','факел','факельная установка','факельный ствол','факельная система','термический окислитель','инсинератор','блочная установка','блочно-комплектная установка','скид','модульная установка','сушилка','сушильная установка','распылительная сушилка','барабанная сушилка','вихревая сушилка','котёл','котел','паровой котёл','паровой котел','водогрейный котёл','водогрейный котел','котёл-утилизатор','котел-утилизатор','гранулятор','вибрационный экстрактор','валковая дробилка','бункерный экстрактор'],'Conveyor':['conveyor','feeder','belt conveyor','screw conveyor','chain conveyor','bucket conveyor','bucket elevator','roller conveyor','drag chain','pneumatic conveyor','vibrating conveyor','apron conveyor','en masse conveyor','flight conveyor','slat conveyor','overhead conveyor','material handling','bulk handling','конвейер','транспортёр','транспортер','ленточный конвейер','винтовой конвейер','цепной конвейер','ковшовый конвейер','ковшовый элеватор','роликовый конвейер','пневматический конвейер','вибрационный конвейер','пластинчатый конвейер','скребковый конвейер','питатель','вибропитатель','шнековый питатель','ленточный питатель'],'Agitator / Mixer':['agitator','mixer','mixing','blender','blending','static mixer','inline mixer','ribbon blender','paddle mixer','turbine agitator','propeller agitator','anchor agitator','high shear mixer','homogenizer','emulsifier','disperser','kneader','extruder','reactor agitator','tank agitator','мешалка','перемешивающее устройство','миксер','смеситель','статический смеситель','турбинная мешалка','пропеллерная мешалка','якорная мешалка','лопастная мешалка','высокосдвиговый смеситель','гомогенизатор','эмульгатор','диспергатор','экструдер','месильная машина']};
+const KW_MAP=[];
+Object.entries(KEYWORDS).forEach(([type,kws])=>kws.forEach(kw=>KW_MAP.push({kw:kw.toLowerCase(),type})));
+KW_MAP.sort((a,b)=>b.kw.length-a.kw.length);
+const KW_EN=KW_MAP.filter(k=>/^[a-z]/.test(k.kw));
+const KW_RU=KW_MAP.filter(k=>/^[а-яё]/.test(k.kw));
+let ACTIVE_KW=KW_EN;
+function toggleLangMenu(){document.getElementById('lang-menu').classList.toggle('open');}
+function setLang(lang){ACTIVE_KW=lang==='en'?KW_EN:KW_RU;document.getElementById('lang-en').classList.toggle('selected',lang==='en');document.getElementById('lang-ru').classList.toggle('selected',lang==='ru');document.getElementById('lang-flag').textContent=lang==='en'?'🇬🇧':'🇷🇺';document.getElementById('lang-label').textContent=lang==='en'?'English':'Russian';document.getElementById('lang-menu').classList.remove('open');}
+document.addEventListener('click',e=>{const sw=document.getElementById('lang-switcher');if(sw&&!sw.contains(e.target))document.getElementById('lang-menu').classList.remove('open');});
+function isSelectedLang(text){
+  if(!text)return false;
+  const hasCyrillic=/[а-яёА-ЯЁ]/.test(text);
+  const hasLatin=/[a-zA-Z]/.test(text);
+  if(ACTIVE_KW===KW_RU)return hasCyrillic;
+  return !hasCyrillic||hasLatin;
+}
+function classifyByDescription(d){const s=(d||'').toLowerCase();for(const{kw,type}of ACTIVE_KW){if(s.includes(kw))return type;}return'Other';}
+function parseRows(r){if(!r.length)return[];return typeof r[0]==='string'?parseTextLines(r):parseSpreadsheetRows(r);}
+function parseSpreadsheetRows(rows){
+  let hi=0;for(let i=0;i<Math.min(10,rows.length);i++){if((rows[i]||[]).filter(c=>c!=null&&String(c).trim()).length>=2){hi=i;break;}}
+  const headers=(rows[hi]||[]).map(h=>String(h||'').toLowerCase().trim());
+  const dataRows=rows.slice(hi+1).filter(r=>r&&r.length);if(!dataRows.length)return[];
+  const SKIP=['qty','quantity','count','pcs','pieces','units','total','amount','no','no.','number','tag','tag no','item no','pos','position','seq','rev','revision','date','status','weight','mass','size','dimension','pressure','temperature','flow','power','voltage','remark','remarks','comment','comments','note','notes','material','materials','spec','specification','code','codes','standard','drawing','reference','ref','supplier','vendor','manufacturer','make','model','rating','capacity','кол','количество','примечание','примечания','материал','комментарий','замечание','дата','ревизия','поставщик','производитель','марка','давление','температура','вес','масса','размер','мощность','код','чертёж','чертеж','позиция','тег'];
+  const sample=dataRows.slice(0,50);const numCols=Math.max(...rows.map(r=>(r||[]).length));const skip=new Set();
+  headers.forEach((h,ci)=>{if(SKIP.some(s=>h===s||h.includes(s)))skip.add(ci);});
+  for(let ci=0;ci<numCols;ci++){if(skip.has(ci))continue;let tot=0,num=0;sample.forEach(row=>{const v=String((row||[])[ci]==null?'':((row||[])[ci])).trim();if(!v)return;tot++;if(/^[\d\s.,\/\-\+%]+$/.test(v))num++;});if(tot>0&&num/tot>0.6)skip.add(ci);}
+  const hits=new Array(numCols).fill(0);
+  sample.forEach(row=>{for(let ci=0;ci<numCols;ci++){if(skip.has(ci))continue;const v=String((row||[])[ci]==null?'':((row||[])[ci])).toLowerCase().trim();if(!v)continue;for(const{kw}of ACTIVE_KW){if(v.includes(kw)){hits[ci]++;break;}}}});
+  let dc=-1,best=0;for(let ci=0;ci<numCols;ci++){if(!skip.has(ci)&&hits[ci]>best){best=hits[ci];dc=ci;}}
+  if(dc<0){const tl=new Array(numCols).fill(0);sample.forEach(row=>{for(let ci=0;ci<numCols;ci++){if(skip.has(ci))continue;tl[ci]+=String((row||[])[ci]||'').trim().length;}});best=0;for(let ci=0;ci<numCols;ci++){if(!skip.has(ci)&&tl[ci]>best){best=tl[ci];dc=ci;}}}
+  if(dc<0)return[];
+  const qc=bci(headers,['quantity','qty','count','units','pcs','pieces','total','количество','кол-во','кол.']);
+  return dataRows.map(row=>{const d=String((row||[])[dc]==null?'':((row||[])[dc])).trim();if(!d)return null;if(!isSelectedLang(d))return null;return{description:d,quantity:pq(qc>=0?String((row||[])[qc]||''):''),type:classifyByDescription(d)};}).filter(Boolean);
+}
+function bci(h,c){for(const s of c){const i=h.indexOf(s);if(i>=0)return i;}for(const s of c){const i=h.findIndex(x=>x.includes(s));if(i>=0)return i;}return-1;}
+function pq(v){const n=parseInt((v||'').replace(/[^0-9]/g,''),10);return isNaN(n)||n<1?1:n;}
+function parseTextLines(lines){return lines.map(line=>{const t=line.trim();if(!t||t.length<3||t.length>200)return null;if(!isSelectedLang(t))return null;if(/^(page|sheet|rev|date|project|client|doc|prepared|checked|approved|total|subtotal)/i.test(t))return null;const m=t.match(/\b(\d+)\s*(?:no\.|nos?|units?|pcs?|off|ea\.?|each)\b/i);return{description:t,quantity:m?parseInt(m[1],10):1,type:classifyByDescription(t)};}).filter(Boolean);}
+function readExcel(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});let all=[];wb.SheetNames.forEach(sn=>{all=all.concat(XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''}));});res(parseRows(all));}catch(err){rej(err);}};r.onerror=()=>rej(new Error('Failed to read Excel'));r.readAsBinaryString(file);});}
+function readCSV(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'string'});const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});if(!rows.length){res([]);return;}let hi=0;for(let i=0;i<Math.min(10,rows.length);i++){if((rows[i]||[]).filter(c=>c!=null&&String(c).trim()).length>=2){hi=i;break;}}const headers=(rows[hi]||[]).map(h=>String(h||'').toLowerCase().trim());const dc=headers.findIndex(h=>/desc|name|наименование|equipment|item|title/i.test(h));const tc=headers.findIndex(h=>/^type$|^тип$|^category$|^категория$/i.test(h));res(rows.slice(hi+1).map(row=>{const d=dc>=0?String((row||[])[dc]||'').trim():'';const t=tc>=0?String((row||[])[tc]||'').trim():'';if(!d&&!t)return null;return{description:d,quantity:1,type:t||classifyByDescription(d)};}).filter(Boolean));}catch(err){rej(err);}};r.onerror=()=>rej(new Error('Failed to read CSV'));r.readAsText(file);});}
+function readDocx(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>mammoth.extractRawText({arrayBuffer:e.target.result}).then(result=>res(parseRows(result.value.split('\n').filter(l=>l.trim())))).catch(rej);r.onerror=()=>rej(new Error('Failed to read Word'));r.readAsArrayBuffer(file);});}
+async function readPDF(file){const lib=window['pdfjs-dist/build/pdf'];lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';const pdf=await lib.getDocument({data:await file.arrayBuffer()}).promise;const lines=[];for(let p=1;p<=pdf.numPages;p++){const content=await(await pdf.getPage(p)).getTextContent();const byY={};content.items.forEach(item=>{const y=Math.round(item.transform[5]);(byY[y]=byY[y]||[]).push({x:item.transform[4],text:item.str});});Object.keys(byY).sort((a,b)=>b-a).forEach(y=>{const t=byY[y].sort((a,b)=>a.x-b.x).map(i=>i.text).join(' ').trim();if(t)lines.push(t);});}return parseRows(lines);}
+let allItems=[],activeType=null,sortCol='idx',sortAsc=true,listCollapsed=false,settingsOpen=false;
+function onDragOver(e){e.preventDefault();document.getElementById('drop-zone').classList.add('drag-over');}
+function onDragLeave(){document.getElementById('drop-zone').classList.remove('drag-over');}
+function onDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)handleFile(f);}
+async function handleFile(file){if(!file)return;clearError();document.getElementById('results').style.display='none';document.getElementById('export-btn').style.display='none';showStatus('Reading file...');try{const n=file.name.toLowerCase();let items;if(n.endsWith('.xlsx')||n.endsWith('.xls'))items=await readExcel(file);else if(n.endsWith('.csv'))items=await readCSV(file);else if(n.endsWith('.pdf'))items=await readPDF(file);else if(n.endsWith('.docx')||n.endsWith('.doc'))items=await readDocx(file);else{showError('Unsupported file type.');hideStatus();return;}hideStatus();if(!items.length){showError('No equipment items found.');return;}allItems=items;activeType=null;listCollapsed=false;document.getElementById('export-btn').style.display='inline-flex';document.getElementById('settings-wrap').style.display='block';document.getElementById('manhours-panel').style.display='none';renderAll();}catch(err){showError('Error: '+err.message);hideStatus();}}
+function showStatus(t){document.getElementById('status-bar').classList.add('visible');document.getElementById('status-text').textContent=t;}
+function hideStatus(){document.getElementById('status-bar').classList.remove('visible');}
+function showError(m){const e=document.getElementById('error-msg');e.style.display='block';e.textContent='! '+m;}
+function clearError(){document.getElementById('error-msg').style.display='none';}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function typeMap(){const m={};allItems.forEach(i=>{const t=i.type||'Other';m[t]=(m[t]||0)+(i.quantity||1);});return m;}
+function renderSummary(){const tm=typeMap();const types=TYPE_ORDER.filter(t=>tm[t]);document.getElementById('summary-grid').innerHTML=`<div class="metric-card"><div class="m-label">Unique items</div><div class="m-value">${allItems.length}</div></div><div class="metric-card"><div class="m-label">Equipment types</div><div class="m-value">${types.length}</div></div><div class="metric-card"><div class="m-label">Unclassified</div><div class="m-value">${allItems.filter(i=>i.type==='Other').length}</div></div>`;document.getElementById('type-grid').innerHTML=types.map(t=>{const c=TYPE_COLORS[t];return`<div class="type-card${activeType===t?' active':''}" onclick="toggleTypeFilter('${esc(t)}')"><div class="type-icon-wrap" style="background:${c.bg};color:${c.text}"><i class="ti ${TYPE_ICONS[t]}"></i></div><div><div class="type-name">${esc(t)}</div><div class="type-count">${tm[t]} item${tm[t]!==1?'s':''}</div></div></div>`;}).join('');const sel=document.getElementById('type-filter');const cur=sel.value;sel.innerHTML='<option value="">All types</option>'+types.map(t=>`<option value="${esc(t)}"${t===cur?' selected':''}>${esc(t)}</option>`).join('');}
+function renderAll(){renderSummary();document.getElementById('results').style.display='block';document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});applyFilters();}
+function applyFilters(){const search=document.getElementById('search-input').value.toLowerCase();const typeF=document.getElementById('type-filter').value;document.getElementById('clear-btn').classList.toggle('visible',!!(search||typeF||activeType));allItems.forEach((item,i)=>{item._idx=i;});let visible=allItems.filter(item=>{if(typeF&&item.type!==typeF)return false;if(activeType&&item.type!==activeType)return false;if(search&&!(item.description||'').toLowerCase().includes(search))return false;return true;}).slice();visible.sort((a,b)=>{let va,vb;if(sortCol==='idx'){va=a._idx;vb=b._idx;}else if(sortCol==='description'){va=(a.description||'').toLowerCase();vb=(b.description||'').toLowerCase();}else if(sortCol==='type'){va=(a.type||'').toLowerCase();vb=(b.type||'').toLowerCase();}return(va<vb?-1:va>vb?1:0)*(sortAsc?1:-1);});const tbody=document.getElementById('table-body');if(!visible.length){tbody.innerHTML='<tr id="no-results-row"><td colspan="3">No items match the current filters.</td></tr>';return;}tbody.innerHTML=visible.map(item=>{const t=item.type||'Other';const c=TYPE_COLORS[t]||TYPE_COLORS['Other'];const opts=TYPE_ORDER.map(o=>`<option value="${o}"${o===t?' selected':''}>${o}</option>`).join('');return`<tr><td class="num">${item._idx+1}</td><td title="${esc(item.description||'')}">${esc(item.description||'--')}</td><td class="td-type"><select class="type-select" data-idx="${item._idx}" style="background:${c.bg};color:${c.text};border-color:${c.text}" onchange="changeType(parseInt(this.dataset.idx),this)">${opts}</select></td></tr>`;}).join('');const cols=['idx','description','type'];document.querySelectorAll('thead th').forEach((th,i)=>{th.classList.toggle('sorted',cols[i]===sortCol);const ic=th.querySelector('.sort-icon');if(ic)ic.className='sort-icon ti '+(cols[i]===sortCol?(sortAsc?'ti-arrow-up':'ti-arrow-down'):'ti-selector');});}
+function changeType(idx,sel){if(idx<0||idx>=allItems.length)return;const t=sel.value;allItems[idx].type=t;const c=TYPE_COLORS[t]||TYPE_COLORS['Other'];sel.style.background=c.bg;sel.style.color=c.text;sel.style.borderColor=c.text;renderSummary();}
+function toggleList(){listCollapsed=!listCollapsed;document.getElementById('list-body').classList.toggle('collapsed',listCollapsed);document.getElementById('list-chevron').className=listCollapsed?'ti ti-chevron-down':'ti ti-chevron-up';document.getElementById('list-toggle-label').textContent=listCollapsed?'Expand':'Collapse';}
+function sortBy(col){sortAsc=sortCol===col?!sortAsc:true;sortCol=col;applyFilters();}
+function toggleTypeFilter(type){activeType=activeType===type?null:type;document.getElementById('type-filter').value='';renderAll();}
+function clearFilters(){activeType=null;document.getElementById('search-input').value='';document.getElementById('type-filter').value='';renderAll();}
+function toggleSettings(){settingsOpen=!settingsOpen;const body=document.getElementById('settings-body');const header=document.getElementById('settings-header');const chevron=document.getElementById('settings-chevron');const label=document.getElementById('settings-toggle-label');if(settingsOpen){body.classList.add('open');header.classList.add('open');chevron.className='ti ti-chevron-up';label.textContent='Collapse';renderSettingsPanel();}else{body.classList.remove('open');header.classList.remove('open');chevron.className='ti ti-chevron-down';label.textContent='Expand to adjust';}}
+function renderSettingsPanel(){document.getElementById('activities-tbody').innerHTML=ACTIVITIES.map((a,i)=>`<div class="settings-row"><input class="settings-input-name" id="act-name-${i}" value="${esc(a.name)}" title="${esc(a.name)}" /><input class="settings-input" id="act-hours-${i}" type="number" min="0" step="0.5" value="${a.hours}" /></div>`).join('');const classified=TYPE_ORDER.filter(t=>t!=='Other');document.getElementById('multipliers-tbody').innerHTML=classified.map(t=>`<div class="settings-row"><span class="settings-row-label" title="${esc(t)}">${esc(t)}</span><input class="settings-input" id="mul-${t.replace(/[^a-z0-9]/gi,'_')}" type="number" min="0" step="0.1" value="${TYPE_MULTIPLIER[t]||1}" /></div>`).join('');const matrix=document.getElementById('roles-matrix');
+  const hdr='<thead><tr><th class="act-col">Activity</th>'+MATRIX_ROLES.map(r=>`<th>${esc(r)}</th>`).join('')+'</tr></thead>';
+  const body='<tbody>'+ACTIVITIES.map((a,ai)=>'<tr><td class="act-name">'+esc(a.name)+'</td>'+MATRIX_ROLES.map((r,ri)=>`<td><input class="matrix-input" id="rmat-${ai}-${ri}" type="number" min="0" max="100" step="1" value="${ROLE_MATRIX[ai]?ROLE_MATRIX[ai][ri]:0}" /></td>`).join('')+'</tr>').join('')+'</tbody>';
+  matrix.innerHTML=hdr+body;}
+function applySettings(){ACTIVITIES.forEach((a,i)=>{const ne=document.getElementById(`act-name-${i}`);const he=document.getElementById(`act-hours-${i}`);if(ne)a.name=ne.value.trim()||a.name;if(he)a.hours=parseFloat(he.value)||0;});TYPE_ORDER.filter(t=>t!=='Other').forEach(t=>{const id='mul-'+t.replace(/[^a-z0-9]/gi,'_');const el=document.getElementById(id);if(el)TYPE_MULTIPLIER[t]=parseFloat(el.value)||1;});ACTIVITIES.forEach((a,ai)=>{MATRIX_ROLES.forEach((r,ri)=>{const el=document.getElementById(`rmat-${ai}-${ri}`);if(el){if(!ROLE_MATRIX[ai])ROLE_MATRIX[ai]=[];ROLE_MATRIX[ai][ri]=parseFloat(el.value)||0;}});});toggleSettings();calculateManhours();}
+function resetSettings(){ACTIVITIES=DEFAULT_ACTIVITIES.map(a=>({...a}));TYPE_MULTIPLIER={...DEFAULT_MULTIPLIERS};ROLE_MATRIX=makeDefaultMatrix();renderSettingsPanel();}
+function renderCatDonut(items, totalHours) {
+  const cx=100, cy=100, R=80, r=48;
+  const total = items.reduce((s,i)=>s+i.total,0) || 1;
+  let angle = -Math.PI/2;
+  let paths = '', legends = '';
+  items.forEach(item => {
+    const val = Math.round(item.total);
+    if (val <= 0) return;
+    const pct = val / total;
+    const sweep = pct * 2 * Math.PI;
+    const x1 = cx + R * Math.cos(angle);
+    const y1 = cy + R * Math.sin(angle);
+    angle += sweep;
+    const x2 = cx + R * Math.cos(angle);
+    const y2 = cy + R * Math.sin(angle);
+    const xi1 = cx + r * Math.cos(angle);
+    const yi1 = cy + r * Math.sin(angle);
+    const xi2 = cx + r * Math.cos(angle - sweep);
+    const yi2 = cy + r * Math.sin(angle - sweep);
+    const large = sweep > Math.PI ? 1 : 0;
+    paths += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi1.toFixed(2)},${yi1.toFixed(2)} A${r},${r} 0 ${large},0 ${xi2.toFixed(2)},${yi2.toFixed(2)} Z" fill="${item.color}" stroke="var(--surface)" stroke-width="2"/>`;
+    legends += `<div class="donut-legend-item"><div class="donut-legend-dot" style="background:${item.color}"></div><span class="donut-legend-label" title="${esc(item.name)}">${esc(item.name)}</span><span class="donut-legend-pct">${Math.round(item.total)} h</span></div>`;
+  });
+  paths += `<text x="100" y="96" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)">${Math.round(totalHours)}</text>`;
+  paths += `<text x="100" y="114" text-anchor="middle" font-size="11" fill="var(--text3)">total h</text>`;
+  document.getElementById('cat-svg').innerHTML = paths;
+  document.getElementById('cat-legend').innerHTML = legends;
+}
+
+function renderDonut(activityRows, totalHours) {
+  const PALETTE = ['#3b82f6','#8b5cf6','#f59e0b','#10b981','#ef4444','#f97316','#06b6d4','#ec4899'];
+  const cx=100, cy=100, R=80, r=48;
+  const total = totalHours || 1;
+  let angle = -Math.PI/2;
+  let paths = '', legends = '';
+
+  activityRows.forEach((a, i) => {
+    const val = Math.round(a.total);
+    if (val <= 0) return;
+    const pct = val / total;
+    const sweep = pct * 2 * Math.PI;
+    const x1 = cx + R * Math.cos(angle);
+    const y1 = cy + R * Math.sin(angle);
+    angle += sweep;
+    const x2 = cx + R * Math.cos(angle);
+    const y2 = cy + R * Math.sin(angle);
+    const xi1 = cx + r * Math.cos(angle);
+    const yi1 = cy + r * Math.sin(angle);
+    const xi2 = cx + r * Math.cos(angle - sweep);
+    const yi2 = cy + r * Math.sin(angle - sweep);
+    const large = sweep > Math.PI ? 1 : 0;
+    const color = PALETTE[i % PALETTE.length];
+    paths += `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi1.toFixed(2)},${yi1.toFixed(2)} A${r},${r} 0 ${large},0 ${xi2.toFixed(2)},${yi2.toFixed(2)} Z" fill="${color}" stroke="var(--surface)" stroke-width="2"/>`;
+    legends += `<div class="donut-legend-item"><div class="donut-legend-dot" style="background:${color}"></div><span class="donut-legend-label" title="${esc(a.name)}">${esc(a.name)}</span><span class="donut-legend-pct">${Math.round(a.total)} h</span></div>`;
+  });
+
+  // Center text
+  paths += `<text x="100" y="96" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)">${Math.round(total)}</text>`;
+  paths += `<text x="100" y="114" text-anchor="middle" font-size="11" fill="var(--text3)">total h</text>`;
+
+  document.getElementById('donut-svg').innerHTML = paths;
+  document.getElementById('donut-legend').innerHTML = legends;
+  
+}
+
+function renderRoleBarChart(activityRows, catTotals) {
+  const catSum = Object.values(catTotals).reduce((s,v)=>s+v,1);
+  const staticW  = (catTotals['Static equipment']||0) / catSum;
+  const rotatingW= (catTotals['Rotating equipment']||0) / catSum;
+  const packageW = (catTotals['Packaged equipment']||0) / catSum;
+
+  // Calculate totals per matrix role (3 cols)
+  const matrixTotals = MATRIX_ROLES.map((name, ri) =>
+    activityRows.reduce((s, a, ai) => {
+      const pct = (ROLE_MATRIX[ai] ? ROLE_MATRIX[ai][ri] : 0) / 100;
+      return s + a.total * pct;
+    }, 0)
+  );
+  // Equipment Engineer total = matrixTotals[2], split by category weight
+  const eqTotal = matrixTotals[2];
+
+  // 5 stat roles
+  const statTotals = [
+    Math.round(matrixTotals[0]),                    // Discipline Lead
+    Math.round(matrixTotals[1]),                    // Senior
+    Math.round(eqTotal * staticW),                  // Static
+    Math.round(eqTotal * rotatingW),                // Rotating
+    Math.round(eqTotal * packageW),                 // Package
+  ];
+  const ROLES = STAT_ROLES.map(name=>({name, color:ROLE_COLORS_MAP[name]}));
+  const roleTotals = statTotals;
+
+  const maxVal = Math.max(...roleTotals, 1);
+
+  document.getElementById('role-bars').innerHTML = ROLES.map((role, ri) => {
+    const val = roleTotals[ri];
+    const pct = Math.round((val / maxVal) * 100);
+    return `<div class="role-bar-row">
+      <div class="role-bar-name" title="${esc(role.name)}">${esc(role.name)}</div>
+      <div class="role-bar-track">
+        <div class="role-bar-fill" style="width:${pct}%;background:${role.color}">
+          <span>${val} h</span>
+        </div>
+      </div>
+      <div class="role-bar-val" style="color:${role.color}">${val} h</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('role-bar-chart').style.display = 'block';
+}
+
+function calculateManhours(){document.querySelectorAll('#table-body select.type-select').forEach(sel=>{const idx=parseInt(sel.dataset.idx);if(!isNaN(idx)&&idx>=0&&idx<allItems.length)allItems[idx].type=sel.value;});const classified=allItems.filter(it=>(it.type||'Other')!=='Other');if(!classified.length){alert('No classified items to calculate.');return;}const uniqueTypes=new Set(classified.map(it=>it.type)).size;const specIdx=ACTIVITIES.findIndex(a=>a.name==='Spec analysis');const getActivityTotal=(a,i)=>i===specIdx?a.hours*uniqueTypes+40:classified.reduce((s,it)=>s+a.hours*(TYPE_MULTIPLIER[it.type]||1.0),0);const activityRows=ACTIVITIES.map((a,i)=>({name:a.name,total:getActivityTotal(a,i)}));const totalHours=activityRows.reduce((s,a)=>s+a.total,0);const CAT_COLORS={'Rotating equipment':'#3b82f6','Static equipment':'#8b5cf6','Packaged equipment':'#f59e0b'};const totalPerItem=ACTIVITIES.reduce((s,a)=>s+a.hours,0);const getItemHours=it=>totalPerItem*(TYPE_MULTIPLIER[it.type]||1.0);const catTotals={};classified.forEach(it=>{const cat=TYPE_CATEGORY[it.type];if(!cat)return;catTotals[cat]=(catTotals[cat]||0)+getItemHours(it);});document.getElementById('mh-grid').innerHTML=`<div class="mh-card total"><div class="mh-label">Total manhours</div><div class="mh-value">${Math.round(totalHours)} h</div></div>`;const catOrder=['Rotating equipment','Static equipment','Packaged equipment'];const catItems=catOrder.filter(c=>catTotals[c]).map(c=>({name:c,total:catTotals[c],color:CAT_COLORS[c]}));renderCatDonut(catItems,totalHours);renderDonut(activityRows,totalHours);document.getElementById('charts-row').style.display=catItems.length||activityRows.length?'grid':'none';renderRoleBarChart(activityRows,catTotals);const panel=document.getElementById('manhours-panel');panel.style.display='block';panel.scrollIntoView({behavior:'smooth',block:'start'});}
+function exportCSV(){if(!allItems.length)return;document.querySelectorAll('#table-body select.type-select').forEach(sel=>{const idx=parseInt(sel.dataset.idx);if(!isNaN(idx)&&idx>=0&&idx<allItems.length)allItems[idx].type=sel.value;});const filtered=allItems.filter(it=>(it.type||'Other')!=='Other');if(!filtered.length){alert('No items to export.');return;}const rows=[['#','Description','Type','Activity','Manhours']];filtered.forEach((it,i)=>{const uTypes=new Set(filtered.map(x=>x.type)).size;const sIdx=ACTIVITIES.findIndex(a=>a.name==='Spec analysis');ACTIVITIES.forEach((a,ai)=>{const mh=ai===sIdx?Math.round(a.hours*uTypes+40):Math.round(a.hours*(TYPE_MULTIPLIER[it.type]||1.0));rows.push([i+1,it.description||'',it.type,a.name,mh]);});});download('equipment-classification.csv',rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'),'text/csv');}
+function download(filename,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=filename;a.click();}
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

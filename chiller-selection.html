@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chiller Selection — A to Z (Interactive)</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --green:#2e7d32; --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.42; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px;}
+  .titleblock h1{margin:0; font-size:31px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:21px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:250px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:12.5px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .cond{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .cond span{background:#fff; border:1px solid var(--line); border-radius:8px; padding:6px 12px; font-size:12.5px; color:var(--navy); font-weight:600;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:24px;} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:1/-1;} .card.span2{grid-column:span 2;}
+  @media(max-width:660px){ .card.span2{grid-column:span 1;} }
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:9px 12px; font-size:12.5px; letter-spacing:.3px; display:flex; align-items:center; gap:9px; line-height:1.2;}
+  .num{background:#fff; color:var(--navy); min-width:22px; height:22px; border-radius:5px; font-weight:800; font-size:12px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ico{margin-left:auto; font-size:15px; opacity:.9;}
+  .body{padding:11px 12px; flex:1; display:flex; flex-direction:column;}
+  .f{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:7px; padding:6px 8px; font-size:11.5px; color:var(--navy); text-align:center; margin-bottom:9px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .field label{flex:1 1 auto; font-size:12px;}
+  .field input,.field select{flex:0 0 auto; width:92px; padding:5px 7px; border:1px solid #b9c7d6; border-radius:6px; font-size:12.5px; background:#fff; text-align:right;}
+  .field input:focus,.field select:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .rline{display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-size:12.5px; padding:3px 0; border-bottom:1px dotted #e6ebf1;}
+  .rl{color:var(--muted); font-size:11.5px;}
+  .rv{font-weight:700; color:var(--navy); white-space:nowrap;}
+  .res{margin-top:auto; background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-top:8px;}
+  .res .lab{font-size:11px; color:var(--muted);}
+  .res .big{font-size:17px; font-weight:800; color:var(--navy); white-space:nowrap;}
+  .res.green{background:#eef6ef; border-color:#bcdcc0;} .res.green .big{color:var(--green);}
+  ul.tight{margin:3px 0; padding-left:17px; font-size:12px;} ul.tight li{margin:3px 0;}
+  .hint{font-size:10.5px; color:var(--muted); margin-top:6px;}
+  .reset{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer;}
+  .reset:hover{background:var(--navy);}
+  table.mini{width:100%; border-collapse:collapse; font-size:12px; margin-bottom:7px;}
+  table.mini td{padding:3px 4px; border-bottom:1px solid var(--line);} table.mini td:last-child{text-align:right;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  @media print{ @page{size:A4 portrait; margin:8mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10px;} .wrap{max-width:none;} .no-print{display:none!important;} .card{break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>CHILLER <span class="pill">SELECTION A→Z</span></h1>
+      <div class="sub">COMPLETE WATER-COOLED CHILLER PLANT · LIVE CALCULATION</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>EXAMPLE</h4>
+      <p>Office building 5,000 m² · hot climate. Edit any input — load, chiller, flow, pump, tower, pipe &amp; AHU all recompute.</p>
+    </div>
+  </header>
+
+  <div class="cond">
+    <span>🌡️ Outdoor: 42 °C DB</span><span>🌡️ Indoor: 24 °C DB · 50% RH</span><span>⚙️ Water-Cooled Chiller System</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- 1 COOLING LOAD -->
+    <section class="card">
+      <h3><span class="num">1</span> COOLING LOAD <span class="ico">❄️</span></h3>
+      <div class="body">
+        <div class="field"><label>Sensible load (kW)</label><input id="L_sens" type="number" value="420"></div>
+        <div class="field"><label>Latent load (kW)</label><input id="L_lat" type="number" value="110"></div>
+        <div class="field"><label>Fresh air load (kW)</label><input id="L_fresh" type="number" value="90"></div>
+        <div class="field"><label>Lighting &amp; equipment (kW)</label><input id="L_light" type="number" value="130"></div>
+        <div class="field"><label>People load (kW)</label><input id="L_people" type="number" value="70"></div>
+        <div class="field"><label>Safety margin (%)</label><input id="margin" type="number" value="10"></div>
+        <div class="rline"><span class="rl">Total = Σ loads</span><span class="rv" id="o_total"></span></div>
+        <div class="rline"><span class="rl">RT = total ÷ 3.517</span><span class="rv" id="o_rt"></span></div>
+        <div class="res green"><span class="lab">FINAL DESIGN CAPACITY</span><span class="big" id="o_design"></span></div>
+      </div>
+    </section>
+
+    <!-- 2 CHILLER SELECTION -->
+    <section class="card">
+      <h3><span class="num">2</span> CHILLER SELECTION <span class="ico">🏭</span></h3>
+      <div class="body">
+        <div class="field"><label>Number of chillers (1 duty + share)</label><input id="nch" type="number" value="2"></div>
+        <div class="res"><span class="lab">Selected</span><span class="big" id="o_chiller"></span></div>
+        <ul class="tight" style="margin-top:8px;">
+          <li>Better part-load efficiency</li>
+          <li>Redundancy &amp; easier maintenance</li>
+          <li>Lower operating cost</li>
+        </ul>
+        <div class="hint">Each chiller rounded up to the next 10 RT.</div>
+      </div>
+    </section>
+
+    <!-- 3 CHW FLOW -->
+    <section class="card">
+      <h3><span class="num">3</span> CHILLED WATER FLOW <span class="ico">💧</span></h3>
+      <div class="body">
+        <div class="f">Flow (L/s) = Load / (4.186 × ΔT)</div>
+        <div class="field"><label>ΔT chilled water (°C)</label><input id="dt3" type="number" step="0.5" value="5"></div>
+        <div class="rline"><span class="rl">Uses total load (kW)</span><span class="rv" id="o_flowexact"></span></div>
+        <div class="res green"><span class="lab">REQUIRED CHW FLOW</span><span class="big" id="o_flow"></span></div>
+      </div>
+    </section>
+
+    <!-- 4 PUMP -->
+    <section class="card">
+      <h3><span class="num">4</span> CHW PUMP SELECTION <span class="ico">⚙️</span></h3>
+      <div class="body">
+        <div class="field"><label>Chiller evaporator (m)</label><input id="h_evap" type="number" value="6"></div>
+        <div class="field"><label>Pipe friction loss (m)</label><input id="h_pipe" type="number" value="12"></div>
+        <div class="field"><label>AHU coils (m)</label><input id="h_ahu" type="number" value="8"></div>
+        <div class="field"><label>Valves &amp; fittings (m)</label><input id="h_valve" type="number" value="5"></div>
+        <div class="field"><label>Pump×motor efficiency η</label><input id="eff4" type="number" step="0.01" value="0.64"></div>
+        <div class="rline"><span class="rl">Total dynamic head</span><span class="rv" id="o_head"></span></div>
+        <div class="rline"><span class="rl">Hydraulic power ρgQH</span><span class="rv" id="o_hyd"></span></div>
+        <div class="res"><span class="lab">MOTOR POWER</span><span class="big" id="o_motor"></span></div>
+      </div>
+    </section>
+
+    <!-- 5 CONDENSER FLOW -->
+    <section class="card">
+      <h3><span class="num">5</span> CONDENSER WATER FLOW <span class="ico">🔁</span></h3>
+      <div class="body">
+        <div class="f">Cond. flow = (L/s per RT) × chiller RT</div>
+        <div class="field"><label>L/s per RT</label><input id="lsrt" type="number" step="0.001" value="0.189"></div>
+        <div class="rline"><span class="rl">Uses chiller total RT</span><span class="rv" id="o_crt"></span></div>
+        <div class="rline"><span class="rl">≈ in m³/h</span><span class="rv" id="o_cmh"></span></div>
+        <div class="res"><span class="lab">CONDENSER FLOW</span><span class="big" id="o_cls"></span></div>
+        <div class="hint">0.189 L/s·RT ≈ 3 GPM/RT (legacy rule).</div>
+      </div>
+    </section>
+
+    <!-- 6 COOLING TOWER -->
+    <section class="card">
+      <h3><span class="num">6</span> COOLING TOWER <span class="ico">🌫️</span></h3>
+      <div class="body">
+        <div class="f">Heat rejection = factor × design RT</div>
+        <div class="field"><label>Heat-rejection factor</label><input id="trf" type="number" step="0.05" value="1.25"></div>
+        <div class="rline"><span class="rl">Uses design capacity RT</span><span class="rv" id="o_designrt2"></span></div>
+        <div class="res green"><span class="lab">SELECTED COOLING TOWER</span><span class="big" id="o_tower"></span></div>
+      </div>
+    </section>
+
+    <!-- SCHEMATIC -->
+    <section class="card wide">
+      <h3><span class="num">◇</span> TYPICAL WATER-COOLED CHILLER SYSTEM <span class="ico">🗺️</span></h3>
+      <div class="body">
+        <svg viewBox="0 0 720 250" style="width:100%;max-width:720px;height:auto;display:block;margin:0 auto" font-family="Arial">
+          <defs>
+            <marker id="g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2e9b57"/></marker>
+            <marker id="b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1d6fb8"/></marker>
+          </defs>
+          <!-- condenser loop (green) -->
+          <g fill="none" stroke="#2e9b57" stroke-width="3">
+            <path d="M150 70 L240 70 L240 110" marker-end="url(#g)"/>
+            <path d="M240 168 L240 205 L150 205" marker-end="url(#g)"/>
+            <path d="M120 205 L70 205 L70 120" marker-end="url(#g)"/>
+          </g>
+          <!-- chilled loop (blue) -->
+          <g fill="none" stroke="#1d6fb8" stroke-width="3">
+            <path d="M460 120 L560 120 L560 95" marker-end="url(#b)"/>
+            <path d="M560 150 L560 205 L500 205" marker-end="url(#b)"/>
+            <path d="M470 205 L460 205 L460 168" marker-end="url(#b)"/>
+          </g>
+          <!-- cooling tower -->
+          <path d="M55 40 L145 40 L135 95 L65 95 Z" fill="#d7e6f4" stroke="#1d4e89" stroke-width="2"/>
+          <text x="100" y="25" text-anchor="middle" font-size="12" font-weight="700" fill="#173a5e">Cooling Tower</text>
+          <!-- chiller -->
+          <rect x="240" y="110" width="220" height="58" rx="8" fill="#cdd6df" stroke="#1d4e89" stroke-width="2"/>
+          <text x="350" y="144" text-anchor="middle" font-size="13" font-weight="700" fill="#173a5e">Chiller (2 × 130 RT)</text>
+          <!-- AHU -->
+          <rect x="560" y="60" width="90" height="70" rx="6" fill="#d7e6f4" stroke="#1d4e89" stroke-width="2"/>
+          <text x="605" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#173a5e">AHU</text>
+          <text x="605" y="108" text-anchor="middle" font-size="11" fill="#5a6b7b">/ FCU</text>
+          <!-- pumps -->
+          <circle cx="135" cy="205" r="15" fill="#d7e6f4" stroke="#2e7d32" stroke-width="2"/><path d="M129 198 L147 205 L129 212 Z" fill="#2e7d32"/>
+          <text x="135" y="238" text-anchor="middle" font-size="10.5" fill="#2e7d32" font-weight="700">Cond. Pump</text>
+          <circle cx="485" cy="205" r="15" fill="#d7e6f4" stroke="#1d6fb8" stroke-width="2"/><path d="M479 198 L497 205 L479 212 Z" fill="#1d6fb8"/>
+          <text x="485" y="238" text-anchor="middle" font-size="10.5" fill="#1d6fb8" font-weight="700">CHW Pump</text>
+          <!-- labels -->
+          <text x="250" y="62" font-size="9.5" fill="#2e7d32">Cond. supply</text>
+          <text x="250" y="200" font-size="9.5" fill="#2e7d32">Cond. return</text>
+          <text x="468" y="112" font-size="9.5" fill="#1d6fb8">CHW supply 5°C</text>
+          <text x="468" y="200" font-size="9.5" fill="#1d6fb8">CHW return 10°C</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 7 PIPE SIZING -->
+    <section class="card">
+      <h3><span class="num">7</span> PIPE SIZING (CHW) <span class="ico">🛢️</span></h3>
+      <div class="body">
+        <div class="f">A = Q/v · D = √(4A/π)</div>
+        <div class="field"><label>Target velocity (m/s)</label><input id="vtarget" type="number" step="0.1" value="2.0"></div>
+        <div class="rline"><span class="rl">Required diameter</span><span class="rv" id="o_dreq"></span></div>
+        <div class="rline"><span class="rl">Velocity at chosen DN</span><span class="rv" id="o_vact"></span></div>
+        <div class="res"><span class="lab">SELECTED PIPE</span><span class="big" id="o_dn"></span></div>
+        <div class="hint">Targets: chilled 1.5–2.5 m/s · condenser 1.8–3.0 m/s.</div>
+      </div>
+    </section>
+
+    <!-- 8 AHU -->
+    <section class="card">
+      <h3><span class="num">8</span> AHU SELECTION <span class="ico">🌬️</span></h3>
+      <div class="body">
+        <div class="f">Airflow (L/s) = Q(kW) × 1000 / (1.2 × 1.005 × ΔT°C)</div>
+        <div class="field"><label>Zone sensible load (kW)</label><input id="ahuload" type="number" value="85"></div>
+        <div class="field"><label>ΔT (°C)</label><input id="dt8" type="number" value="10"></div>
+        <div class="rline"><span class="rl">≈ in m³/h</span><span class="rv" id="o_cmh8"></span></div>
+        <div class="res"><span class="lab">AIRFLOW</span><span class="big" id="o_ahls"></span></div>
+        <div class="hint">ρ = 1.2 kg/m³ · c<sub>p</sub> = 1.005 kJ/kg·K · select coil + ESP per duct.</div>
+      </div>
+    </section>
+
+    <!-- 9 EXPANSION TANK -->
+    <section class="card">
+      <h3><span class="num">9</span> EXPANSION TANK <span class="ico">🛢️</span></h3>
+      <div class="body">
+        <p style="font-size:12.5px;margin:0 0 6px;">Absorbs water expansion from temperature rise. Engineers calculate from:</p>
+        <ul class="tight">
+          <li>Total system water volume</li>
+          <li>Expansion coefficient</li>
+          <li>Operating pressure</li>
+        </ul>
+        <div class="res"><span class="lab">Typical result</span><span class="big">500 – 700 L</span></div>
+      </div>
+    </section>
+
+    <!-- 10 CONTROL -->
+    <section class="card">
+      <h3><span class="num">10</span> CONTROL STRATEGY <span class="ico">🖥️</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>Variable primary flow · VFD pumps</li>
+          <li>VFD cooling towers</li>
+          <li>Chiller sequencing</li>
+          <li>Differential pressure sensors</li>
+          <li>BMS integration</li>
+        </ul>
+        <div class="hint">Efficiency is about how the whole system operates together.</div>
+      </div>
+    </section>
+
+    <!-- 11 DIVERSITY -->
+    <section class="card">
+      <h3><span class="num">11</span> DIVERSITY &amp; REAL OPERATION <span class="ico">📈</span></h3>
+      <div class="body">
+        <p style="font-size:12.5px;margin:0 0 6px;">Real buildings rarely run at 100% load. Evaluate:</p>
+        <ul class="tight">
+          <li>Diversity factors · partial occupancy</li>
+          <li>Solar variation · seasonal conditions</li>
+          <li>Future expansion</li>
+        </ul>
+        <div class="hint">Affects chiller staging, energy use &amp; equipment lifespan.</div>
+      </div>
+    </section>
+
+    <!-- RT ↔ kW CONVERTER -->
+    <section class="card">
+      <h3><span class="num">⇄</span> RT ↔ kW CONVERTER <span class="ico">🔄</span></h3>
+      <div class="body">
+        <div class="f">1 RT = 3.517 kW</div>
+        <div class="field"><label>Refrigeration tons (RT)</label><input id="cv_rt" type="number" step="1" value="256"></div>
+        <div class="field"><label>Cooling capacity (kW)</label><input id="cv_kw" type="number" step="1" value="900.4"></div>
+        <div class="hint">Edit either field — the other updates instantly.</div>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="card wide">
+      <h3><span class="num">Σ</span> SUMMARY <span class="ico">🧾</span></h3>
+      <div class="body">
+        <table class="mini">
+          <tbody>
+            <tr><td>Total cooling load</td><td class="rv" id="s_total"></td></tr>
+            <tr><td>Final design capacity</td><td class="rv" id="s_design"></td></tr>
+            <tr><td>Chiller selection</td><td class="rv" id="s_chiller"></td></tr>
+            <tr><td>Chilled water flow</td><td class="rv" id="s_flow"></td></tr>
+            <tr><td>CHW pump</td><td class="rv" id="s_pump"></td></tr>
+            <tr><td>Condenser water flow</td><td class="rv" id="s_cond"></td></tr>
+            <tr><td>Cooling tower</td><td class="rv" id="s_tower"></td></tr>
+            <tr><td>CHW pipe</td><td class="rv" id="s_pipe"></td></tr>
+            <tr><td>Sample AHU airflow</td><td class="rv" id="s_ahu"></td></tr>
+          </tbody>
+        </table>
+        <button class="reset no-print" id="reset">↺ Reset to example</button>
+      </div>
+    </section>
+
+  </div>
+  <footer>Interactive water-cooled chiller plant selector built from the source sheet · preliminary engineering — verify with full load calc, manufacturer data &amp; codes.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
+  const DN=[50,65,80,100,125,150,200,250,300,350,400];
+
+  function recalc(){
+    // 1 cooling load
+    const total=n($("L_sens").value)+n($("L_lat").value)+n($("L_fresh").value)+n($("L_light").value)+n($("L_people").value);
+    const rt=Math.round(total/3.517);
+    const design=Math.round(rt*(1+n($("margin").value)/100));
+    $("o_total").textContent=f(total)+" kW";
+    $("o_rt").textContent=f(rt)+" RT";
+    $("o_design").textContent=f(design)+" RT";
+    // 2 chiller
+    const N=Math.max(1,Math.round(n($("nch").value)));
+    const size=Math.ceil((design/N)/10)*10, chtot=size*N;
+    $("o_chiller").textContent=`${N} × ${f(size)} RT`;
+    // 3 flow
+    const dt3=n($("dt3").value), flow=dt3?total/(4.186*dt3):0;
+    $("o_flowexact").textContent=f(flow,1)+" L/s";
+    $("o_flow").textContent="≈ "+f(Math.round(flow/5)*5)+" L/s";
+    // 4 pump
+    const H=n($("h_evap").value)+n($("h_pipe").value)+n($("h_ahu").value)+n($("h_valve").value);
+    const Q=flow/1000, hyd=1000*9.81*Q*H, eff=n($("eff4").value)||0.64, motor=hyd/eff;
+    $("o_head").textContent=f(H)+" m";
+    $("o_hyd").textContent=f(hyd/1000,1)+" kW";
+    $("o_motor").textContent="≈ "+f(motor/1000,1)+" kW";
+    // 5 condenser
+    const cls=n($("lsrt").value)*chtot, cmh=cls*3.6;
+    $("o_crt").textContent=f(chtot)+" RT";
+    $("o_cmh").textContent=f(cmh)+" m³/h";
+    $("o_cls").textContent=f(cls,1)+" L/s";
+    // 6 tower
+    const tower=n($("trf").value)*design;
+    $("o_designrt2").textContent=f(design)+" RT";
+    $("o_tower").textContent=f(tower)+" RT";
+    // 7 pipe
+    const v=n($("vtarget").value)||2, Dreq=v?Math.sqrt(4*Q/(Math.PI*v))*1000:0;
+    let dn=DN[0], best=1e9; DN.forEach(d=>{const e=Math.abs(d-Dreq); if(e<best){best=e;dn=d;}});
+    const vact=Q/(Math.PI/4*Math.pow(dn/1000,2));
+    $("o_dreq").textContent=f(Dreq)+" mm";
+    $("o_vact").textContent=f(vact,2)+" m/s";
+    $("o_dn").textContent="DN"+dn;
+    // 8 AHU
+    const dt8=n($("dt8").value), ahls=dt8?(n($("ahuload").value)*1000)/(1.2*1.005*dt8):0, ahmh=ahls*3.6;
+    $("o_cmh8").textContent=f(Math.round(ahmh/10)*10)+" m³/h";
+    $("o_ahls").textContent=f(Math.round(ahls/10)*10)+" L/s";
+    // summary
+    $("s_total").textContent=f(total)+" kW";
+    $("s_design").textContent=f(design)+" RT";
+    $("s_chiller").textContent=`${N} × ${f(size)} RT (= ${f(chtot)} RT)`;
+    $("s_flow").textContent="≈ "+f(Math.round(flow/5)*5)+" L/s";
+    $("s_pump").textContent=`${f(Math.round(flow/5)*5)} L/s @ ${f(H)} m · ≈ ${f(motor/1000,1)} kW`;
+    $("s_cond").textContent=f(cls,1)+" L/s ("+f(cmh)+" m³/h)";
+    $("s_tower").textContent=f(tower)+" RT";
+    $("s_pipe").textContent="DN"+dn+" ("+f(vact,2)+" m/s)";
+    $("s_ahu").textContent=f(Math.round(ahls/10)*10)+" L/s ("+f(Math.round(ahmh/10)*10)+" m³/h)";
+  }
+
+  const DEF={L_sens:420,L_lat:110,L_fresh:90,L_light:130,L_people:70,margin:10,nch:2,dt3:5,
+    h_evap:6,h_pipe:12,h_ahu:8,h_valve:5,eff4:0.64,lsrt:0.189,trf:1.25,vtarget:2.0,ahuload:85,dt8:10};
+  $("reset").addEventListener("click",()=>{for(const k in DEF)$(k).value=DEF[k]; recalc();});
+  document.addEventListener("input",e=>{ if(e.target.id in DEF) recalc(); });
+  $("cv_rt").addEventListener("input",()=>{ $("cv_kw").value=+(n($("cv_rt").value)*3.517).toFixed(1); });
+  $("cv_kw").addEventListener("input",()=>{ $("cv_rt").value=+(n($("cv_kw").value)/3.517).toFixed(1); });
+  recalc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

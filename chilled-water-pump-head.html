@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chilled Water Pump Head — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --green:#2e7d32; --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:34px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:24px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1.5px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:240px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:26px;} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:span 3;} .card.span2{grid-column:span 2;}
+  @media(max-width:980px){ .card.wide{grid-column:span 2;} .card.span2{grid-column:span 2;} }
+  @media(max-width:660px){ .card.wide,.card.span2{grid-column:span 1;} }
+
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:13.5px; letter-spacing:.4px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:24px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:14px; flex:1;}
+
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:9px 11px; font-size:13.5px; color:var(--navy); text-align:center; margin:8px 0;}
+  .frac{display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; margin:0 5px;}
+  .frac .t{padding:0 6px 1px;} .frac .b{border-top:2px solid var(--navy); padding:1px 6px 0;}
+  .where{font-size:12px; color:var(--muted); margin:6px 0;} .where b{color:var(--text);}
+  ul.tight{margin:4px 0; padding-left:18px; font-size:12.5px;} ul.tight li{margin:5px 0;}
+  .note{font-size:12px; color:var(--muted);}
+  .rsub{color:var(--green); font-weight:800; font-size:12.5px; margin:10px 0 4px;} .rsub:first-child{margin-top:0;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:6px 9px; border-bottom:1px solid var(--line);}
+  thead th{background:#dbe7f3; color:var(--navy);}
+  tbody tr:nth-child(even){background:var(--row-alt);}
+  td.v{text-align:right; font-weight:700; color:var(--navy); white-space:nowrap;}
+
+  /* calculator */
+  .calcwrap{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:760px){ .calcwrap{grid-template-columns:1fr;} }
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:12px;}
+  .calc h5{margin:0 0 10px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .field label{flex:1 1 auto; font-size:12.5px;}
+  .field input{flex:0 0 auto; width:104px; padding:6px 8px; border:1px solid #b9c7d6; border-radius:7px; font-size:12.5px; background:#fff; text-align:right;}
+  .field input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .subhint{font-size:11px; color:var(--muted); margin:2px 0 8px;}
+  .applybtn{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:6px 11px; font-size:11.5px; font-weight:700; cursor:pointer;}
+  .applybtn:hover{background:var(--navy);}
+  .miniflow{border-top:1px dashed #b9cbe0; margin-top:8px; padding-top:8px;}
+
+  .rline{display:flex; justify-content:space-between; gap:10px; align-items:baseline; font-size:12.5px; padding:4px 0; border-bottom:1px dotted #e0e6ee;}
+  .rl{color:var(--muted); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px;}
+  .rv{font-weight:700; color:var(--navy); white-space:nowrap;}
+  .hl{display:flex; justify-content:space-between; align-items:center; gap:10px; background:#fff; border:1px solid #cfe0f3; border-radius:8px; padding:9px 12px; margin-top:10px; font-size:13px;}
+  .hl b{font-size:17px; color:var(--navy);}
+  .banner{background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:10px; padding:13px 16px; margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .banner .lab{font-size:12px; letter-spacing:.6px; opacity:.9;} .banner .v{font-size:24px; font-weight:800;}
+  .reset{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; margin-top:10px;}
+  .reset:hover{background:var(--navy);}
+  .vcheck{font-size:11.5px; margin-top:4px; font-weight:700;}
+
+  .keypts li{margin:6px 0;}
+  .conv{display:inline-block; background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:8px; padding:6px 10px; font-size:12px; color:var(--navy); margin:3px 6px 3px 0; font-weight:600;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  @media print{ @page{size:A4 portrait; margin:9mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11px;} .wrap{max-width:none;} .no-print{display:none!important;} .card,.calc{break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>CHILLED WATER <span class="pill">PUMP HEAD</span></h1>
+      <div class="sub">SYSTEM HEAD · DESIGN FLOW · LIVE CALCULATION</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>WHAT IS PUMP HEAD?</h4>
+      <p>The total energy per unit weight the pump must add to the water to overcome system resistance and maintain the required flow.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1 + 2 FORMULA -->
+    <section class="card">
+      <h3><span class="num">1·2</span> PUMP HEAD FORMULA <span class="ico">💧</span></h3>
+      <div class="body">
+        <div class="formula">H<sub>T</sub> = H<sub>s</sub> + H<sub>d</sub> + H<sub>v</sub> + H<sub>e</sub></div>
+        <ul class="tight">
+          <li><b>H<sub>s</sub></b> — Static head (m)</li>
+          <li><b>H<sub>d</sub></b> — Friction head in pipes (m)</li>
+          <li><b>H<sub>v</sub></b> — Velocity head (m)</li>
+          <li><b>H<sub>e</sub></b> — Minor losses head (m) — fittings, valves, bends…</li>
+        </ul>
+        <div class="note">Unit of head: Meter of Water Column (mWC).</div>
+      </div>
+    </section>
+
+    <!-- 3 COMPONENTS -->
+    <section class="card">
+      <h3><span class="num">3</span> COMPONENTS OF HEAD <span class="ico">🧩</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li><b>Static (H<sub>s</sub>)</b> — vertical height between suction &amp; discharge levels.</li>
+          <li><b>Friction (H<sub>d</sub>)</b> — loss in straight pipe (Darcy–Weisbach).</li>
+          <li><b>Velocity (H<sub>v</sub>)</b> — H<sub>v</sub> = v²/2g, g = 9.81 m/s².</li>
+          <li><b>Minor (H<sub>e</sub>)</b> — fittings, valves, bends, strainers, expansion joints.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SCHEMATIC -->
+    <section class="card">
+      <h3><span class="num">◇</span> SYSTEM SCHEMATIC <span class="ico">🗺️</span></h3>
+      <div class="body">
+        <svg viewBox="0 0 420 250" style="width:100%;height:auto;display:block" font-family="Arial">
+          <defs>
+            <marker id="ab" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1d6fb8"/></marker>
+            <marker id="ar" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e23b2e"/></marker>
+            <marker id="ar2" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M7,0 L0,3 L7,6 Z" fill="#e23b2e"/></marker>
+          </defs>
+          <!-- dashed reference levels -->
+          <line x1="300" y1="100" x2="392" y2="100" stroke="#9fb3c8" stroke-width="1.2" stroke-dasharray="5 4"/>
+          <line x1="120" y1="210" x2="392" y2="210" stroke="#9fb3c8" stroke-width="1.2" stroke-dasharray="5 4"/>
+          <!-- pipes (loop) -->
+          <g fill="none" stroke="#1d6fb8" stroke-width="3">
+            <path d="M83 150 L83 100 L300 100" marker-end="url(#ab)"/>
+            <path d="M343 130 L343 210 L237 210" marker-end="url(#ab)"/>
+            <path d="M193 210 L83 210 L83 196" marker-end="url(#ab)"/>
+          </g>
+          <!-- chiller -->
+          <rect x="40" y="150" width="86" height="46" rx="5" fill="#dCE9F6" stroke="#1d4e89" stroke-width="2"/>
+          <text x="83" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#173a5e">CHILLER</text>
+          <!-- AHU/FCU -->
+          <rect x="300" y="60" width="86" height="70" rx="5" fill="#dCE9F6" stroke="#1d4e89" stroke-width="2"/>
+          <text x="343" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#173a5e">AHU</text>
+          <text x="343" y="106" text-anchor="middle" font-size="11" fill="#5a6b7b">or FCU</text>
+          <!-- pump -->
+          <circle cx="215" cy="210" r="20" fill="#dCE9F6" stroke="#1d4e89" stroke-width="2"/>
+          <path d="M207 200 L228 210 L207 220 Z" fill="#1d4e89"/>
+          <text x="215" y="245" text-anchor="middle" font-size="12" font-weight="700" fill="#173a5e">PUMP</text>
+          <!-- Hs arrow -->
+          <line x1="392" y1="100" x2="392" y2="210" stroke="#e23b2e" stroke-width="2.5" marker-start="url(#ar2)" marker-end="url(#ar)"/>
+          <text x="404" y="158" text-anchor="middle" font-size="15" font-weight="800" fill="#e23b2e">H</text>
+          <text x="412" y="162" font-size="10" font-weight="800" fill="#e23b2e">s</text>
+        </svg>
+        <div class="note" style="margin-top:6px;">The pump overcomes all resistances and maintains the design flow rate.</div>
+      </div>
+    </section>
+
+    <!-- 4 FRICTION -->
+    <section class="card span2">
+      <h3><span class="num">4</span> FRICTION HEAD (H<sub style="color:#fff">d</sub>) — DARCY–WEISBACH <span class="ico">⚙️</span></h3>
+      <div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div class="formula">H<sub>d</sub> = f · (L/D) · <span class="frac"><span class="t">v²</span><span class="b">2g</span></span></div>
+          <div class="where">
+            <b>f</b> friction factor · <b>L</b> pipe length (m) · <b>D</b> internal diameter (m) · <b>v</b> velocity (m/s) · <b>g</b> 9.81 m/s²
+          </div>
+        </div>
+        <div>
+          <div class="rsub">Friction factor (f)</div>
+          <ul class="tight">
+            <li>Depends on Reynolds number (Re) &amp; relative roughness (ε/D).</li>
+            <li>For practical design, use the Moody chart.</li>
+            <li>Re &gt; 4000 (turbulent): typical f = 0.02–0.04.</li>
+            <li>For design, take <b>f = 0.02</b> (common for steel pipe).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 MINOR -->
+    <section class="card">
+      <h3><span class="num">5</span> MINOR LOSSES (H<sub style="color:#fff">e</sub>) <span class="ico">🔧</span></h3>
+      <div class="body">
+        <div class="formula">H<sub>e</sub> = ΣK · <span class="frac"><span class="t">v²</span><span class="b">2g</span></span></div>
+        <div class="where"><b>K</b> loss coefficient (from tables) · <b>ΣK</b> sum of all K · <b>v</b> velocity (m/s)</div>
+      </div>
+    </section>
+
+    <!-- 6/7 VELOCITY & FLOW -->
+    <section class="card wide">
+      <h3><span class="num">6·7</span> VELOCITY &amp; DESIGN FLOW RATE <span class="ico">❄️</span></h3>
+      <div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div class="rsub">6 · Velocity</div>
+          <div class="formula">v = Q / A &nbsp;·&nbsp; A = πD²/4</div>
+          <div class="where"><b>Q</b> flow rate (m³/s) · <b>A</b> pipe cross-section (m²) · <b>D</b> internal diameter (m)</div>
+        </div>
+        <div>
+          <div class="rsub">7 · Design flow rate from cooling load</div>
+          <div class="formula">Q (m³/hr) = <span class="frac"><span class="t">Cooling Load (kW)</span><span class="b">1.163 × ΔT</span></span></div>
+          <div class="where">ΔT = supply–return temperature difference (°C)</div>
+          <div><span class="conv">1 TR = 3.517 kW</span><span class="conv">1 kW = 0.86 kcal/hr</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE CALCULATOR -->
+    <section class="card wide">
+      <h3><span class="num">★</span> LIVE PUMP-HEAD CALCULATOR <span class="ico">🧮</span></h3>
+      <div class="body">
+        <div class="calcwrap">
+          <!-- inputs -->
+          <div class="calc">
+            <h5>Given Data (inputs)</h5>
+            <div class="field"><label>Flow rate Q (m³/hr)</label><input id="q" type="number" step="1" value="150"></div>
+            <div class="field"><label>Pipe internal dia D (mm)</label><input id="d" type="number" step="1" value="150"></div>
+            <div class="field"><label>Pipe length L (m)</label><input id="l" type="number" step="1" value="60"></div>
+            <div class="field"><label>Static head H<sub>s</sub> (m)</label><input id="hs" type="number" step="0.5" value="8"></div>
+            <div class="field"><label>Friction factor f</label><input id="f" type="number" step="0.001" value="0.02"></div>
+            <div class="field"><label>Sum of minor K (ΣK)</label><input id="sk" type="number" step="0.5" value="6"></div>
+            <div class="field"><label>Safety factor (%)</label><input id="sf" type="number" step="1" value="15"></div>
+            <div class="field"><label>Gravity g (m/s²)</label><input id="g" type="number" step="0.01" value="9.81"></div>
+
+            <div class="miniflow">
+              <h5 style="margin-bottom:6px;">Need Q from cooling load?</h5>
+              <div class="field"><label>Cooling load (kW)</label><input id="cl" type="number" step="1" value="872"></div>
+              <div class="field"><label>ΔT (°C)</label><input id="dt" type="number" step="0.5" value="5"></div>
+              <div class="field"><label>→ Q result</label><span class="rv" id="o_qfl"></span></div>
+              <button class="applybtn" id="applyQ">↑ Use this as flow Q</button>
+            </div>
+            <br><button class="reset no-print" id="reset">↺ Reset to example</button>
+          </div>
+
+          <!-- results -->
+          <div class="calc">
+            <h5>Results</h5>
+            <div class="rsub">Step 1 · Velocity</div>
+            <div class="rline"><span class="rl">A = πD²/4</span><span class="rv" id="o_a"></span></div>
+            <div class="rline"><span class="rl">Q = m³/hr ÷ 3600</span><span class="rv" id="o_qs"></span></div>
+            <div class="rline"><span class="rl">v = Q / A</span><span class="rv" id="o_v"></span></div>
+            <div class="vcheck" id="o_vchk"></div>
+
+            <div class="rsub">Step 2–4 · Heads</div>
+            <div class="rline"><span class="rl">H_v = v²/2g</span><span class="rv" id="o_hv"></span></div>
+            <div class="rline"><span class="rl">H_d = f·(L/D)·v²/2g</span><span class="rv" id="o_hd"></span></div>
+            <div class="rline"><span class="rl">H_e = ΣK·v²/2g</span><span class="rv" id="o_he"></span></div>
+            <div class="rline"><span class="rl">H_s (static, given)</span><span class="rv" id="o_hs"></span></div>
+
+            <div class="rsub">Step 5 · Total &amp; design head</div>
+            <div class="hl"><span>H<sub>T</sub> = H<sub>s</sub>+H<sub>d</sub>+H<sub>v</sub>+H<sub>e</sub></span><b id="o_ht"></b></div>
+            <div class="banner"><span class="lab" id="o_sflab">DESIGN HEAD (× 1.15)</span><span class="v" id="o_design"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKED EXAMPLE -->
+    <section class="card span2">
+      <h3><span class="num">9</span> WORKED EXAMPLE <span class="ico">📖</span></h3>
+      <div class="body">
+        <table>
+          <tbody>
+            <tr><td>Given</td><td>Q = 150 m³/hr · D = 150 mm · L = 60 m · H<sub>s</sub> = 8 m · ΣK = 6 · ΔT = 5 °C · f = 0.02</td></tr>
+            <tr><td>Step 1 · Velocity</td><td>A = 0.0177 m² · v = 0.0417 / 0.0177 = 2.36 m/s</td></tr>
+            <tr><td>Step 2 · Velocity head</td><td>H<sub>v</sub> = 2.36² / (2×9.81) = 0.28 m</td></tr>
+            <tr><td>Step 3 · Friction head</td><td>H<sub>d</sub> = 0.02 × (60/0.15) × 0.28 = 2.24 m</td></tr>
+            <tr><td>Step 4 · Minor losses</td><td>H<sub>e</sub> = 6 × 0.28 = 1.68 m</td></tr>
+            <tr><td>Step 5 · Total head</td><td>H<sub>T</sub> = 8 + 2.24 + 0.28 + 1.68 = <b>12.20 m</b></td></tr>
+            <tr><td>+ 15 % safety</td><td class="v">Design Head = 12.20 × 1.15 = 14.03 m</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:6px;">The live calculator is more precise (no intermediate rounding) so it reads ≈ 12.25 / 14.09 m.</div>
+      </div>
+    </section>
+
+    <!-- 10 KEY POINTS -->
+    <section class="card">
+      <h3><span class="num">10</span> KEY POINTS <span class="ico">🎯</span></h3>
+      <div class="body">
+        <ul class="tight keypts">
+          <li>Always use correct flow rate and ΔT.</li>
+          <li>Consider all losses — friction + minor.</li>
+          <li>Include a proper safety factor.</li>
+          <li>Select the pump from its curve at the required flow &amp; head.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 11 TYPICAL VALUES -->
+    <section class="card span2">
+      <h3><span class="num">11</span> TYPICAL VALUES (REFERENCE) <span class="ico">📋</span></h3>
+      <div class="body">
+        <table>
+          <tbody>
+            <tr><td>Chilled water ΔT</td><td class="v">5 °C to 6 °C</td></tr>
+            <tr><td>Velocity in pipes</td><td class="v">1.5 to 2.5 m/s</td></tr>
+            <tr><td>Friction factor (f)</td><td class="v">0.02 (steel pipe)</td></tr>
+            <tr><td>Safety factor</td><td class="v">10 % to 20 %</td></tr>
+            <tr><td>Unit of head</td><td class="v">Meter of Water Column (mWC)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+  <footer>Interactive chilled-water pump-head calculator built from the source sheet · Darcy–Weisbach + K-method · preliminary sizing — select final pump from its performance curve.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const fd=(x,d)=>isFinite(x)?x.toFixed(d):"0";
+
+  function recalc(){
+    const g=n($("g").value)||9.81, Qhr=n($("q").value), Q=Qhr/3600;
+    const D=n($("d").value)/1000, A=Math.PI*D*D/4, v=A?Q/A:0, vh=v*v/(2*g);
+    const f=n($("f").value), L=n($("l").value), sk=n($("sk").value), Hs=n($("hs").value), sf=n($("sf").value);
+    const Hd=f*(D?L/D:0)*vh, He=sk*vh, Hv=vh;
+    const Ht=Hs+Hd+Hv+He, design=Ht*(1+sf/100);
+    // cooling-load helper
+    const dt=n($("dt").value), qfl=dt?n($("cl").value)/(1.163*dt):0;
+    $("o_qfl").textContent=`${fd(qfl,1)} m³/hr  (${fd(qfl/3600,4)} m³/s)`;
+
+    $("o_a").textContent=fd(A,4)+" m²";
+    $("o_qs").textContent=fd(Q,4)+" m³/s";
+    $("o_v").textContent=fd(v,2)+" m/s";
+    let vc, col;
+    if(v>=1.5&&v<=2.5){vc="✓ within typical 1.5–2.5 m/s"; col="var(--good)";}
+    else if(v<1.5){vc="↓ below typical 1.5 m/s (large pipe / low flow)"; col="var(--warn)";}
+    else {vc="↑ above 2.5 m/s — consider larger pipe (noise/erosion)"; col="#c0392b";}
+    $("o_vchk").textContent=vc; $("o_vchk").style.color=col;
+
+    $("o_hv").textContent=fd(Hv,3)+" m";
+    $("o_hd").textContent=fd(Hd,3)+" m";
+    $("o_he").textContent=fd(He,3)+" m";
+    $("o_hs").textContent=fd(Hs,2)+" m";
+    $("o_ht").textContent=fd(Ht,2)+" m";
+    $("o_sflab").textContent=`DESIGN HEAD (× ${fd(1+sf/100,2)})`;
+    $("o_design").textContent=fd(design,2)+" m";
+  }
+
+  const DEF={q:150,d:150,l:60,hs:8,f:0.02,sk:6,sf:15,g:9.81,cl:872,dt:5};
+  $("reset").addEventListener("click",()=>{for(const k in DEF)$(k).value=DEF[k]; recalc();});
+  $("applyQ").addEventListener("click",()=>{
+    const dt=n($("dt").value); if(dt){ $("q").value=Math.round(n($("cl").value)/(1.163*dt)*10)/10; recalc(); }
+  });
+  document.addEventListener("input",e=>{ if(e.target.id in DEF) recalc(); });
+  recalc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

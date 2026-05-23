@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essential HVAC Formulas — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --green:#2e7d32; --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.4; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:32px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:22px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1.5px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:240px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(285px,1fr)); gap:14px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:9px 12px; font-size:12.5px; letter-spacing:.3px; display:flex; align-items:center; gap:9px; line-height:1.2;}
+  .num{background:#fff; color:var(--navy); min-width:22px; height:22px; border-radius:5px; font-weight:800; font-size:12px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ico{margin-left:auto; font-size:15px; opacity:.9;}
+  .body{padding:11px 12px; flex:1; display:flex; flex-direction:column;}
+  .f{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:7px; padding:6px 8px; font-size:12px; color:var(--navy); text-align:center; margin-bottom:9px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .field label{flex:1 1 auto; font-size:12px;}
+  .field input{flex:0 0 auto; width:90px; padding:5px 7px; border:1px solid #b9c7d6; border-radius:6px; font-size:12.5px; background:#fff; text-align:right;}
+  .field input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .res{margin-top:auto; background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:8px; padding:8px 10px; display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .res .lab{font-size:11px; color:var(--muted);}
+  .res .big{font-size:17px; font-weight:800; color:var(--navy); white-space:nowrap;}
+  .hint{font-size:10.5px; color:var(--muted); margin-top:6px;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  @media print{ @page{size:A4 landscape; margin:8mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10px;} .wrap{max-width:none;} .no-print{display:none!important;} .card{break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>ESSENTIAL <span class="pill">HVAC FORMULAS</span></h1>
+      <div class="sub">15 FORMULAS EVERY ENGINEER SHOULD KNOW · LIVE</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>HOW TO USE</h4>
+      <p>Each card is an independent live calculator — edit the inputs and the result updates instantly. Imperial units (CFM, Btu/hr, °F, in.wg, ft).</p>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1 -->
+    <section class="card">
+      <h3><span class="num">1</span> AIRFLOW RATE (CFM) <span class="ico">🌀</span></h3>
+      <div class="body">
+        <div class="f">CFM = Q / (1.08 × ΔT)</div>
+        <div class="field"><label>Total heat Q (Btu/hr)</label><input id="i1q" type="number" value="24000"></div>
+        <div class="field"><label>ΔT (°F)</label><input id="i1dt" type="number" value="20"></div>
+        <div class="res"><span class="lab">CFM</span><span class="big" id="o1"></span></div>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="card">
+      <h3><span class="num">2</span> SENSIBLE HEAT (SH) <span class="ico">♨️</span></h3>
+      <div class="body">
+        <div class="f">SH = 1.08 × CFM × ΔT</div>
+        <div class="field"><label>Airflow (CFM)</label><input id="i2cfm" type="number" value="1000"></div>
+        <div class="field"><label>ΔT (°F)</label><input id="i2dt" type="number" value="20"></div>
+        <div class="res"><span class="lab">SH (Btu/hr)</span><span class="big" id="o2"></span></div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="card">
+      <h3><span class="num">3</span> TOTAL HEAT (TH) <span class="ico">🔥</span></h3>
+      <div class="body">
+        <div class="f">TH = SH + LH</div>
+        <div class="field"><label>Sensible heat SH (Btu/hr)</label><input id="i3sh" type="number" value="21600"></div>
+        <div class="field"><label>Latent heat LH (Btu/hr)</label><input id="i3lh" type="number" value="8000"></div>
+        <div class="res"><span class="lab">TH (Btu/hr)</span><span class="big" id="o3"></span></div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="card">
+      <h3><span class="num">4</span> HEAT GAIN / LOSS <span class="ico">🌡️</span></h3>
+      <div class="body">
+        <div class="f">Q = U × A × ΔT</div>
+        <div class="field"><label>U (Btu/hr·ft²·°F)</label><input id="i4u" type="number" step="0.01" value="0.1"></div>
+        <div class="field"><label>Area A (ft²)</label><input id="i4a" type="number" value="200"></div>
+        <div class="field"><label>ΔT (°F)</label><input id="i4dt" type="number" value="30"></div>
+        <div class="res"><span class="lab">Q (Btu/hr)</span><span class="big" id="o4"></span></div>
+        <div class="hint">Sheet prints “U + A×ΔT”; correct form is U × A × ΔT.</div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="card">
+      <h3><span class="num">5</span> FAN POWER (HP) <span class="ico">🌬️</span></h3>
+      <div class="body">
+        <div class="f">HP = (CFM × SP) / (6356 × η)</div>
+        <div class="field"><label>Airflow (CFM)</label><input id="i5cfm" type="number" value="1000"></div>
+        <div class="field"><label>Static pressure SP (in.wg)</label><input id="i5sp" type="number" step="0.1" value="1.0"></div>
+        <div class="field"><label>Fan efficiency η</label><input id="i5e" type="number" step="0.05" value="0.65"></div>
+        <div class="res"><span class="lab">HP</span><span class="big" id="o5"></span></div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="card">
+      <h3><span class="num">6</span> AIR CHANGES PER HOUR <span class="ico">🏠</span></h3>
+      <div class="body">
+        <div class="f">ACH = (CFM × 60) / Volume</div>
+        <div class="field"><label>Airflow (CFM)</label><input id="i6cfm" type="number" value="400"></div>
+        <div class="field"><label>Room volume L×W×H (ft³)</label><input id="i6v" type="number" value="2000"></div>
+        <div class="res"><span class="lab">ACH (per hr)</span><span class="big" id="o6"></span></div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="card">
+      <h3><span class="num">7</span> SENSIBLE HEAT RATIO <span class="ico">⚖️</span></h3>
+      <div class="body">
+        <div class="f">SHR = SH / TH</div>
+        <div class="field"><label>Sensible heat SH (Btu/hr)</label><input id="i7sh" type="number" value="21600"></div>
+        <div class="field"><label>Total heat TH (Btu/hr)</label><input id="i7th" type="number" value="29600"></div>
+        <div class="res"><span class="lab">SHR</span><span class="big" id="o7"></span></div>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="card">
+      <h3><span class="num">8</span> COEFF. OF PERFORMANCE <span class="ico">❄️</span></h3>
+      <div class="body">
+        <div class="f">COP = Cooling / Power</div>
+        <div class="field"><label>Cooling capacity (Btu/hr)</label><input id="i8c" type="number" value="36000"></div>
+        <div class="field"><label>Power input (W)</label><input id="i8p" type="number" value="3000"></div>
+        <div class="res"><span class="lab">COP</span><span class="big" id="o8"></span></div>
+        <div class="hint">Btu/hr → W (÷3.412) so COP is dimensionless.</div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="card">
+      <h3><span class="num">9</span> REFRIGERATION TON (TR) <span class="ico">🧊</span></h3>
+      <div class="body">
+        <div class="f">TR = Cooling (Btu/hr) / 12000</div>
+        <div class="field"><label>Cooling capacity (Btu/hr)</label><input id="i9c" type="number" value="36000"></div>
+        <div class="res"><span class="lab">TR (tons)</span><span class="big" id="o9"></span></div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="card">
+      <h3><span class="num">10</span> DUCT FRICTION LOSS <span class="ico">🛠️</span></h3>
+      <div class="body">
+        <div class="f">FL = (4 × f × L × V²) / (2 × D)</div>
+        <div class="field"><label>Friction factor f</label><input id="i10f" type="number" step="0.001" value="0.02"></div>
+        <div class="field"><label>Length L (ft)</label><input id="i10l" type="number" value="50"></div>
+        <div class="field"><label>Velocity V (fpm)</label><input id="i10v" type="number" value="1000"></div>
+        <div class="field"><label>Diameter D (ft)</label><input id="i10d" type="number" step="0.1" value="1.0"></div>
+        <div class="res"><span class="lab">FL (per sheet)</span><span class="big" id="o10"></span></div>
+        <div class="hint">Sheet’s simplified form. Real Darcy: f·(L/D)·V²/2g with V in ft/s.</div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="card">
+      <h3><span class="num">11</span> CHILLED WATER FLOW <span class="ico">💧</span></h3>
+      <div class="body">
+        <div class="f">GPM = Q / (500 × ΔT)</div>
+        <div class="field"><label>Cooling Q (Btu/hr)</label><input id="i11q" type="number" value="36000"></div>
+        <div class="field"><label>ΔT (°F)</label><input id="i11dt" type="number" value="10"></div>
+        <div class="res"><span class="lab">Flow (GPM)</span><span class="big" id="o11"></span></div>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="card">
+      <h3><span class="num">12</span> COOLING FROM AIRFLOW <span class="ico">🖥️</span></h3>
+      <div class="body">
+        <div class="f">Q = 4.5 × CFM × ΔT</div>
+        <div class="field"><label>Airflow (CFM)</label><input id="i12cfm" type="number" value="1000"></div>
+        <div class="field"><label>ΔT (°F)</label><input id="i12dt" type="number" value="20"></div>
+        <div class="res"><span class="lab">Q (Btu/hr)</span><span class="big" id="o12"></span></div>
+        <div class="hint" id="o12b"></div>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="card">
+      <h3><span class="num">13</span> STATIC PRESSURE (SP) <span class="ico">🧭</span></h3>
+      <div class="body">
+        <div class="f">SP = TP − VP</div>
+        <div class="field"><label>Total pressure TP (in.wg)</label><input id="i13tp" type="number" step="0.1" value="1.5"></div>
+        <div class="field"><label>Velocity pressure VP (in.wg)</label><input id="i13vp" type="number" step="0.05" value="0.1"></div>
+        <div class="res"><span class="lab">SP (in.wg)</span><span class="big" id="o13"></span></div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="card">
+      <h3><span class="num">14</span> PUMP HEAD (H) <span class="ico">⚙️</span></h3>
+      <div class="body">
+        <div class="f">H = (P₂−P₁)/γ + (Z₂−Z₁) + h_f</div>
+        <div class="field"><label>P₁ · P₂ (psi)</label><input id="i14p1" type="number" value="10" style="width:50px"><input id="i14p2" type="number" value="50" style="width:50px"></div>
+        <div class="field"><label>Spec. weight γ (lb/ft³)</label><input id="i14g" type="number" step="0.1" value="62.4"></div>
+        <div class="field"><label>Z₁ · Z₂ (ft)</label><input id="i14z1" type="number" value="0" style="width:50px"><input id="i14z2" type="number" value="20" style="width:50px"></div>
+        <div class="field"><label>Friction loss h_f (ft)</label><input id="i14hf" type="number" value="5"></div>
+        <div class="res"><span class="lab">H (ft)</span><span class="big" id="o14"></span></div>
+        <div class="hint">Pressure head = (P₂−P₁)×144/γ (psi→psf).</div>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section class="card">
+      <h3><span class="num">15</span> VENTILATION AIR (Qv) <span class="ico">👥</span></h3>
+      <div class="body">
+        <div class="f">Qv = R_p × P_z</div>
+        <div class="field"><label>CFM per person R_p</label><input id="i15rp" type="number" value="15"></div>
+        <div class="field"><label>People in zone P_z</label><input id="i15pz" type="number" value="20"></div>
+        <div class="res"><span class="lab">Qv (CFM)</span><span class="big" id="o15"></span></div>
+      </div>
+    </section>
+
+  </div>
+  <footer>Essential HVAC formulas — interactive reference · imperial units · preliminary calculations, verify against detailed methods &amp; codes.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
+  function R(){
+    const t1=1.08*n($("i1dt").value); $("o1").textContent=f(t1?n($("i1q").value)/t1:0)+" CFM";
+    $("o2").textContent=f(1.08*n($("i2cfm").value)*n($("i2dt").value));
+    $("o3").textContent=f(n($("i3sh").value)+n($("i3lh").value));
+    $("o4").textContent=f(n($("i4u").value)*n($("i4a").value)*n($("i4dt").value));
+    const d5=6356*n($("i5e").value); $("o5").textContent=f(d5?n($("i5cfm").value)*n($("i5sp").value)/d5:0,3)+" HP";
+    const v6=n($("i6v").value); $("o6").textContent=f(v6?n($("i6cfm").value)*60/v6:0,1);
+    const th7=n($("i7th").value); $("o7").textContent=f(th7?n($("i7sh").value)/th7:0,2);
+    const p8=n($("i8p").value); $("o8").textContent=f(p8?(n($("i8c").value)/3.412)/p8:0,2);
+    $("o9").textContent=f(n($("i9c").value)/12000,2);
+    const d10=2*n($("i10d").value); const v10=n($("i10v").value);
+    $("o10").textContent=f(d10?(4*n($("i10f").value)*n($("i10l").value)*v10*v10)/d10:0);
+    const t11=500*n($("i11dt").value); $("o11").textContent=f(t11?n($("i11q").value)/t11:0,2)+" GPM";
+    const q12=4.5*n($("i12cfm").value)*n($("i12dt").value); $("o12").textContent=f(q12);
+    $("o12b").textContent="≈ "+f(q12/12000,2)+" tons";
+    $("o13").textContent=f(n($("i13tp").value)-n($("i13vp").value),2);
+    const g14=n($("i14g").value);
+    const h14=(g14?(n($("i14p2").value)-n($("i14p1").value))*144/g14:0)+(n($("i14z2").value)-n($("i14z1").value))+n($("i14hf").value);
+    $("o14").textContent=f(h14,1)+" ft";
+    $("o15").textContent=f(n($("i15rp").value)*n($("i15pz").value));
+  }
+  document.addEventListener("input",e=>{ if(e.target.id&&e.target.id[0]==="i") R(); });
+  R();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

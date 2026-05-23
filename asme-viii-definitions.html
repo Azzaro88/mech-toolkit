@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASME VIII-1 — Top 10 Definitions</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --green:#2e7d32; --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:32px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:22px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1.5px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:240px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:640px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:24px;} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:1/-1;}
+
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.3px; display:flex; align-items:center; gap:10px; line-height:1.2;}
+  .num{background:#fff; color:var(--navy); min-width:26px; height:26px; padding:0 6px; border-radius:50%; font-weight:800; font-size:14px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:13px 14px; flex:1; display:flex; flex-direction:column;}
+  .body ul{margin:0 0 8px; padding-left:18px; font-size:12.5px;} .body li{margin:4px 0;}
+
+  .sub-t{font-weight:800; font-size:12px; margin:6px 0 4px;}
+  .sub-t.blue{color:var(--navy-2);} .sub-t.green{color:var(--green);} .sub-t.amber{color:var(--warn);}
+  .exbox{background:var(--row-alt); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; margin:4px 0 8px;}
+  .exbox .mono{font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:7px 10px; font-size:13px; color:var(--navy); text-align:center; margin:6px 0;}
+  .frac{display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; margin:0 4px;}
+  .frac .t{padding:0 6px 1px;} .frac .b{border-top:2px solid var(--navy); padding:1px 6px 0;}
+  .ref{margin-top:auto; align-self:flex-start; background:var(--calc-bg); border:1px solid #cfe0f3; color:var(--navy-2); font-weight:700; font-size:11.5px; padding:5px 11px; border-radius:7px;}
+
+  /* quick calc */
+  .qgrid{display:grid; grid-template-columns:1fr; gap:14px;}
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:12px;}
+  .calc h5{margin:0 0 10px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .field label{flex:1 1 auto; font-size:12px;}
+  .field input{flex:0 0 auto; width:92px; padding:6px 8px; border:1px solid #b9c7d6; border-radius:7px; font-size:12.5px; background:#fff; text-align:right;}
+  .field input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .res{margin-top:8px; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:9px 11px; font-size:13px;}
+  .res .big{font-size:18px; font-weight:800; color:var(--navy); display:block; margin-top:2px;}
+  .res small{color:var(--muted); font-size:11px;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  .src{text-align:center; background:#fff; border:1px solid var(--line); border-radius:9px; padding:10px; margin-top:16px; font-weight:700; color:var(--navy);}
+  @media print{ @page{size:A4 landscape; margin:9mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:10.5px;} .wrap{max-width:none;} .no-print{display:none!important;} .card{break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>ASME VIII-1 <span class="pill">TOP 10 DEFINITIONS</span></h1>
+      <div class="sub">PRESSURE VESSEL CODE · QUICK REFERENCE</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>SOURCE</h4>
+      <p>ASME BPVC Section VIII Division 1 — 2023. <i>Understand definitions… build safe vessels!</i></p>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1 -->
+    <section class="card">
+      <h3><span class="num">1</span> MAWP — Max Allowable Working Pressure <span class="ico">🛢️</span></h3>
+      <div class="body">
+        <ul>
+          <li>Maximum pressure the vessel can safely withstand at design temperature.</li>
+          <li>The weakest component decides MAWP.</li>
+          <li>Usually higher than operating pressure.</li>
+        </ul>
+        <div class="sub-t blue">Difference</div>
+        <div class="exbox">Design Pressure → design input.<br>MAWP → actual allowable pressure after fabrication.</div>
+        <span class="ref">Code Ref: UG-98</span>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="card">
+      <h3><span class="num">2</span> DESIGN PRESSURE <span class="ico">📈</span></h3>
+      <div class="body">
+        <ul>
+          <li>Pressure used for vessel design, <b>including static head</b>.</li>
+          <li>Normally selected slightly higher than operating pressure.</li>
+        </ul>
+        <div class="sub-t green">Example</div>
+        <div class="exbox">Operating Pressure = 8 barg<br>Design Pressure = 10 barg</div>
+        <span class="ref">Code Ref: UG-21</span>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="card">
+      <h3><span class="num">3</span> DESIGN TEMPERATURE <span class="ico">🌡️</span></h3>
+      <div class="body">
+        <ul>
+          <li>Metal temperature considered for design calculations.</li>
+          <li>Fluid temperature and metal temperature are not always the same.</li>
+        </ul>
+        <div class="sub-t amber">Interview point</div>
+        <div class="exbox">As temperature increases, allowable stress decreases.</div>
+        <span class="ref">Code Ref: UG-20</span>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="card">
+      <h3><span class="num">4</span> JOINT EFFICIENCY (E) <span class="ico">🔩</span></h3>
+      <div class="body">
+        <ul>
+          <li>Ratio of welded-joint strength to solid-plate strength.</li>
+          <li>Full RT → <b>E = 1</b></li>
+          <li>Spot / No RT → lower E</li>
+        </ul>
+        <div class="sub-t blue">Used in — shell thickness</div>
+        <div class="formula">t = <span class="frac"><span class="t">P·R</span><span class="b">S·E − 0.6P</span></span></div>
+        <span class="ref">Code Ref: UW-12</span>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="card">
+      <h3><span class="num">5</span> CORROSION ALLOWANCE (CA) <span class="ico">📏</span></h3>
+      <div class="body">
+        <ul>
+          <li>Extra thickness to compensate for future corrosion or erosion.</li>
+          <li>Added over the required pressure thickness.</li>
+        </ul>
+        <div class="sub-t green">Example</div>
+        <div class="exbox">Req. thickness = 12 mm · CA = 3 mm<br><b>Final thickness = 15 mm</b></div>
+        <span class="ref">Code Ref: UG-25</span>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="card">
+      <h3><span class="num">6</span> PWHT — Post Weld Heat Treatment <span class="ico">🔥</span></h3>
+      <div class="body">
+        <ul>
+          <li>Heat treatment after welding to reduce residual stress.</li>
+        </ul>
+        <div class="sub-t blue">Purpose</div>
+        <div class="exbox">✓ Crack prevention &nbsp; ✓ Hardness reduction &nbsp; ✓ Hydrogen removal</div>
+        <div class="sub-t blue">Depends on</div>
+        <div class="exbox">Thickness · Material · Service · Code requirement</div>
+        <span class="ref">Code Ref: UW-40 / UCS-56</span>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="card">
+      <h3><span class="num">7</span> MDMT — Min Design Metal Temp <span class="ico">❄️</span></h3>
+      <div class="body">
+        <ul>
+          <li>Lowest safe operating metal temperature without brittle fracture.</li>
+          <li>Impact-test requirement is directly related to MDMT.</li>
+        </ul>
+        <span class="ref">Code Ref: UCS-66</span>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="card">
+      <h3><span class="num">8</span> HYDROSTATIC TEST <span class="ico">💧</span></h3>
+      <div class="body">
+        <ul>
+          <li>Pressure test using liquid to verify strength &amp; leak tightness.</li>
+          <li>Hydrotest pressure ≈ <b>1.3 × MAWP</b>.</li>
+        </ul>
+        <div class="sub-t blue">Why water?</div>
+        <div class="exbox">Water has low stored energy — safer than pneumatic testing.</div>
+        <span class="ref">Code Ref: UG-99</span>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="card">
+      <h3><span class="num">9</span> RADIOGRAPHIC EXAM (RT) <span class="ico">📡</span></h3>
+      <div class="body">
+        <ul>
+          <li>NDT using X-rays or gamma rays for internal weld inspection.</li>
+          <li>RT level affects joint efficiency.</li>
+        </ul>
+        <div class="sub-t amber">Detects</div>
+        <div class="exbox">✓ Slag &nbsp; ✓ Porosity &nbsp; ✓ Lack of fusion</div>
+        <span class="ref">Code Ref: UW-51 / UW-52</span>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="card">
+      <h3><span class="num">10</span> REINFORCEMENT PAD (REPAD) <span class="ico">⭕</span></h3>
+      <div class="body">
+        <ul>
+          <li>Extra plate around a nozzle opening for strength compensation.</li>
+        </ul>
+        <div class="sub-t green">Functions</div>
+        <div class="exbox">✓ Area replacement &nbsp; ✓ Stress distribution &nbsp; ✓ Local reinforcement</div>
+        <span class="ref">Code Ref: UG-37 to UG-45</span>
+      </div>
+    </section>
+
+    <!-- QUICK CHECK -->
+    <section class="card">
+      <h3><span class="num">★</span> QUICK CHECK <span class="ico">🧮</span></h3>
+      <div class="body">
+        <div class="qgrid">
+          <div class="calc">
+            <h5>Shell thickness · UW-12</h5>
+            <div class="field"><label>Design pressure P (MPa)</label><input id="p" type="number" step="0.1" value="1.0"></div>
+            <div class="field"><label>Inside radius R (mm)</label><input id="r" type="number" step="10" value="1250"></div>
+            <div class="field"><label>Allowable stress S (MPa)</label><input id="s" type="number" step="1" value="138"></div>
+            <div class="field"><label>Joint efficiency E</label><input id="e" type="number" step="0.05" value="1"></div>
+            <div class="res" id="o_t"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="src">Source: ASME BPVC Section VIII Division 1 — 2023 · Understand definitions… build safe vessels!</div>
+  <footer>Reference summary of common ASME VIII-1 terms · for study/quick reference — always consult the current code for design.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const fd=(x,d)=>isFinite(x)?x.toFixed(d):"0";
+  function calc(){
+    const p=n($("p").value),r=n($("r").value),s=n($("s").value),e=n($("e").value);
+    const den=s*e-0.6*p; const t=den?p*r/den:0;
+    $("o_t").innerHTML=`<span class="big">t = ${fd(t,2)} mm</span><small>t = P·R / (S·E − 0.6P)</small>`;
+  }
+  document.addEventListener("input",e=>{ if(["p","r","s","e"].includes(e.target.id)) calc(); });
+  calc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pump Head, NPSHA &amp; Motor Power — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --green:#2e7d32; --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:34px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:24px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1.5px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:240px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:26px;} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:span 3;} .card.span2{grid-column:span 2;}
+  @media(max-width:980px){ .card.wide{grid-column:span 2;} .card.span2{grid-column:span 2;} }
+  @media(max-width:660px){ .card.wide,.card.span2{grid-column:span 1;} }
+
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.5px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:24px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:14px; flex:1;}
+
+  /* inputs */
+  .inpgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(232px,1fr)); gap:7px 18px;}
+  .subh{grid-column:1/-1; color:var(--green); font-weight:800; font-size:12px; letter-spacing:.5px; text-transform:uppercase; margin:8px 0 2px; border-bottom:1px solid var(--line); padding-bottom:3px;}
+  .field{display:flex; align-items:center; gap:8px;}
+  .field label{flex:1 1 auto; font-size:12.5px;}
+  .field input{flex:0 0 auto; width:96px; padding:6px 8px; border:1px solid #b9c7d6; border-radius:7px; font-size:12.5px; background:#fff; text-align:right;}
+  .field input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .resetbtn{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; margin-top:10px;}
+  .resetbtn:hover{background:var(--navy);}
+
+  /* results */
+  .rsub{color:var(--green); font-weight:800; font-size:12.5px; margin:10px 0 4px;}
+  .rsub:first-child{margin-top:0;}
+  .rline{display:flex; justify-content:space-between; gap:10px; align-items:baseline; font-size:12.5px; padding:3px 0; border-bottom:1px dotted #e0e6ee;}
+  .rl{color:var(--muted); font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px;}
+  .rv{font-weight:700; color:var(--navy); white-space:nowrap;}
+  .hl{display:flex; justify-content:space-between; align-items:center; gap:10px; background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:8px; padding:8px 11px; margin-top:8px; font-size:13px;}
+  .hl b{font-size:16px; color:var(--navy);}
+  .banner{background:#fdedcf; border:1px solid #e9c977; border-radius:9px; padding:10px 14px; margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:800; color:#8a5a08;}
+  .banner .v{font-size:18px;}
+  .recbox{border:1px dashed #79b389; background:#eef6ef; border-radius:10px; padding:11px 13px; margin-top:10px;}
+  .recbox h6{margin:0 0 6px; color:var(--green); font-size:12px; letter-spacing:.5px;}
+  .recbox ul{margin:0; padding-left:18px; font-size:13px;} .recbox li{margin:3px 0;}
+  .badge{display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:10px; padding:12px; margin-top:10px; font-weight:800; font-size:16px;}
+  .badge small{display:block; font-weight:600; font-size:11px; opacity:.85; margin-top:2px;}
+
+  .note{font-size:12px; color:var(--muted);} ul.tight{margin:4px 0; padding-left:18px; font-size:12.5px;} ul.tight li{margin:5px 0;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:7px 9px; border-bottom:1px solid var(--line);}
+  thead th{background:#dbe7f3; color:var(--navy);}
+  tbody tr:nth-child(even){background:var(--row-alt);}
+  td.v{text-align:right; font-weight:700; color:var(--navy); white-space:nowrap;}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  @media print{ @page{size:A4 portrait; margin:9mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11px;} .wrap{max-width:none;} .no-print{display:none!important;} .card{break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>PUMP HEAD · NPSHA <span class="pill">MOTOR POWER</span></h1>
+      <div class="sub">WATER SYSTEM · LIVE HYDRAULIC CALCULATION</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>HOW IT WORKS</h4>
+      <p>Edit any value in <b>Given Data</b> — discharge head, motor power and NPSHA all recompute instantly.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- 1 GIVEN DATA -->
+    <section class="card wide">
+      <h3><span class="num">1</span> GIVEN DATA (INPUTS) <span class="ico">📋</span></h3>
+      <div class="body">
+        <div class="inpgrid">
+          <div class="subh">Flow &amp; Fluid</div>
+          <div class="field"><label>Flow Q (m³/hr)</label><input id="q" type="number" step="1" value="30"></div>
+          <div class="field"><label>Density ρ (kg/m³)</label><input id="rho" type="number" step="1" value="1000"></div>
+          <div class="field"><label>Atmospheric pressure (Pa)</label><input id="patm" type="number" step="100" value="101325"></div>
+          <div class="field"><label>Vapor head P<sub>v</sub>/ρg (m) @25°C</label><input id="pv" type="number" step="0.01" value="0.03"></div>
+          <div class="field"><label>Gravity g (m/s²)</label><input id="g" type="number" step="0.01" value="9.81"></div>
+
+          <div class="subh">Discharge pipe</div>
+          <div class="field"><label>Pipe ID — 80 NB (m)</label><input id="idd" type="number" step="0.001" value="0.08"></div>
+          <div class="field"><label>Pipe length (m)</label><input id="ld" type="number" step="1" value="300"></div>
+          <div class="field"><label>Vertical lift / static (m)</label><input id="lift" type="number" step="0.5" value="17"></div>
+          <div class="field"><label>Friction factor f</label><input id="f" type="number" step="0.001" value="0.02"></div>
+
+          <div class="subh">Discharge fittings (count × K)</div>
+          <div class="field"><label>Bends — K</label><input id="nb" type="number" step="1" value="25" style="width:54px"><input id="kb" type="number" step="0.1" value="0.5" style="width:54px"></div>
+          <div class="field"><label>Valves — K</label><input id="nv" type="number" step="1" value="3" style="width:54px"><input id="kv" type="number" step="0.1" value="0.2" style="width:54px"></div>
+          <div class="field"><label>Flanges — K</label><input id="nf" type="number" step="1" value="6" style="width:54px"><input id="kf" type="number" step="0.01" value="0.02" style="width:54px"></div>
+          <div class="field"><label>NRV — K</label><input id="nn" type="number" step="1" value="1" style="width:54px"><input id="kn" type="number" step="0.1" value="2.0" style="width:54px"></div>
+
+          <div class="subh">Suction side</div>
+          <div class="field"><label>Pipe ID — 150 NB (m)</label><input id="ids" type="number" step="0.001" value="0.15"></div>
+          <div class="field"><label>Pipe length (m)</label><input id="ls" type="number" step="0.5" value="2"></div>
+          <div class="field"><label>Tank height (m)</label><input id="tank" type="number" step="0.1" value="7.0"></div>
+          <div class="field"><label>Pump center line (m)</label><input id="pcl" type="number" step="0.05" value="0.15"></div>
+          <div class="field"><label>Suction minor loss K</label><input id="ksuc" type="number" step="0.01" value="0.24"></div>
+
+          <div class="subh">Efficiencies</div>
+          <div class="field"><label>Pump efficiency η<sub>p</sub></label><input id="np" type="number" step="0.01" value="0.70"></div>
+          <div class="field"><label>Motor efficiency η<sub>m</sub></label><input id="nm" type="number" step="0.01" value="0.90"></div>
+        </div>
+        <button class="resetbtn no-print" id="reset">↺ Reset to example (30 m³/hr)</button>
+      </div>
+    </section>
+
+    <!-- 2 DISCHARGE -->
+    <section class="card span2">
+      <h3><span class="num">2</span> DISCHARGE SIDE — HEAD CALCULATION <span class="ico">⬆️</span></h3>
+      <div class="body">
+        <div class="rsub">2.1 Flow &amp; Velocity in discharge pipe</div>
+        <div class="rline"><span class="rl">Q = m³/hr ÷ 3600</span><span class="rv" id="o_qs"></span></div>
+        <div class="rline"><span class="rl">A = πD²/4</span><span class="rv" id="o_ad"></span></div>
+        <div class="rline"><span class="rl">V = Q / A</span><span class="rv" id="o_vd"></span></div>
+        <div class="rline"><span class="rl">Velocity head = V²/2g</span><span class="rv" id="o_vhd"></span></div>
+
+        <div class="rsub">2.2 Friction loss (Darcy)</div>
+        <div class="rline"><span class="rl">h_f = f × (L/D) × V²/2g</span><span class="rv" id="o_hf"></span></div>
+
+        <div class="rsub">2.3 Minor losses</div>
+        <div class="rline"><span class="rl">Total K (Σ count×K)</span><span class="rv" id="o_totalK"></span></div>
+        <div class="rline"><span class="rl">h_m = K × V²/2g</span><span class="rv" id="o_hm"></span></div>
+
+        <div class="rsub">2.4 Total Head Required</div>
+        <div class="rline"><span class="rl">Static + Friction + Minor</span><span class="rv" id="o_parts"></span></div>
+        <div class="hl"><span>H<sub>total</sub></span><b id="o_htotal"></b></div>
+        <div class="banner"><span>🎯 RECOMMENDED DESIGN HEAD</span><span class="v" id="o_design"></span></div>
+      </div>
+    </section>
+
+    <!-- 3 MOTOR POWER -->
+    <section class="card">
+      <h3><span class="num">3</span> MOTOR POWER <span class="ico">⚡</span></h3>
+      <div class="body">
+        <div class="rsub">Hydraulic power</div>
+        <div class="rline"><span class="rl">P = ρ·g·Q·H</span><span class="rv" id="o_phyd"></span></div>
+        <div class="rsub">Motor power required</div>
+        <div class="rline"><span class="rl">P / (η_p × η_m)</span><span class="rv" id="o_pmotor"></span></div>
+        <div class="hl"><span>Motor input</span><b id="o_pmotor2"></b></div>
+        <div class="recbox">
+          <h6>✅ RECOMMENDED MOTOR SIZE</h6>
+          <ul>
+            <li>Minimum: <b id="o_mmin"></b></li>
+            <li>Higher margin: <b id="o_mmar"></b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 NPSHA -->
+    <section class="card span2">
+      <h3><span class="num">4</span> NPSHA CALCULATION (SUCTION SIDE) <span class="ico">⬇️</span></h3>
+      <div class="body">
+        <div class="rsub">4.1 Static suction head &nbsp; 4.2 Velocity &nbsp; 4.3 Atmospheric head</div>
+        <div class="rline"><span class="rl">H_static = tank − center line</span><span class="rv" id="o_hstat"></span></div>
+        <div class="rline"><span class="rl">A = πD²/4 · V = Q/A</span><span class="rv" id="o_vs"></span></div>
+        <div class="rline"><span class="rl">Velocity head = V²/2g</span><span class="rv" id="o_vhs"></span></div>
+        <div class="rline"><span class="rl">Atmospheric head = P_atm/ρg</span><span class="rv" id="o_atm"></span></div>
+
+        <div class="rsub">4.4 Suction pipe losses</div>
+        <div class="rline"><span class="rl">Friction h_f = f×(L/D)×V²/2g</span><span class="rv" id="o_hfs"></span></div>
+        <div class="rline"><span class="rl">Minor h_m = K × V²/2g</span><span class="rv" id="o_hms"></span></div>
+        <div class="rline"><span class="rl">Total suction loss h_loss</span><span class="rv" id="o_hloss"></span></div>
+
+        <div class="rsub">4.5 NPSHA = P_atm/ρg + H_static − h_loss − P_v/ρg</div>
+        <div class="badge">🛡️ <span>NPSHA = <span id="o_npsha"></span></span></div>
+        <div class="note" id="o_status" style="text-align:center;margin-top:6px;font-weight:700;"></div>
+      </div>
+    </section>
+
+    <!-- 5 NPSHR -->
+    <section class="card">
+      <h3><span class="num">5</span> NPSHR <span class="ico">📑</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>NPSHR cannot be calculated from piping data — it comes from the pump manufacturer curve.</li>
+          <li>For a pump around 30 m³/hr, NPSHR is typically <b>2 to 4 m</b>.</li>
+          <li>Always confirm from the pump datasheet.</li>
+        </ul>
+        <div class="hl"><span>Margin = NPSHA − NPSHR(max 4)</span><b id="o_margin"></b></div>
+      </div>
+    </section>
+
+    <!-- 6 SUMMARY -->
+    <section class="card wide">
+      <h3><span class="num">6</span> SUMMARY <span class="ico">🧾</span></h3>
+      <div class="body" style="display:flex; gap:18px; flex-wrap:wrap; align-items:center;">
+        <table style="flex:1 1 460px;">
+          <tbody>
+            <tr><td>Flow</td><td class="v" id="s_flow"></td></tr>
+            <tr><td>Total Head Required</td><td class="v" id="s_head"></td></tr>
+            <tr><td>Recommended Design Head</td><td class="v" id="s_design"></td></tr>
+            <tr><td>Hydraulic Power</td><td class="v" id="s_power"></td></tr>
+            <tr><td>Recommended Motor</td><td class="v" id="s_motor"></td></tr>
+            <tr><td>NPSHA</td><td class="v" id="s_npsha"></td></tr>
+            <tr><td>NPSHR</td><td class="v">2 – 4 m (from pump curve)</td></tr>
+          </tbody>
+        </table>
+        <svg viewBox="0 0 220 150" style="width:220px;height:auto;flex:0 0 auto">
+          <rect x="20" y="120" width="180" height="14" rx="3" fill="#9aa3ad"/>
+          <rect x="34" y="58" width="58" height="58" rx="8" fill="#cbd2da" stroke="#7f8993" stroke-width="2"/>
+          <g stroke="#7f8993" stroke-width="2"><line x1="40" y1="64" x2="86" y2="64"/><line x1="40" y1="72" x2="86" y2="72"/><line x1="40" y1="80" x2="86" y2="80"/><line x1="40" y1="88" x2="86" y2="88"/></g>
+          <circle cx="135" cy="86" r="34" fill="#2e6fb0" stroke="#1d4e89" stroke-width="3"/>
+          <circle cx="135" cy="86" r="11" fill="#cfe0f3"/>
+          <path d="M135 86 L160 70 A30 30 0 0 1 168 92 Z" fill="#5a93cf"/>
+          <rect x="125" y="40" width="20" height="18" rx="3" fill="#2e6fb0" stroke="#1d4e89" stroke-width="2"/>
+          <rect x="168" y="78" width="22" height="16" rx="3" fill="#2e6fb0" stroke="#1d4e89" stroke-width="2"/>
+          <text x="135" y="142" text-anchor="middle" font-size="12" fill="#5a6b7b" font-family="Arial">Centrifugal pump</text>
+        </svg>
+      </div>
+    </section>
+
+  </div>
+  <footer>Interactive pump hydraulic calculator built from the source sheet · Darcy friction + K-method minor losses · preliminary sizing — confirm pump curve &amp; NPSHR from datasheet.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const fd=(x,d)=>isFinite(x)?x.toFixed(d):"0";
+  const STD=[0.37,0.55,0.75,1.1,1.5,2.2,3,3.7,4,5.5,7.5,11,15,18.5,22,30,37,45,55,75];
+  const HP=k=>Math.round(k*1.34102*2)/2; // nearest 0.5 HP
+
+  function recalc(){
+    const g=n($("g").value)||9.81, Q=n($("q").value)/3600, rho=n($("rho").value), f=n($("f").value);
+    // discharge
+    const Dd=n($("idd").value), Ad=Math.PI*Dd*Dd/4, Vd=Ad?Q/Ad:0, vhd=Vd*Vd/(2*g);
+    const hf=f*(Dd?n($("ld").value)/Dd:0)*vhd;
+    const K=n($("nb").value)*n($("kb").value)+n($("nv").value)*n($("kv").value)+n($("nf").value)*n($("kf").value)+n($("nn").value)*n($("kn").value);
+    const hm=K*vhd, stat=n($("lift").value), Htot=stat+hf+hm;
+    const dLo=Math.ceil(Htot*1.08), dHi=Math.ceil(Htot*1.18);
+    $("o_qs").textContent=fd(Q,5)+" m³/s";
+    $("o_ad").textContent=fd(Ad,5)+" m²";
+    $("o_vd").textContent=fd(Vd,2)+" m/s";
+    $("o_vhd").textContent=fd(vhd,3)+" m";
+    $("o_hf").textContent=fd(hf,2)+" m";
+    $("o_totalK").textContent=fd(K,2);
+    $("o_hm").textContent=fd(hm,2)+" m";
+    $("o_parts").textContent=`${fd(stat,1)} + ${fd(hf,2)} + ${fd(hm,2)}`;
+    $("o_htotal").textContent=`${fd(Htot,2)} m  ≈ ${Math.round(Htot)} m`;
+    $("o_design").textContent=`${dLo} – ${dHi} m`;
+
+    // motor
+    const Phyd=rho*g*Q*Htot, np=n($("np").value), nm=n($("nm").value);
+    const Pm=(np*nm)?Phyd/(np*nm):0, PmkW=Pm/1000;
+    let mMin=STD.find(s=>s>=PmkW*1.2); if(mMin===undefined) mMin=STD[STD.length-1];
+    let idx=STD.indexOf(mMin); let mMar=STD[Math.min(idx+1,STD.length-1)];
+    $("o_phyd").textContent=fd(Phyd/1000,2)+" kW";
+    $("o_pmotor").textContent=fd(PmkW,2)+" kW";
+    $("o_pmotor2").textContent=fd(PmkW,2)+" kW";
+    $("o_mmin").textContent=`${mMin} kW (${HP(mMin)} HP)`;
+    $("o_mmar").textContent=`${mMar} kW (${HP(mMar)} HP)`;
+
+    // suction / NPSHA
+    const Hs=n($("tank").value)-n($("pcl").value);
+    const Ds=n($("ids").value), As=Math.PI*Ds*Ds/4, Vs=As?Q/As:0, vhs=Vs*Vs/(2*g);
+    const hfs=f*(Ds?n($("ls").value)/Ds:0)*vhs, hms=n($("ksuc").value)*vhs, hloss=hfs+hms;
+    const atm=rho*g?n($("patm").value)/(rho*g):0, pv=n($("pv").value);
+    const npsha=atm+Hs-hloss-pv;
+    $("o_hstat").textContent=fd(Hs,2)+" m";
+    $("o_vs").textContent=fd(Vs,2)+" m/s";
+    $("o_vhs").textContent=fd(vhs,4)+" m";
+    $("o_atm").textContent=fd(atm,2)+" m";
+    $("o_hfs").textContent=fd(hfs,4)+" m";
+    $("o_hms").textContent=fd(hms,4)+" m";
+    $("o_hloss").textContent=fd(hloss,4)+" m";
+    $("o_npsha").textContent=fd(npsha,2)+" m";
+    const margin=npsha-4;
+    $("o_margin").textContent=fd(margin,2)+" m";
+    let st;
+    if(npsha>4 && margin>=3) st="✓ Very Safe (NPSHA ≫ NPSHR)";
+    else if(npsha>4) st="✓ Safe (NPSHA > NPSHR)";
+    else if(npsha>0) st="⚠ Marginal — verify NPSHR from datasheet";
+    else st="✕ Cavitation risk — revise suction layout";
+    $("o_status").textContent=st;
+    $("o_status").style.color = npsha>4 ? "var(--good)" : (npsha>0?"var(--warn)":"#c0392b");
+
+    // summary
+    $("s_flow").textContent=fd(n($("q").value),0)+" m³/hr";
+    $("s_head").textContent=`≈ ${Math.round(Htot)} m`;
+    $("s_design").textContent=`${dLo} – ${dHi} m`;
+    $("s_power").textContent=fd(Phyd/1000,2)+" kW";
+    $("s_motor").textContent=`${mMin} kW (${HP(mMin)} HP) min · ${mMar} kW (${HP(mMar)} HP) margin`;
+    $("s_npsha").textContent=`≈ ${fd(npsha,2)} m`;
+  }
+
+  const DEF={q:30,rho:1000,patm:101325,pv:0.03,g:9.81,idd:0.08,ld:300,lift:17,f:0.02,
+    nb:25,kb:0.5,nv:3,kv:0.2,nf:6,kf:0.02,nn:1,kn:2.0,ids:0.15,ls:2,tank:7.0,pcl:0.15,ksuc:0.24,np:0.70,nm:0.90};
+  $("reset").addEventListener("click",()=>{for(const k in DEF)$(k).value=DEF[k]; recalc();});
+  document.addEventListener("input",e=>{ if(e.target.id in DEF) recalc(); });
+  recalc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

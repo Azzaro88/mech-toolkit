@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pressure Vessel Thickness — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --green:#2e7d32; --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:32px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 14px; border-radius:8px; font-size:23px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:1.5px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:240px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:24px;} }
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:span 3;} .card.span2{grid-column:span 2;}
+  @media(max-width:980px){ .card.wide{grid-column:span 2;} .card.span2{grid-column:span 2;} }
+  @media(max-width:660px){ .card.wide,.card.span2{grid-column:span 1;} }
+
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:13.5px; letter-spacing:.4px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:24px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:14px; flex:1;}
+
+  /* result banner */
+  .resultbar{display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+    background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:12px; padding:16px 20px; margin-bottom:16px;}
+  .resultbar .lab{font-size:12px; letter-spacing:1px; opacity:.85;}
+  .resultbar .big{font-size:34px; font-weight:800;}
+  .resultbar .sub{font-size:12px; opacity:.85; margin-top:2px;}
+  .resultbar .mini{font-size:13px; text-align:right; opacity:.9;}
+
+  /* table */
+  table.vessel{width:100%; border-collapse:collapse; font-size:13px;}
+  table.vessel th{background:#cfe0f3; color:var(--navy); text-align:left; padding:8px 10px; font-weight:700; border:1px solid #b9cbe0;}
+  table.vessel td{padding:5px 10px; border:1px solid var(--line); vertical-align:middle;}
+  table.vessel tr:nth-child(even) td{background:var(--row-alt);}
+  table.vessel td.sn{text-align:center; color:var(--muted); width:42px;}
+  table.vessel td.uom{color:var(--muted); white-space:nowrap; width:90px;}
+  table.vessel td.cmt{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px; color:var(--muted); white-space:nowrap;}
+  table.vessel td.val{width:150px;}
+  table.vessel input{width:120px; padding:5px 8px; border:1px solid #9db8d6; border-radius:6px; font-size:13px; text-align:right; background:#fffdf4;}
+  table.vessel input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  table.vessel select{width:140px; padding:5px 6px; border:1px solid #9db8d6; border-radius:6px; font-size:12.5px; background:#fffdf4;}
+  .cv{display:inline-block; min-width:90px; text-align:right; font-weight:700; color:var(--navy); background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:6px; padding:4px 9px;}
+  tr.final td{background:#fdedcf !important; }
+  tr.final .cv{background:#fff7e0; border-color:#e9c977; color:#8a5a08; font-size:15px;}
+  .inlab{font-size:10.5px; color:var(--navy-2); font-weight:700; background:#e3edf8; border-radius:4px; padding:1px 5px; margin-left:6px;}
+
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:8px 11px; font-size:13.5px; color:var(--navy); text-align:center; margin:8px 0;}
+  ul.tight{margin:4px 0; padding-left:18px; font-size:12.5px;} ul.tight li{margin:6px 0;}
+  .note{font-size:11.5px; color:var(--muted);}
+  .reset{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; margin-top:12px;}
+  .reset:hover{background:var(--navy);}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+  @media print{ @page{size:A4 portrait; margin:9mm;} html,body{background:#fff;padding:0;} body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11px;} .wrap{max-width:none;} .no-print{display:none!important;} .card{break-inside:avoid;} table.vessel input,table.vessel select{border:none;background:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>PRESSURE VESSEL <span class="pill">THICKNESS</span></h1>
+      <div class="sub">ESTIMATION OF THICKNESS REQUIRED · LIVE CALCULATION</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>METHOD</h4>
+      <p>Thin-wall hoop-stress formula (ASME VIII-1 style): <b>t = P·r / (S − 0.6P)</b>, plus static head and corrosion allowance.</p>
+    </div>
+  </header>
+
+  <div class="resultbar">
+    <div>
+      <div class="lab">REQUIRED WALL THICKNESS (t = t₁ + tc)</div>
+      <div class="big" id="r_t">0 mm</div>
+      <div class="sub" id="r_sub"></div>
+    </div>
+    <div class="mini" id="r_mini"></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- TABLE -->
+    <section class="card span2">
+      <h3><span class="num">▦</span> ESTIMATION TABLE (edit the highlighted values) <span class="ico">🛢️</span></h3>
+      <div class="body">
+        <div style="overflow-x:auto;">
+        <table class="vessel">
+          <thead><tr><th>#</th><th>Parameter</th><th>Value</th><th>UOM</th><th>Formula</th></tr></thead>
+          <tbody>
+            <tr><td class="sn">1</td><td>Design pressure of vessel <span class="inlab">input</span></td><td class="val"><input id="P1" type="number" step="0.5" value="20"></td><td class="uom">Bar</td><td class="cmt">P1</td></tr>
+            <tr><td class="sn">2</td><td>Total vessel capacity <span class="inlab">input</span></td><td class="val"><input id="V" type="number" step="1" value="30"></td><td class="uom">m³</td><td class="cmt">V</td></tr>
+            <tr><td class="sn">3</td><td>Cylindrical volume</td><td class="val"><span class="cv" id="o_V2"></span></td><td class="uom">m³</td><td class="cmt">V2 = V − V1</td></tr>
+            <tr><td class="sn">4</td><td>Vessel ID <span class="inlab">input</span></td><td class="val"><input id="d1" type="number" step="0.1" value="2.5"></td><td class="uom">m</td><td class="cmt">d1</td></tr>
+            <tr><td class="sn">5</td><td>Height of cylindrical vessel</td><td class="val"><span class="cv" id="o_h2"></span></td><td class="uom">m</td><td class="cmt">h2 = V2/(0.785·d1²)</td></tr>
+            <tr><td class="sn">6</td><td>Hemispherical dish volume (both ends)</td><td class="val"><span class="cv" id="o_V1"></span></td><td class="uom">m³</td><td class="cmt">V1 = (3.14/6)·d1³</td></tr>
+            <tr><td class="sn">7</td><td>Height of hemispherical head</td><td class="val"><span class="cv" id="o_h1"></span></td><td class="uom">m</td><td class="cmt">h1 = d1/2 + 0.012</td></tr>
+            <tr><td class="sn">8</td><td>Total height of vessel</td><td class="val"><span class="cv" id="o_H"></span></td><td class="uom">m</td><td class="cmt">H = (h1·2) + h2</td></tr>
+            <tr><td class="sn">9</td><td>Liquid density (butane) <span class="inlab">input</span></td><td class="val"><input id="D" type="number" step="1" value="580"></td><td class="uom">kg/m³</td><td class="cmt">D</td></tr>
+            <tr><td class="sn">10</td><td>Static head generated by filling</td><td class="val"><span class="cv" id="o_P2"></span></td><td class="uom">bar</td><td class="cmt">P2 = D·H·9.8 ÷ 10⁵</td></tr>
+            <tr><td class="sn">11</td><td>Total pressure of vessel</td><td class="val"><span class="cv" id="o_P"></span></td><td class="uom">bar</td><td class="cmt">P = P1 + P2</td></tr>
+            <tr><td class="sn">12</td><td>Radius of vessel</td><td class="val"><span class="cv" id="o_r"></span></td><td class="uom">m</td><td class="cmt">r = d1/2</td></tr>
+            <tr><td class="sn">13</td><td>MOC of vessel <span class="inlab">select</span></td><td class="val">
+              <select id="moc"><option value="1407">SA 516 Gr 70</option><option value="custom">Custom…</option></select>
+            </td><td class="uom">high-grade C</td><td class="cmt">material</td></tr>
+            <tr><td class="sn">14</td><td>Max allowable stress of MOC <span class="inlab">input</span></td><td class="val"><input id="S" type="number" step="1" value="1407"></td><td class="uom">≈ bar</td><td class="cmt">S</td></tr>
+            <tr><td class="sn">15</td><td>Thickness of vessel (calc)</td><td class="val"><span class="cv" id="o_t1"></span></td><td class="uom">mm</td><td class="cmt">t1 = (P·r)/(S − 0.6·P)</td></tr>
+            <tr><td class="sn">16</td><td>Corrosion allowance <span class="inlab">input</span></td><td class="val"><input id="tc" type="number" step="0.5" value="3"></td><td class="uom">mm</td><td class="cmt">tc</td></tr>
+            <tr class="final"><td class="sn">17</td><td><b>Actual thickness considered</b></td><td class="val"><span class="cv" id="o_t"></span></td><td class="uom">mm</td><td class="cmt">t = t1 + tc</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <button class="reset no-print" id="reset">↺ Reset to example values</button>
+      </div>
+    </section>
+
+    <!-- NOTES + DIAGRAM -->
+    <section class="card">
+      <h3><span class="num">i</span> FORMULA &amp; ASSUMPTIONS <span class="ico">📐</span></h3>
+      <div class="body">
+        <div class="formula">t₁ = <span style="display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 4px;"><span>P·r</span><span style="border-top:2px solid var(--navy);">S − 0.6·P</span></span></div>
+        <svg viewBox="0 0 200 250" style="width:130px;height:auto;display:block;margin:6px auto 10px">
+          <defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dCE9F6"/><stop offset="1" stop-color="#bcd6ef"/></linearGradient></defs>
+          <path d="M60 70 A40 40 0 0 1 140 70 L140 180 A40 40 0 0 1 60 180 Z" fill="url(#vg)" stroke="#1d4e89" stroke-width="3"/>
+          <line x1="60" y1="40" x2="140" y2="40" stroke="#e23b2e" stroke-width="1.6"/>
+          <text x="100" y="34" text-anchor="middle" font-size="12" font-weight="700" fill="#e23b2e" font-family="Arial">d1 (ID)</text>
+          <line x1="30" y1="40" x2="30" y2="210" stroke="#1d4e89" stroke-width="1.6"/>
+          <text x="22" y="128" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4e89" font-family="Arial" transform="rotate(-90 22 128)">H</text>
+          <text x="100" y="130" text-anchor="middle" font-size="12" fill="#173a5e" font-family="Arial">vessel</text>
+        </svg>
+        <ul class="tight">
+          <li><b>0.785 ≈ π/4</b> — cylinder cross-section area.</li>
+          <li><b>3.14/6 = π/6</b> — two hemispherical heads = one sphere of dia d1.</li>
+          <li><b>h1</b> adds a 0.012 m straight-flange allowance.</li>
+          <li><b>P2 = ρ·g·H</b> static head (Pa → bar ÷ 10⁵).</li>
+          <li><b>S</b> here is in bar (1407 ≈ 140.7 MPa for SA 516 Gr 70).</li>
+          <li>Thin-wall hoop (ASME VIII-1) form; verify against the full code for the final design.</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+  <footer>Interactive pressure-vessel wall-thickness estimator built from the source sheet · preliminary estimate — confirm against ASME BPVC Section VIII and project specs.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const fd=(x,d)=>isFinite(x)?x.toFixed(d):"0";
+
+  function recalc(){
+    const P1=n($("P1").value), V=n($("V").value), d1=n($("d1").value), D=n($("D").value), S=n($("S").value), tc=n($("tc").value);
+    const V1=(3.14/6)*Math.pow(d1,3);
+    const V2=V-V1;
+    const h2=d1?V2/(0.785*d1*d1):0;
+    const h1=d1/2+0.012;
+    const H=2*h1+h2;
+    const P2=D*H*9.8/1e5;
+    const P=P1+P2;
+    const r=d1/2;
+    const denom=S-0.6*P;
+    const t1=denom?(P*r)/denom*1000:0;
+    const t=t1+tc;
+
+    $("o_V1").textContent=fd(V1,2);
+    $("o_V2").textContent=fd(V2,2);
+    $("o_h2").textContent=fd(h2,2);
+    $("o_h1").textContent=fd(h1,3);
+    $("o_H").textContent=fd(H,2);
+    $("o_P2").textContent=fd(P2,2);
+    $("o_P").textContent=fd(P,2);
+    $("o_r").textContent=fd(r,2);
+    $("o_t1").textContent=fd(t1,2);
+    $("o_t").textContent=fd(t,2);
+
+    $("r_t").textContent=fd(t,2)+" mm";
+    $("r_sub").textContent=`t₁ = ${fd(t1,2)} mm  +  corrosion ${fd(tc,1)} mm`;
+    $("r_mini").innerHTML=`Design pressure P = ${fd(P,2)} bar · radius r = ${fd(r,2)} m<br>Total height H = ${fd(H,2)} m · S = ${fd(S,0)}`;
+  }
+
+  const DEF={P1:20,V:30,d1:2.5,D:580,S:1407,tc:3};
+  $("moc").addEventListener("change",e=>{ if(e.target.value!=="custom"){ $("S").value=e.target.value; recalc(); } });
+  $("reset").addEventListener("click",()=>{for(const k in DEF)$(k).value=DEF[k]; $("moc").value="1407"; recalc();});
+  document.addEventListener("input",e=>{ if(e.target.id in DEF) recalc(); });
+  recalc();
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

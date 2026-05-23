@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HVAC Design — Thumb Rule (Interactive)</title>
+<style>
+  :root{
+    --navy:#173a5e;
+    --navy-2:#1d4e89;
+    --navy-dark:#12304e;
+    --bg:#e7ebf0;
+    --card:#ffffff;
+    --line:#d4dae2;
+    --row-alt:#f4f7fa;
+    --calc-bg:#eaf2fb;
+    --accent:#1d4e89;
+    --good:#1f7a4d;
+    --warn:#b4690e;
+    --text:#1c2733;
+    --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.4; padding:18px;
+  }
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:42px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 16px; border-radius:8px; font-size:34px; font-weight:800; letter-spacing:0;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:2px; font-size:14px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:280px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis ul{margin:0; padding-left:18px; font-size:13px; color:var(--muted);}
+
+  /* ---------- Grid ---------- */
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:32px;} .pill{font-size:26px;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:span 3;}
+  @media(max-width:980px){ .card.wide{grid-column:span 2;} }
+  @media(max-width:660px){ .card.wide{grid-column:span 1;} }
+
+  .card h3{
+    margin:0; background:var(--navy); color:#fff; padding:11px 14px;
+    font-size:14px; letter-spacing:.6px; display:flex; align-items:center; gap:10px;
+  }
+  .num{background:#fff; color:var(--navy); width:24px; height:24px; border-radius:6px; font-weight:800; font-size:14px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:12px 14px; flex:1;}
+  .body .lead{font-weight:700; color:var(--navy); margin:0 0 8px; font-size:13px;}
+  .note{font-size:11.5px; color:var(--muted); margin-top:8px;}
+
+  /* ---------- Tables ---------- */
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
+  thead th{background:var(--row-alt); color:var(--navy); font-weight:700; border-bottom:2px solid var(--line);}
+  tbody tr:nth-child(even){background:var(--row-alt);}
+  td.num-col,th.num-col{text-align:center; white-space:nowrap;}
+
+  ul.tight{margin:4px 0; padding-left:18px; font-size:12.5px;}
+  ul.tight li{margin:3px 0;}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace; background:#eef2f6; padding:1px 5px; border-radius:4px; font-size:11.5px;}
+
+  /* ---------- Calculator ---------- */
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:11px; margin-top:12px;}
+  .calc h5{margin:0 0 8px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:7px;}
+  .field label{flex:1 1 auto; font-size:12px; color:var(--text);}
+  .field input, .field select{
+    flex:0 0 auto; width:118px; padding:6px 8px; border:1px solid #b9c7d6; border-radius:7px;
+    font-size:12.5px; background:#fff; color:var(--text);
+  }
+  .field select{width:150px;}
+  .field input:focus,.field select:focus{outline:2px solid var(--navy-2); outline-offset:0; border-color:var(--navy-2);}
+  .result{margin-top:8px; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:9px 11px; font-size:13px;}
+  .result .big{font-size:17px; font-weight:800; color:var(--navy); display:block; margin-top:2px;}
+  .result small{color:var(--muted); font-size:11px;}
+  .result.ok{border-color:var(--good);}
+  .result .tag{display:inline-block; background:var(--navy-2); color:#fff; font-size:10.5px; padding:2px 7px; border-radius:20px; margin-right:5px;}
+
+  /* comfort icons */
+  .comfort-row{display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; margin-top:10px; text-align:center;}
+  .comfort-row .ci{font-size:12px; color:var(--muted);}
+  .comfort-row .ci .e{font-size:28px; display:block;}
+  .comfort-row .ci b{display:block; color:var(--text); font-size:13px; margin-top:2px;}
+
+  /* conversions */
+  .conv-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px;}
+  .conv{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:9px; padding:10px;}
+  .conv .t{font-size:12px; font-weight:700; color:var(--navy-2); margin-bottom:7px;}
+  .conv .row{display:flex; align-items:center; gap:6px;}
+  .conv input{width:90px; padding:5px 7px; border:1px solid #b9c7d6; border-radius:6px; font-size:12.5px;}
+  .conv .u{font-size:12px; color:var(--muted); white-space:nowrap;}
+  .conv .eq{font-weight:700; color:var(--navy);}
+
+  footer{margin-top:18px; text-align:center; font-size:11.5px; color:var(--muted);}
+
+  /* ---------- Print button ---------- */
+  .printbtn{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px;
+    padding:10px 16px; font-size:13px; font-weight:700; letter-spacing:.4px;
+    box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;
+  }
+  .printbtn:hover{background:var(--navy);}
+  .printbtn:active{transform:translateY(1px);}
+  .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  .btnrow .printbtn{margin-top:0;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  /* ---------- Print / PDF ---------- */
+  @media print{
+    @page{ size:A4 landscape; margin:10mm; }
+    html,body{ background:#fff; padding:0; }
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:11px; }
+    .wrap{ max-width:none; }
+    .no-print{ display:none !important; }
+    .grid{ gap:8px; }
+    .card, .calc, .conv, .basis{ break-inside:avoid; page-break-inside:avoid; }
+    .card h3, thead th, .pill, .num, .printbtn, .result .tag{
+      -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    }
+    header.top{ margin-bottom:10px; }
+    .calc .result{ background:#fff !important; }
+    a{ text-decoration:none; color:inherit; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HEADER ============ -->
+  <header class="top">
+    <div class="titleblock">
+      <h1>HVAC DESIGN <span class="pill">THUMB RULE</span></h1>
+      <div class="sub">QUICK REFERENCE FOR PRELIMINARY DESIGN · INTERACTIVE</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>BASIS OF THUMB RULES</h4>
+      <ul>
+        <li>For preliminary sizing / planning</li>
+        <li>Refine during detailed design</li>
+        <li>Subject to site, code &amp; client requirements</li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ============ 1 DESIGN CONDITIONS ============ -->
+    <section class="card">
+      <h3><span class="num">1</span> DESIGN CONDITIONS (TYPICAL) <span class="ico">🌡️</span></h3>
+      <div class="body">
+        <table>
+          <thead><tr><th>Climate</th><th class="num-col">Summer<br>(°C DB/WB)</th><th class="num-col">Winter<br>(°C DB)</th></tr></thead>
+          <tbody>
+            <tr><td>Hot &amp; Humid</td><td class="num-col">35 / 28</td><td class="num-col">20</td></tr>
+            <tr><td>Warm &amp; Humid</td><td class="num-col">32 / 26</td><td class="num-col">18</td></tr>
+            <tr><td>Composite</td><td class="num-col">30 / 24</td><td class="num-col">15</td></tr>
+            <tr><td>Cool</td><td class="num-col">28 / 21</td><td class="num-col">10</td></tr>
+            <tr><td>Cold</td><td class="num-col">26 / 19</td><td class="num-col">5</td></tr>
+          </tbody>
+        </table>
+        <div class="note">DB: Dry Bulb &nbsp;·&nbsp; WB: Wet Bulb</div>
+      </div>
+    </section>
+
+    <!-- ============ 2 COOLING LOAD ============ -->
+    <section class="card">
+      <h3><span class="num">2</span> COOLING LOAD THUMB RULE <span class="ico">❄️</span></h3>
+      <div class="body">
+        <p class="lead">Rule of Thumb</p>
+        <table>
+          <thead><tr><th>Building / Space</th><th class="num-col">Cooling Load (W/m²)</th></tr></thead>
+          <tbody id="coolTable"></tbody>
+        </table>
+        <div class="note">Multiply by floor area (m²) to get total cooling load (W).</div>
+
+        <div class="calc">
+          <h5>Cooling Load Calculator</h5>
+          <div class="field"><label>Space type</label><select id="cl_type"></select></div>
+          <div class="field"><label>Floor area (m²)</label><input id="cl_area" type="number" min="0" step="1" value="100"></div>
+          <div class="result" id="cl_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3 AIRFLOW ============ -->
+    <section class="card">
+      <h3><span class="num">3</span> AIRFLOW THUMB RULE <span class="ico">🌀</span></h3>
+      <div class="body">
+        <table>
+          <thead><tr><th>Space</th><th class="num-col">L/s·m²</th><th class="num-col">CFM/ft²</th></tr></thead>
+          <tbody id="airTable"></tbody>
+        </table>
+        <div class="note">Airflow (L/s) = Area (m²) × value · &nbsp; CFM = L/s × 2.12</div>
+
+        <div class="calc">
+          <h5>Airflow Calculator</h5>
+          <div class="field"><label>Space type</label><select id="af_type"></select></div>
+          <div class="field"><label>Floor area (m²)</label><input id="af_area" type="number" min="0" step="1" value="100"></div>
+          <div class="result" id="af_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4 OUTDOOR AIR ============ -->
+    <section class="card">
+      <h3><span class="num">4</span> OUTDOOR AIR (VENTILATION) <span class="ico">💨</span></h3>
+      <div class="body">
+        <table>
+          <thead><tr><th>Space</th><th class="num-col">OA Requirement</th></tr></thead>
+          <tbody>
+            <tr><td>Office</td><td class="num-col">8 – 10 L/s·person</td></tr>
+            <tr><td>Conference Room</td><td class="num-col">10 L/s·person</td></tr>
+            <tr><td>Classroom</td><td class="num-col">10 – 12 L/s·person</td></tr>
+            <tr><td>Restaurant</td><td class="num-col">12 – 15 L/s·person</td></tr>
+            <tr><td>Retail / Shop</td><td class="num-col">8 – 10 L/s·person</td></tr>
+            <tr><td>Toilet / Washroom</td><td class="num-col">10 – 15 ACH</td></tr>
+            <tr><td>General (per person)</td><td class="num-col">5 – 10 L/s·person</td></tr>
+          </tbody>
+        </table>
+        <div class="note">ACH: Air Changes per Hour</div>
+
+        <div class="calc">
+          <h5>Outdoor-Air Calculator</h5>
+          <div class="field"><label>Space type</label><select id="oa_type"></select></div>
+          <div class="field"><label id="oa_lbl">Occupants</label><input id="oa_val" type="number" min="0" step="1" value="20"></div>
+          <div class="result" id="oa_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5 DUCTWORK ============ -->
+    <section class="card">
+      <h3><span class="num">5</span> DUCTWORK THUMB RULE <span class="ico">🛠️</span></h3>
+      <div class="body">
+        <p class="lead">Velocity</p>
+        <ul class="tight">
+          <li>Main Duct (Supply): 6 – 8 m/s</li>
+          <li>Branch Duct: 4 – 6 m/s</li>
+          <li>Final Duct / Diffuser: 2 – 4 m/s</li>
+          <li>Return Duct: 5 – 7 m/s</li>
+          <li>Exhaust Duct: 6 – 10 m/s</li>
+        </ul>
+        <div class="note">Size duct for velocity in range &amp; pressure drop ≤ 1.0 Pa/m (external), ≤ 0.5 Pa/m (internal branch).</div>
+
+        <div class="calc">
+          <h5>Duct Sizing — A = Q / V</h5>
+          <div class="field"><label>Airflow (L/s)</label><input id="du_q" type="number" min="0" step="10" value="500"></div>
+          <div class="field"><label>Duct type</label><select id="du_type"></select></div>
+          <div class="result" id="du_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6 PIPE SIZING ============ -->
+    <section class="card">
+      <h3><span class="num">6</span> PIPE SIZING (WATER) <span class="ico">💧</span></h3>
+      <div class="body">
+        <table>
+          <thead><tr><th>Pipe (NB)</th><th class="num-col">Max Flow (L/s)</th><th>Use</th></tr></thead>
+          <tbody id="pipeTable"></tbody>
+        </table>
+        <div class="note">Water velocity: 0.6 – 1.5 m/s (Chilled / Hot Water)</div>
+
+        <div class="calc">
+          <h5>Pipe Selector</h5>
+          <div class="field"><label>Design flow (L/s)</label><input id="pi_q" type="number" min="0" step="0.1" value="3"></div>
+          <div class="result" id="pi_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7 CHILLED WATER ============ -->
+    <section class="card">
+      <h3><span class="num">7</span> CHILLED WATER THUMB RULE <span class="ico">❄️</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>ΔT (Supply – Return): 5 – 7 °C &nbsp;·&nbsp; Common: 7 °C</li>
+          <li>CHW Temp: 7 °C Supply / 12 – 14 °C Return</li>
+          <li>Chiller Capacity = Total Cooling Load / COP</li>
+          <li>COP ≈ 3.0 – 5.0 (water cooled) · 2.5 – 3.5 (air cooled)</li>
+          <li>Pump Head: Building 25 – 40 m · System 15 – 25 m</li>
+        </ul>
+
+        <div class="calc">
+          <h5>Chiller Capacity — Load / COP</h5>
+          <div class="field"><label>Total cooling load (kW)</label><input id="ch_load" type="number" min="0" step="1" value="350"></div>
+          <div class="field"><label>COP</label><input id="ch_cop" type="number" min="0.1" step="0.1" value="4"></div>
+          <div class="result" id="ch_out"></div>
+        </div>
+
+        <div class="calc">
+          <h5>CHW Flow — Q = kW / (4.18 × ΔT)</h5>
+          <div class="field"><label>Cooling load (kW)</label><input id="cw_load" type="number" min="0" step="1" value="350"></div>
+          <div class="field"><label>ΔT (°C)</label><input id="cw_dt" type="number" min="0.1" step="0.5" value="7"></div>
+          <div class="result" id="cw_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 8 EQUIPMENT ============ -->
+    <section class="card">
+      <h3><span class="num">8</span> EQUIPMENT THUMB RULE <span class="ico">🗄️</span></h3>
+      <div class="body">
+        <table>
+          <thead><tr><th>Equipment</th><th>Rule of Thumb</th></tr></thead>
+          <tbody>
+            <tr><td>Air Cooled Chiller</td><td>400 – 600 TR / unit</td></tr>
+            <tr><td>Water Cooled Chiller</td><td>700 – 1500 TR / unit</td></tr>
+            <tr><td>Cooling Tower</td><td>1.25 × Chiller Capacity</td></tr>
+            <tr><td>AHU</td><td>Airflow from Section 3</td></tr>
+            <tr><td>FCU</td><td>400 – 800 CFM / unit</td></tr>
+            <tr><td>VAV Box</td><td>200 – 1200 CFM / unit</td></tr>
+            <tr><td>Exhaust Fan (Toilet)</td><td>150 – 300 m³/h</td></tr>
+            <tr><td>Pressurization Fan</td><td>0.5 – 1.0 ACH</td></tr>
+          </tbody>
+        </table>
+
+        <div class="calc">
+          <h5>Cooling Tower — 1.25 × Chiller</h5>
+          <div class="field"><label>Chiller capacity (TR)</label><input id="ct_cap" type="number" min="0" step="10" value="500"></div>
+          <div class="result" id="ct_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 9 ELECTRICAL LOAD ============ -->
+    <section class="card">
+      <h3><span class="num">9</span> ELECTRICAL LOAD THUMB RULE <span class="ico">⚡</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>HVAC Electrical Load ≈ 1.0 – 1.5 W/ft²</li>
+          <li>Chiller Power ≈ Capacity (TR) × 0.8 – 1.2 kW/TR</li>
+          <li>Pump Power ≈ (Flow L/s × Head m) / (75 × η), η≈0.7</li>
+          <li>Fan Power ≈ (Airflow m³/s × SP Pa) / η, η≈0.6</li>
+          <li>Add 15 – 20 % for future / diversity</li>
+        </ul>
+
+        <div class="calc">
+          <h5>Pump Power</h5>
+          <div class="field"><label>Flow (L/s)</label><input id="pp_q" type="number" min="0" step="0.5" value="20"></div>
+          <div class="field"><label>Head (m)</label><input id="pp_h" type="number" min="0" step="1" value="30"></div>
+          <div class="field"><label>Efficiency η</label><input id="pp_e" type="number" min="0.1" max="1" step="0.05" value="0.7"></div>
+          <div class="result" id="pp_out"></div>
+        </div>
+
+        <div class="calc">
+          <h5>Fan Power</h5>
+          <div class="field"><label>Airflow (m³/s)</label><input id="fp_q" type="number" min="0" step="0.1" value="2"></div>
+          <div class="field"><label>Static pressure (Pa)</label><input id="fp_sp" type="number" min="0" step="10" value="400"></div>
+          <div class="field"><label>Efficiency η</label><input id="fp_e" type="number" min="0.1" max="1" step="0.05" value="0.6"></div>
+          <div class="result" id="fp_out"></div>
+        </div>
+
+        <div class="calc">
+          <h5>Building Electrical Load</h5>
+          <div class="field"><label>Floor area (m²)</label><input id="el_area" type="number" min="0" step="10" value="1000"></div>
+          <div class="result" id="el_out"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 10 COMFORT ============ -->
+    <section class="card wide">
+      <h3><span class="num">10</span> COMFORT CRITERIA (TYPICAL) <span class="ico">✅</span></h3>
+      <div class="body">
+        <div class="comfort-row">
+          <div class="ci"><span class="e">🌡️</span>Temperature<b>22 – 26 °C</b></div>
+          <div class="ci"><span class="e">💧</span>Relative Humidity<b>40 – 60 %</b></div>
+          <div class="ci"><span class="e">🌬️</span>Air Velocity (Cooling)<b>≤ 0.25 m/s</b></div>
+          <div class="ci"><span class="e">🔥</span>Air Velocity (Heating)<b>≤ 0.20 m/s</b></div>
+        </div>
+        <div class="note" style="text-align:center;margin-top:12px;">
+          General notes: these are starting points, not final values · Always check local codes (ASHRAE, SMACNA, NEC, ISHRAE) ·
+          Consider occupancy, equipment heat, orientation, envelope &amp; ventilation.
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ UNIT CONVERSIONS ============ -->
+    <section class="card wide">
+      <h3><span class="num">↔</span> UNIT CONVERSIONS <span class="ico">📐</span></h3>
+      <div class="body">
+        <div class="conv-grid">
+          <div class="conv">
+            <div class="t">Airflow · 1 L/s = 2.12 CFM</div>
+            <div class="row"><input id="cv1" type="number" value="100" oninput="conv1()"><span class="u">L/s</span><span class="eq">=</span><input id="cv1b" type="number" value="212" oninput="conv1b()"><span class="u">CFM</span></div>
+          </div>
+          <div class="conv">
+            <div class="t">Flow · 1 m³/h = 0.278 L/s</div>
+            <div class="row"><input id="cv2" type="number" value="100" oninput="conv2()"><span class="u">m³/h</span><span class="eq">=</span><input id="cv2b" type="number" value="27.8" oninput="conv2b()"><span class="u">L/s</span></div>
+          </div>
+          <div class="conv">
+            <div class="t">Capacity · 1 TR = 3.517 kW</div>
+            <div class="row"><input id="cv3" type="number" value="100" oninput="conv3()"><span class="u">TR</span><span class="eq">=</span><input id="cv3b" type="number" value="351.7" oninput="conv3b()"><span class="u">kW</span></div>
+          </div>
+          <div class="conv">
+            <div class="t">Airflow density · 1 CFM/ft² = 0.047 L/s·m²</div>
+            <div class="row"><input id="cv4" type="number" value="1" oninput="conv4()"><span class="u">CFM/ft²</span><span class="eq">=</span><input id="cv4b" type="number" value="0.047" oninput="conv4b()"><span class="u">L/s·m²</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>HVAC Design Thumb-Rule interactive sheet · preliminary sizing only — verify against project codes &amp; detailed load calculations.</footer>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const coolLoad = {           // W/m²
+  "Residential":[80,120], "Office":[100,150], "Retail / Shop":[150,200],
+  "Restaurant":[200,250], "Hotel (Guest Room)":[120,150], "Hospital (General)":[180,250],
+  "School / Classroom":[100,130], "Auditorium / Assembly":[200,300], "Laboratory":[250,400]
+};
+const airflow = {            // L/s·m²
+  "Office":[2.5,3.5], "Residential":[2.0,3.0], "Retail / Shop":[3.0,4.0],
+  "Restaurant":[4.0,6.0], "School / Classroom":[2.5,4.0], "Auditorium":[4.0,6.0],
+  "Toilet / Washroom":[6.0,10.0], "Laboratory":[6.0,10.0]
+};
+const airflowCFM = {         // CFM/ft²  (for reference table)
+  "Office":[0.05,0.07], "Residential":[0.04,0.06], "Retail / Shop":[0.06,0.08],
+  "Restaurant":[0.08,0.12], "School / Classroom":[0.05,0.08], "Auditorium":[0.08,0.12],
+  "Toilet / Washroom":[0.12,0.20], "Laboratory":[0.12,0.20]
+};
+const outdoorAir = {         // L/s·person  (Toilet uses ACH instead)
+  "Office":[8,10], "Conference Room":[10,10], "Classroom":[10,12],
+  "Restaurant":[12,15], "Retail / Shop":[8,10], "Toilet / Washroom (ACH)":[10,15], "General":[5,10]
+};
+const ductVel = {            // m/s
+  "Main Duct (Supply)":[6,8], "Branch Duct":[4,6], "Final / Diffuser":[2,4],
+  "Return Duct":[5,7], "Exhaust Duct":[6,10]
+};
+const pipes = [              // NB, [minFlow,maxFlow] L/s, use
+  ["15 (½\")",0.2,0.4,"Fan coil unit, small loads"],
+  ["20 (¾\")",0.4,0.8,"FCU, small branches"],
+  ["25 (1\")",0.8,1.6,"Branches"],
+  ["32 (1¼\")",1.6,2.5,"Risers"],
+  ["40 (1½\")",2.5,4.0,"Risers / Mains"],
+  ["50 (2\")",4.0,6.5,"Mains"],
+  ["65 (2½\")",6.5,10.0,"Mains"],
+  ["80 (3\")",10.0,15.0,"Mains"]
+];
+
+/* ===================== HELPERS ===================== */
+const $ = id => document.getElementById(id);
+function n(v){ v=parseFloat(v); return isFinite(v)?v:0; }
+function f(x,d=0){ if(!isFinite(x))return "0"; return x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}); }
+function fillSelect(sel,keys){ keys.forEach(k=>{ const o=document.createElement("option"); o.value=k; o.textContent=k; sel.appendChild(o); }); }
+
+/* ===================== BUILD TABLES ===================== */
+(function(){
+  let h="";
+  for(const k in coolLoad) h+=`<tr><td>${k}</td><td class="num-col">${coolLoad[k][0]} – ${coolLoad[k][1]}</td></tr>`;
+  $("coolTable").innerHTML=h;
+
+  h="";
+  for(const k in airflow) h+=`<tr><td>${k}</td><td class="num-col">${airflow[k][0].toFixed(1)} – ${airflow[k][1].toFixed(1)}</td><td class="num-col">${airflowCFM[k][0].toFixed(2)} – ${airflowCFM[k][1].toFixed(2)}</td></tr>`;
+  $("airTable").innerHTML=h;
+
+  h="";
+  pipes.forEach(p=>{ h+=`<tr><td>${p[0]}</td><td class="num-col">${p[1].toFixed(1)} – ${p[2].toFixed(1)}</td><td>${p[3]}</td></tr>`; });
+  $("pipeTable").innerHTML=h;
+
+  fillSelect($("cl_type"), Object.keys(coolLoad));
+  fillSelect($("af_type"), Object.keys(airflow));
+  fillSelect($("oa_type"), Object.keys(outdoorAir));
+  fillSelect($("du_type"), Object.keys(ductVel));
+})();
+
+/* ===================== CALCULATORS ===================== */
+// 2 — Cooling load
+function calcCool(){
+  const r=coolLoad[$("cl_type").value], a=n($("cl_area").value);
+  const lo=r[0]*a, hi=r[1]*a;
+  $("cl_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} W/m²</span>
+    <span class="big">${f(lo)} – ${f(hi)} W</span>
+    <small>= ${f(lo/1000,1)} – ${f(hi/1000,1)} kW  ·  ${f(lo/3517,1)} – ${f(hi/3517,1)} TR</small>`;
+}
+
+// 3 — Airflow
+function calcAir(){
+  const r=airflow[$("af_type").value], a=n($("af_area").value);
+  const lo=r[0]*a, hi=r[1]*a;
+  $("af_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} L/s·m²</span>
+    <span class="big">${f(lo)} – ${f(hi)} L/s</span>
+    <small>= ${f(lo*2.12)} – ${f(hi*2.12)} CFM  ·  ${f(lo*3.6)} – ${f(hi*3.6)} m³/h</small>`;
+}
+
+// 4 — Outdoor air
+function calcOA(){
+  const key=$("oa_type").value, r=outdoorAir[key], v=n($("oa_val").value);
+  const isACH = key.indexOf("ACH")>-1;
+  $("oa_lbl").textContent = isACH ? "Room volume (m³)" : "Occupants";
+  if(isACH){
+    const lo=r[0]*v/3.6, hi=r[1]*v/3.6;  // ACH × Vol(m³) → m³/h → L/s (÷3.6)
+    $("oa_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} ACH</span>
+      <span class="big">${f(r[0]*v)} – ${f(r[1]*v)} m³/h</span>
+      <small>= ${f(lo)} – ${f(hi)} L/s  ·  ${f(lo*2.12)} – ${f(hi*2.12)} CFM</small>`;
+  } else {
+    const lo=r[0]*v, hi=r[1]*v;
+    $("oa_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} L/s·person</span>
+      <span class="big">${f(lo)} – ${f(hi)} L/s</span>
+      <small>= ${f(lo*2.12)} – ${f(hi*2.12)} CFM  ·  ${f(lo*3.6)} – ${f(hi*3.6)} m³/h</small>`;
+  }
+}
+
+// 5 — Duct sizing  A = Q/V , D = √(4A/π)
+function calcDuct(){
+  const v=ductVel[$("du_type").value], q=n($("du_q").value)/1000; // m³/s
+  // larger area at lower velocity
+  const aHi=q/v[0], aLo=q/v[1];
+  const dHi=Math.sqrt(4*aHi/Math.PI)*1000, dLo=Math.sqrt(4*aLo/Math.PI)*1000; // mm
+  $("du_out").innerHTML=`<span class="tag">V ${v[0]}–${v[1]} m/s</span>
+    <span class="big">Ø ${f(dLo)} – ${f(dHi)} mm</span>
+    <small>round-equiv. dia · area ${(aLo).toFixed(3)} – ${(aHi).toFixed(3)} m²</small>`;
+}
+
+// 6 — Pipe selector
+function calcPipe(){
+  const q=n($("pi_q").value);
+  let pick=null;
+  for(const p of pipes){ if(q<=p[2]){ pick=p; break; } }
+  if(!pick){
+    $("pi_out").innerHTML=`<span class="big" style="color:var(--warn)">> 80 mm needed</span>
+      <small>Flow ${q} L/s exceeds 15 L/s — use ≥ 100 mm or split runs.</small>`;
+    return;
+  }
+  const vel = q/1000 / (Math.PI/4*Math.pow(pipeBore(pick[0])/1000,2)); // approx velocity
+  $("pi_out").classList.add("ok");
+  $("pi_out").innerHTML=`<span class="tag">flow ${q} L/s</span>
+    <span class="big">${pick[0]} NB</span>
+    <small>${pick[3]} · band ${pick[1]}–${pick[2]} L/s · ≈ ${vel.toFixed(2)} m/s</small>`;
+}
+function pipeBore(label){ return parseFloat(label); } // NB mm from "15 (½\")"
+
+// 7 — Chiller capacity = Load / COP   (as per sheet)
+function calcChiller(){
+  const load=n($("ch_load").value), cop=n($("ch_cop").value)||1;
+  const cap=load/cop;
+  $("ch_out").innerHTML=`<span class="tag">Load / COP</span>
+    <span class="big">${f(cap,1)} kW</span>
+    <small>= ${f(cap/3.517,1)} TR  (per sheet formula, COP ${cop})</small>`;
+}
+// 7b — CHW flow
+function calcCHW(){
+  const load=n($("cw_load").value), dt=n($("cw_dt").value)||1;
+  const q=load/(4.18*dt); // L/s  (kW / (kJ/kg·K × ΔT))
+  $("cw_out").innerHTML=`<span class="tag">ΔT ${dt} °C</span>
+    <span class="big">${f(q,2)} L/s</span>
+    <small>= ${f(q*3.6,1)} m³/h  ·  ${f(q*2.12,1)} CFM-equiv (water)</small>`;
+}
+
+// 8 — Cooling tower = 1.25 × chiller
+function calcTower(){
+  const c=n($("ct_cap").value);
+  $("ct_out").innerHTML=`<span class="tag">1.25 ×</span>
+    <span class="big">${f(c*1.25)} TR</span>
+    <small>heat rejection ≈ ${f(c*1.25*3.517)} kW</small>`;
+}
+
+// 9 — Pump power = (Q×H)/(75η) metric HP
+function calcPump(){
+  const q=n($("pp_q").value), hh=n($("pp_h").value), e=n($("pp_e").value)||0.7;
+  const hp=(q*hh)/(75*e);          // metric HP
+  const kw=hp*0.7355;
+  $("pp_out").innerHTML=`<span class="tag">η ${e}</span>
+    <span class="big">${f(kw,2)} kW</span>
+    <small>= ${f(hp,2)} HP (metric) · +15–20% diversity → ${f(kw*1.15,2)}–${f(kw*1.2,2)} kW</small>`;
+}
+// 9b — Fan power = (Q×SP)/η  W
+function calcFan(){
+  const q=n($("fp_q").value), sp=n($("fp_sp").value), e=n($("fp_e").value)||0.6;
+  const w=(q*sp)/e;
+  $("fp_out").innerHTML=`<span class="tag">η ${e}</span>
+    <span class="big">${f(w/1000,2)} kW</span>
+    <small>= ${f(w)} W · +15–20% → ${f(w/1000*1.15,2)}–${f(w/1000*1.2,2)} kW</small>`;
+}
+// 9c — Electrical load 1.0–1.5 W/ft²
+function calcElec(){
+  const a=n($("el_area").value), aft=a*10.7639;
+  const lo=aft*1.0, hi=aft*1.5;
+  $("el_out").innerHTML=`<span class="tag">1.0–1.5 W/ft²</span>
+    <span class="big">${f(lo/1000,1)} – ${f(hi/1000,1)} kW</span>
+    <small>floor ${f(a)} m² = ${f(aft)} ft² · +15–20% → ${f(hi/1000*1.2,1)} kW</small>`;
+}
+
+/* ===================== UNIT CONVERTERS ===================== */
+function conv1(){ $("cv1b").value=(n($("cv1").value)*2.12).toFixed(2);}    function conv1b(){ $("cv1").value=(n($("cv1b").value)/2.12).toFixed(2);}
+function conv2(){ $("cv2b").value=(n($("cv2").value)*0.278).toFixed(2);}   function conv2b(){ $("cv2").value=(n($("cv2b").value)/0.278).toFixed(2);}
+function conv3(){ $("cv3b").value=(n($("cv3").value)*3.517).toFixed(2);}    function conv3b(){ $("cv3").value=(n($("cv3b").value)/3.517).toFixed(2);}
+function conv4(){ $("cv4b").value=(n($("cv4").value)*0.047).toFixed(3);}    function conv4b(){ $("cv4").value=(n($("cv4b").value)/0.047).toFixed(3);}
+
+/* ===================== WIRE-UP + INITIAL RUN ===================== */
+const bind=(ids,fn)=>ids.forEach(i=>{ const el=$(i); el.addEventListener("input",fn); el.addEventListener("change",fn); });
+bind(["cl_type","cl_area"],calcCool);
+bind(["af_type","af_area"],calcAir);
+bind(["oa_type","oa_val"],calcOA);
+bind(["du_type","du_q"],calcDuct);
+bind(["pi_q"],calcPipe);
+bind(["ch_load","ch_cop"],calcChiller);
+bind(["cw_load","cw_dt"],calcCHW);
+bind(["ct_cap"],calcTower);
+bind(["pp_q","pp_h","pp_e"],calcPump);
+bind(["fp_q","fp_sp","fp_e"],calcFan);
+bind(["el_area"],calcElec);
+
+[calcCool,calcAir,calcOA,calcDuct,calcPipe,calcChiller,calcCHW,calcTower,calcPump,calcFan,calcElec].forEach(fn=>fn());
+</script>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>

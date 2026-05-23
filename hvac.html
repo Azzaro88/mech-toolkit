@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MECH Toolkit — HVAC</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa;
+    --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:36px 18px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .wrap{max-width:1160px; width:100%;}
+
+  .backbtn{display:inline-flex; align-items:center; gap:8px; text-decoration:none;
+    background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); border-radius:9px;
+    padding:9px 15px; font-size:13px; font-weight:700; letter-spacing:.3px; transition:background .15s,color .15s;}
+  .backbtn:hover{background:var(--navy-2); color:#fff;}
+
+  .hero{text-align:center; margin:14px 0 36px;}
+  .hero h1{margin:0; font-size:44px; font-weight:800; letter-spacing:-1.2px; color:var(--navy);
+    display:inline-flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 18px; border-radius:10px; font-size:34px; font-weight:800;}
+  .hero .sub{margin:12px auto 0; max-width:560px; color:var(--muted); font-size:15px;}
+
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media(max-width:880px){ .cards{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:600px){ .cards{grid-template-columns:1fr;} .hero h1{font-size:32px;} .pill{font-size:26px;} }
+
+  a.tool{
+    display:flex; flex-direction:column; text-decoration:none; color:inherit;
+    background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  a.tool:hover{ transform:translateY(-4px); box-shadow:0 12px 28px rgba(23,58,94,.18); border-color:var(--navy-2); }
+  .tool .head{ background:var(--navy); color:#fff; padding:14px 16px; display:flex; align-items:center; gap:11px; }
+  .tool .head .e{ font-size:26px; }
+  .tool .head h2{ margin:0; font-size:17px; font-weight:800; letter-spacing:.3px; }
+  .tool .body{ padding:13px 16px 16px; flex:1; display:flex; flex-direction:column; }
+  .tool .body p{ margin:0 0 10px; font-size:12.5px; color:var(--muted); }
+  .tool ul{ margin:0 0 13px; padding-left:17px; font-size:12px; }
+  .tool ul li{ margin:3px 0; }
+  .tool .go{ margin-top:auto; align-self:flex-start; background:var(--navy-2); color:#fff;
+    padding:8px 15px; border-radius:8px; font-size:12.5px; font-weight:700; letter-spacing:.4px;
+    display:inline-flex; align-items:center; gap:7px; }
+  a.tool:hover .go{ background:var(--navy); }
+
+  footer{ margin-top:42px; text-align:center; font-size:12px; color:var(--muted); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <a class="backbtn" href="index.html">← All disciplines</a>
+
+    <div class="hero">
+      <h1>🌡️ <span class="pill">HVAC</span></h1>
+      <p class="sub">Heating, cooling &amp; air-side design — chillers, chilled water, heat load &amp; design thumb rules.</p>
+    </div>
+
+    <div class="cards">
+
+      <a class="tool" href="heat-load-calculator.html">
+        <div class="head"><span class="e">🔥</span><h2>Heat Load Calculator</h2></div>
+        <div class="body">
+          <p>Build up the total cooling load source-by-source, then size the equipment.</p>
+          <ul>
+            <li>Solar, conduction, ventilation, internal</li>
+            <li>Multi-surface conduction with U-values</li>
+            <li>Live Q<sub>total</sub> = ΣQ breakdown</li>
+            <li>Required capacity (kW) with safety factor</li>
+          </ul>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="chiller-selection.html">
+        <div class="head"><span class="e">🏭</span><h2>Chiller Selection A→Z</h2></div>
+        <div class="body">
+          <p>Complete water-cooled chiller plant selection, end to end.</p>
+          <ul>
+            <li>Cooling load → RT → design capacity</li>
+            <li>Chiller, CHW flow, pump &amp; head</li>
+            <li>Condenser flow, cooling tower, pipe</li>
+            <li>AHU airflow + system schematic</li>
+          </ul>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="chilled-water-pump-head.html">
+        <div class="head"><span class="e">❄️</span><h2>Chilled Water Pump Head</h2></div>
+        <div class="body">
+          <p>Total system head for a chilled-water loop, then add a safety factor.</p>
+          <ul>
+            <li>Design flow from cooling load &amp; ΔT</li>
+            <li>Velocity, friction &amp; minor-loss heads</li>
+            <li>H<sub>T</sub> = H<sub>s</sub>+H<sub>d</sub>+H<sub>v</sub>+H<sub>e</sub></li>
+            <li>Design head with velocity check</li>
+          </ul>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="boiler-efficiency.html">
+        <div class="head"><span class="e">🔥</span><h2>Boiler Efficiency</h2></div>
+        <div class="body">
+          <p>Compute boiler efficiency from steam, feed-water and fuel data on a GCV basis.</p>
+          <ul>
+            <li>Boiler heat-flow diagram</li>
+            <li>Q₁ = m × (h<sub>s</sub> − h<sub>f</sub>)</li>
+            <li>Q₂ = m<sub>f</sub> × GCV</li>
+            <li>Live η (%) with worked example</li>
+          </ul>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="hvac-thumb-rule.html">
+        <div class="head"><span class="e">📐</span><h2>Design Thumb Rules</h2></div>
+        <div class="body">
+          <p>Quick-reference rules with live calculators for preliminary sizing &amp; planning.</p>
+          <ul>
+            <li>Cooling load, airflow &amp; outdoor air</li>
+            <li>Duct &amp; pipe sizing, chilled water</li>
+            <li>Pump / fan / electrical power</li>
+            <li>Comfort criteria &amp; unit converters</li>
+          </ul>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="hvac-formulas.html">
+        <div class="head"><span class="e">🧮</span><h2>Essential HVAC Formulas</h2></div>
+        <div class="body">
+          <p>15 must-know HVAC formulas, each as an independent live calculator.</p>
+          <ul>
+            <li>Airflow, sensible/total heat, heat gain</li>
+            <li>Fan power, ACH, COP, refrigeration tons</li>
+            <li>Duct friction, chilled-water flow, static P</li>
+            <li>Pump head &amp; ventilation air</li>
+          </ul>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <footer>MECH Toolkit · HVAC · preliminary estimates only — verify against detailed methods &amp; local codes (ASHRAE, SMACNA, ISHRAE).</footer>
+  </div>
+  <script src="site-addons.js" defer></script>
+</body>
+</html>
