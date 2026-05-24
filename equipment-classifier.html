@@ -441,6 +441,5 @@ function calculateManhours(){document.querySelectorAll('#table-body select.type-
 function exportCSV(){if(!allItems.length)return;document.querySelectorAll('#table-body select.type-select').forEach(sel=>{const idx=parseInt(sel.dataset.idx);if(!isNaN(idx)&&idx>=0&&idx<allItems.length)allItems[idx].type=sel.value;});const filtered=allItems.filter(it=>(it.type||'Other')!=='Other');if(!filtered.length){alert('No items to export.');return;}const rows=[['#','Description','Type','Activity','Manhours']];filtered.forEach((it,i)=>{const uTypes=new Set(filtered.map(x=>x.type)).size;const sIdx=ACTIVITIES.findIndex(a=>a.name==='Spec analysis');ACTIVITIES.forEach((a,ai)=>{const mh=ai===sIdx?Math.round(a.hours*uTypes+40):Math.round(a.hours*(TYPE_MULTIPLIER[it.type]||1.0));rows.push([i+1,it.description||'',it.type,a.name,mh]);});});download('equipment-classification.csv',rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'),'text/csv');}
 function download(filename,content,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=filename;a.click();}
 </script>
-  <script src="site-addons.js" defer></script>
 </body>
 </html>
