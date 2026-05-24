@@ -207,12 +207,12 @@
           <span class="frac"><span class="t">V</span><span class="b">Q</span></span>
         </div>
         <ul class="vars">
-          <li><b>V</b><span>Volume of tank — Liters (L)</span></li>
-          <li><b>Q</b><span>Inflow rate — Liters / Minute (LPM)</span></li>
+          <li><b>V</b><span>Volume of tank — cubic metres (m³)</span></li>
+          <li><b>Q</b><span>Inflow rate — cubic metres / minute (m³/min)</span></li>
           <li><b>T</b><span>Filling time — Minutes (min)</span></li>
-          <li><b>H</b><span>Water height — Meter (m)</span></li>
+          <li><b>H</b><span>Water height — Metre (m)</span></li>
         </ul>
-        <div class="note"><b>NOTE:</b> 1 m³ = 1000 Liters &nbsp;·&nbsp; π (pi) = 3.1416 (approx.)<br>
+        <div class="note"><b>NOTE:</b> 1 m³ = 1000 L &nbsp;·&nbsp; π (pi) = 3.1416 (approx.)<br>
           Cylindrical volume: V = π × (D/2)² × H &nbsp;·&nbsp; Rectangular: V = L × W × H</div>
       </div>
     </section>
@@ -233,7 +233,7 @@
             <select id="shape">
               <option value="cyl">Cylindrical (D, H)</option>
               <option value="rect">Rectangular (L, W, H)</option>
-              <option value="dir">Known volume (Liters)</option>
+              <option value="dir">Known volume (m³)</option>
             </select>
           </div>
 
@@ -252,13 +252,13 @@
 
           <!-- direct -->
           <div id="g_dir" style="display:none">
-            <div class="field"><label>Tank volume &nbsp;V (Liters)</label><input id="vol" type="number" step="100" value="17660"></div>
+            <div class="field"><label>Tank volume &nbsp;V (m³)</label><input id="vol" type="number" step="0.1" value="17.66"></div>
           </div>
 
-          <div class="field"><label>Inflow rate &nbsp;Q (LPM)</label><input id="q" type="number" step="10" value="750"></div>
+          <div class="field"><label>Inflow rate &nbsp;Q (m³/min)</label><input id="q" type="number" step="0.05" value="0.75"></div>
           <div class="field"><label>Loss / leakage (%) <span class="muted">optional</span></label><input id="loss" type="number" step="1" value="0"></div>
 
-          <button class="loadex" id="loadEx">↺ Load example (3.0 m × 2.5 m @ 750 LPM)</button>
+          <button class="loadex" id="loadEx">↺ Load example (3.0 m × 2.5 m @ 0.75 m³/min)</button>
 
           <div class="steps">
             <div class="step"><span class="lab">STEP 1 · VOLUME (V)</span><div class="val" id="o_v"></div></div>
@@ -269,7 +269,7 @@
             <div class="lab">FILLING TIME</div>
             <div class="big" id="o_big">0 min</div>
             <div class="sub" id="o_sub">—</div>
-            <div class="volpill" id="o_vol">V = 0 L</div>
+            <div class="volpill" id="o_vol">V = 0 m³</div>
           </div>
         </div>
       </div>
@@ -295,8 +295,8 @@
         <h3><span class="num">U</span> UNITS <span class="ico">📏</span></h3>
         <div class="body">
           <ul class="vars">
-            <li><b>💧</b><span>Volume (V) in Liters (L)</span></li>
-            <li><b>🚰</b><span>Flow rate (Q) in Liters/Minute (LPM)</span></li>
+            <li><b>💧</b><span>Volume (V) in cubic metres (m³)</span></li>
+            <li><b>🚰</b><span>Flow rate (Q) in m³ / minute (m³/min)</span></li>
             <li><b>⏱️</b><span>Time (T) in Minutes (min)</span></li>
           </ul>
         </div>
@@ -312,16 +312,16 @@
     <section class="card">
       <h3><span class="num">★</span> QUICK REFERENCE TABLE <span class="ico">📊</span></h3>
       <div class="body">
-        <p class="muted" style="margin:0 0 8px; font-size:12px;">Filling time (minutes) at different inflow rates (LPM)</p>
+        <p class="muted" style="margin:0 0 8px; font-size:12px;">Filling time (minutes) at different inflow rates (m³/min)</p>
         <table class="ref">
           <thead>
-            <tr><th>Tank Volume</th><th>500 LPM</th><th>750 LPM</th><th>1000 LPM</th><th>1500 LPM</th></tr>
+            <tr><th>Tank Volume</th><th>0.5 m³/min</th><th>0.75 m³/min</th><th>1.0 m³/min</th><th>1.5 m³/min</th></tr>
           </thead>
           <tbody>
-            <tr><td>5,000 L</td><td>10.0</td><td>6.7</td><td>5.0</td><td>3.3</td></tr>
-            <tr><td>10,000 L</td><td>20.0</td><td>13.3</td><td>10.0</td><td>6.7</td></tr>
-            <tr><td>15,000 L</td><td>30.0</td><td>20.0</td><td>15.0</td><td>10.0</td></tr>
-            <tr><td>20,000 L</td><td>40.0</td><td>26.7</td><td>20.0</td><td>13.3</td></tr>
+            <tr><td>5 m³</td><td>10.0</td><td>6.7</td><td>5.0</td><td>3.3</td></tr>
+            <tr><td>10 m³</td><td>20.0</td><td>13.3</td><td>10.0</td><td>6.7</td></tr>
+            <tr><td>15 m³</td><td>30.0</td><td>20.0</td><td>15.0</td><td>10.0</td></tr>
+            <tr><td>20 m³</td><td>40.0</td><td>26.7</td><td>20.0</td><td>13.3</td></tr>
           </tbody>
         </table>
       </div>
@@ -333,13 +333,12 @@
       <div class="body">
         <div class="ex">
           <h6>Given — Overhead Tank</h6>
-          <span class="mono">D = 3.0 m · H = 2.5 m · Q = 750 LPM</span>
+          <span class="mono">D = 3.0 m · H = 2.5 m · Q = 0.75 m³/min</span>
           <h6 style="margin-top:8px;">Step 1 — Volume</h6>
           <span class="mono">V = 3.1416 × (3/2)² × 2.5</span>
           <span class="mono">V = 3.1416 × 2.25 × 2.5 = 17.66 m³</span>
-          <span class="mono">V = 17,660 Liters</span>
           <h6 style="margin-top:8px;">Step 2 — Filling time</h6>
-          <span class="mono">T = 17,660 / 750 = 23.55 min</span>
+          <span class="mono">T = 17.66 / 0.75 = 23.55 min</span>
           <div class="res">T ≈ 23 minutes 33 seconds</div>
         </div>
       </div>
@@ -376,30 +375,28 @@
     if(shape==="cyl"){
       const D=n($("dia").value), H=n($("hc").value);
       Vm3=PI*Math.pow(D/2,2)*H;
-      vstep=`= ${f(PI,4)} × (${f(D,2)}/2)² × ${f(H,2)} = <b>${f(Vm3,2)} m³</b> = <b>${f(Vm3*1000)} L</b>`;
+      vstep=`= ${f(PI,4)} × (${f(D,2)}/2)² × ${f(H,2)} = <b>${f(Vm3,2)} m³</b>`;
     }else if(shape==="rect"){
       const L=n($("len").value), W=n($("wid").value), H=n($("hr").value);
       Vm3=L*W*H;
-      vstep=`= ${f(L,2)} × ${f(W,2)} × ${f(H,2)} = <b>${f(Vm3,2)} m³</b> = <b>${f(Vm3*1000)} L</b>`;
+      vstep=`= ${f(L,2)} × ${f(W,2)} × ${f(H,2)} = <b>${f(Vm3,2)} m³</b>`;
     }else{
-      const Vl=n($("vol").value);
-      Vm3=Vl/1000;
-      vstep=`= <b>${f(Vl)} L</b> &nbsp;(${f(Vm3,2)} m³, entered directly)`;
+      Vm3=n($("vol").value);
+      vstep=`= <b>${f(Vm3,2)} m³</b> (entered directly)`;
     }
-    const Vl=Vm3*1000;
 
     const Q=n($("q").value), loss=n($("loss").value);
     const netQ=Q*(1-Math.max(0,Math.min(100,loss))/100);
-    const T=netQ>0 ? Vl/netQ : 0;
+    const T=netQ>0 ? Vm3/netQ : 0;
 
     $("o_v").innerHTML=vstep;
     $("o_t").innerHTML = loss>0
-      ? `net Q = ${f(Q)} × (1 − ${f(loss)}%) = ${f(netQ,1)} LPM → T = ${f(Vl)} / ${f(netQ,1)} = <b>${f(T,2)} min</b>`
-      : `= ${f(Vl)} / ${f(Q)} = <b>${f(T,2)} min</b>`;
+      ? `net Q = ${f(Q,3)} × (1 − ${f(loss)}%) = ${f(netQ,3)} m³/min → T = ${f(Vm3,2)} / ${f(netQ,3)} = <b>${f(T,2)} min</b>`
+      : `= ${f(Vm3,2)} / ${f(Q,3)} = <b>${f(T,2)} min</b>`;
 
     $("o_big").textContent = `${f(T,2)} min`;
     $("o_sub").textContent = fmtTime(T);
-    $("o_vol").textContent = `V = ${f(Vl)} L  (${f(Vm3,2)} m³)`;
+    $("o_vol").textContent = `V = ${f(Vm3,2)} m³`;
   }
 
   function switchShape(){
@@ -412,7 +409,7 @@
 
   $("loadEx").addEventListener("click",()=>{
     $("shape").value="cyl"; switchShape();
-    $("dia").value=3.0; $("hc").value=2.5; $("q").value=750; $("loss").value=0; calc();
+    $("dia").value=3.0; $("hc").value=2.5; $("q").value=0.75; $("loss").value=0; calc();
   });
   $("shape").addEventListener("change",switchShape);
   document.addEventListener("input",e=>{
