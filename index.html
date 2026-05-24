@@ -23,42 +23,45 @@
   body{
     margin:0; min-height:100vh; background:var(--bg); color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.45; padding:48px 18px;
+    line-height:1.45; padding:40px 18px;
     display:flex; flex-direction:column; align-items:center;
   }
-  .wrap{max-width:900px; width:100%;}
+  .wrap{max-width:1160px; width:100%;}
 
   /* Hero */
-  .hero{text-align:center; margin-bottom:44px;}
+  .hero{text-align:center; margin-bottom:34px;}
   .hero h1{margin:0; font-size:36px; font-weight:800; letter-spacing:-1px; color:var(--navy);
     display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center;}
   .pill{background:var(--navy-2); color:#fff; padding:3px 15px; border-radius:9px; font-size:28px; font-weight:800;}
   .hero .sub{margin:14px auto 0; max-width:580px; color:var(--muted); font-size:15px;}
 
-  /* Category cards */
-  .cats{display:grid; grid-template-columns:repeat(2,1fr); gap:24px;}
-  @media(max-width:680px){ .cats{grid-template-columns:1fr;} .hero h1{font-size:36px;} .pill{font-size:30px;} }
+  /* Section heading */
+  .section{display:flex; align-items:center; gap:10px; margin:30px 0 14px; padding-bottom:8px;
+    border-bottom:2px solid var(--line); color:var(--navy); font-size:20px; font-weight:800; letter-spacing:.3px;}
+  .section .e{font-size:24px;}
 
-  a.cat{
+  /* Cards */
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  @media(max-width:880px){ .cards{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:600px){ .cards{grid-template-columns:1fr;} .hero h1{font-size:30px;} .pill{font-size:24px;} }
+
+  a.tool{
     display:flex; flex-direction:column; text-decoration:none; color:inherit;
-    background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+    background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden;
     transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
   }
-  a.cat:hover{ transform:translateY(-5px); box-shadow:0 16px 34px rgba(23,58,94,.20); border-color:var(--navy-2); }
-  .cat .head{ background:var(--navy); color:#fff; padding:24px 22px; display:flex; align-items:center; gap:16px; }
-  .cat .head .e{ font-size:46px; line-height:1; }
-  .cat .head h2{ margin:0; font-size:26px; font-weight:800; letter-spacing:.3px; }
-  .cat .head .cnt{ margin-top:3px; font-size:12.5px; opacity:.8; letter-spacing:.5px; }
-  .cat .body{ padding:18px 22px 22px; flex:1; display:flex; flex-direction:column; }
-  .cat .body p{ margin:0 0 12px; font-size:13.5px; color:var(--muted); }
-  .cat ul{ margin:0 0 16px; padding-left:18px; font-size:12.5px; columns:1; }
-  .cat ul li{ margin:5px 0; }
-  .cat .go{ margin-top:auto; align-self:flex-start; background:var(--navy-2); color:#fff;
-    padding:10px 18px; border-radius:9px; font-size:13px; font-weight:700; letter-spacing:.4px;
+  a.tool:hover{ transform:translateY(-4px); box-shadow:0 12px 28px rgba(23,58,94,.18); border-color:var(--navy-2); }
+  .tool .head{ background:var(--navy); color:#fff; padding:14px 16px; display:flex; align-items:center; gap:11px; }
+  .tool .head .e{ font-size:26px; }
+  .tool .head h2{ margin:0; font-size:17px; font-weight:800; letter-spacing:.3px; }
+  .tool .body{ padding:13px 16px 16px; flex:1; display:flex; flex-direction:column; }
+  .tool .body p{ margin:0 0 12px; font-size:12.5px; color:var(--muted); }
+  .tool .go{ margin-top:auto; align-self:flex-start; background:var(--navy-2); color:#fff;
+    padding:8px 15px; border-radius:8px; font-size:12.5px; font-weight:700; letter-spacing:.4px;
     display:inline-flex; align-items:center; gap:7px; }
-  a.cat:hover .go{ background:var(--navy); }
+  a.tool:hover .go{ background:var(--navy); }
 
-  footer{ margin-top:46px; text-align:center; font-size:12px; color:var(--muted); }
+  footer{ margin-top:42px; text-align:center; font-size:12px; color:var(--muted); }
 </style>
 </head>
 <body>
@@ -66,30 +69,112 @@
 
     <div class="hero">
       <h1>MECH <span class="pill">TOOLKIT</span></h1>
-      <p class="sub">Interactive reference sheets &amp; live calculators for engineering. Pick a discipline to see its tools.</p>
+      <p class="sub">Interactive reference sheets &amp; live calculators for mechanical / HVAC engineering. Pick a tool to get started.</p>
     </div>
 
-    <div class="cats">
+    <!-- ===================== MECHANICAL ===================== -->
+    <div class="section"><span class="e">⚙️</span> Mechanical</div>
+    <div class="cards">
 
-      <a class="cat" href="mechanical.html">
-        <div class="head">
-          <span class="e">⚙️</span>
-          <div><h2>Mechanical</h2><div class="cnt">6 tools</div></div>
-        </div>
+      <a class="tool" href="equipment-classifier.html">
+        <div class="head"><span class="e">🗂️</span><h2>Equipment Classifier</h2></div>
         <div class="body">
-          <p>Pressure vessels, pumps, water systems, ASME code references &amp; equipment classification.</p>
-          <span class="go">Open Mechanical →</span>
+          <p>Upload an equipment list and auto-classify each item by its description.</p>
+          <span class="go">Open tool →</span>
         </div>
       </a>
 
-      <a class="cat" href="hvac.html">
-        <div class="head">
-          <span class="e">🌡️</span>
-          <div><h2>HVAC</h2><div class="cnt">6 tools</div></div>
-        </div>
+      <a class="tool" href="pressure-vessel-thickness.html">
+        <div class="head"><span class="e">🛢️</span><h2>Pressure Vessel Thickness</h2></div>
         <div class="body">
-          <p>Heating, cooling &amp; air-side design — chillers, chilled water, heat load &amp; thumb rules.</p>
-          <span class="go">Open HVAC →</span>
+          <p>Estimate required wall thickness from pressure, geometry, material &amp; corrosion.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="asme-viii-definitions.html">
+        <div class="head"><span class="e">📘</span><h2>ASME VIII-1 Definitions</h2></div>
+        <div class="body">
+          <p>Top-10 pressure-vessel code terms with code references &amp; quick checks.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="asme-div-comparison.html">
+        <div class="head"><span class="e">📗</span><h2>ASME VIII — Div 1·2·3</h2></div>
+        <div class="body">
+          <p>Side-by-side comparison of ASME Section VIII Divisions 1, 2 &amp; 3.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="pump-head-npsha.html">
+        <div class="head"><span class="e">💧</span><h2>Pump Head &amp; NPSHA</h2></div>
+        <div class="body">
+          <p>Full water-pump hydraulics: total head, motor power and suction-side NPSHA.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="water-tank-filling-time.html">
+        <div class="head"><span class="e">🚰</span><h2>Water Tank Filling Time</h2></div>
+        <div class="body">
+          <p>How long to fill a tank from its volume and a steady inflow rate.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- ===================== HVAC ===================== -->
+    <div class="section"><span class="e">🌡️</span> HVAC</div>
+    <div class="cards">
+
+      <a class="tool" href="heat-load-calculator.html">
+        <div class="head"><span class="e">🔥</span><h2>Heat Load Calculator</h2></div>
+        <div class="body">
+          <p>Build up the total cooling load source-by-source, then size the equipment.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="chiller-selection.html">
+        <div class="head"><span class="e">🏭</span><h2>Chiller Selection A→Z</h2></div>
+        <div class="body">
+          <p>Complete water-cooled chiller plant selection, end to end.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="chilled-water-pump-head.html">
+        <div class="head"><span class="e">❄️</span><h2>Chilled Water Pump Head</h2></div>
+        <div class="body">
+          <p>Total system head for a chilled-water loop, then add a safety factor.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="boiler-efficiency.html">
+        <div class="head"><span class="e">🔥</span><h2>Boiler Efficiency</h2></div>
+        <div class="body">
+          <p>Compute boiler efficiency from steam, feed-water and fuel data on a GCV basis.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="hvac-thumb-rule.html">
+        <div class="head"><span class="e">📐</span><h2>Design Thumb Rules</h2></div>
+        <div class="body">
+          <p>Quick-reference rules with live calculators for preliminary sizing &amp; planning.</p>
+          <span class="go">Open tool →</span>
+        </div>
+      </a>
+
+      <a class="tool" href="hvac-formulas.html">
+        <div class="head"><span class="e">🧮</span><h2>Essential HVAC Formulas</h2></div>
+        <div class="body">
+          <p>15 must-know HVAC formulas, each as an independent live calculator.</p>
+          <span class="go">Open tool →</span>
         </div>
       </a>
 
