@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coil Selection — Interactive Calculator</title>
+<title>Coil Selection — Interactive Calculator (SI)</title>
 <style>
   :root{
     --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
@@ -76,9 +76,6 @@
   ol.steps{margin:4px 0; padding-left:20px; font-size:13px;} ol.steps li{margin:5px 0;}
   .chk{list-style:none; margin:4px 0; padding:0; font-size:13px;} .chk li{margin:6px 0; padding-left:22px; position:relative;}
   .chk li::before{content:"✓"; position:absolute; left:0; color:var(--good); font-weight:800;}
-  .types{list-style:none; margin:0; padding:0; font-size:13px;}
-  .types li{padding:6px 0; border-bottom:1px dashed #d8e1ec;} .types li:last-child{border-bottom:none;}
-  .types b{color:var(--navy-2);}
 
   .note{background:#fff7e0; border:1px solid #e9cf8a; border-radius:8px; padding:9px 11px; font-size:12px; color:#7a5a10; margin-top:10px;}
   .ex{background:#eef6ef; border:1px solid #bcdcc0; border-radius:9px; padding:10px 12px; font-size:12.5px;}
@@ -102,7 +99,7 @@
   <header class="top">
     <div class="titleblock">
       <h1>COIL <span class="pill">SELECTION</span></h1>
-      <div class="sub">CAPACITY · SENSIBLE · BY-PASS FACTOR · WATER FLOW</div>
+      <div class="sub">SI UNITS · CAPACITY · SENSIBLE · BY-PASS FACTOR · WATER FLOW</div>
       <div class="btnrow no-print">
         <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
         <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
@@ -121,17 +118,17 @@
       <h3>INPUT PARAMETERS <span class="ico">📝</span></h3>
       <div class="body">
         <div class="calc">
-          <h5>Cooling coil — edit any value</h5>
-          <div class="field"><label>Air flow rate (CFM)</label><input id="cfm" type="number" step="100" value="10000"></div>
-          <div class="field"><label>Entering air DB &nbsp;T₁ (°F)</label><input id="t1" type="number" step="1" value="80"></div>
-          <div class="field"><label>Leaving air DB &nbsp;T₂ (°F)</label><input id="t2" type="number" step="1" value="55"></div>
-          <div class="field"><label>Entering air enthalpy &nbsp;h₁ (Btu/lb)</label><input id="h1" type="number" step="0.5" value="30"></div>
-          <div class="field"><label>Leaving air enthalpy &nbsp;h₂ (Btu/lb)</label><input id="h2" type="number" step="0.5" value="22"></div>
-          <div class="field"><label>Apparatus Dew Point &nbsp;T<sub>ADP</sub> (°F)</label><input id="adp" type="number" step="1" value="52"></div>
-          <div class="field"><label>Chilled water EWT &nbsp;T₁<sub>w</sub> (°F)</label><input id="ewt" type="number" step="1" value="44"></div>
-          <div class="field"><label>Chilled water LWT &nbsp;T₂<sub>w</sub> (°F)</label><input id="lwt" type="number" step="1" value="54"></div>
+          <h5>Cooling coil (SI) — edit any value</h5>
+          <div class="field"><label>Air flow rate &nbsp;V̇ (m³/h)</label><input id="vair" type="number" step="100" value="17000"></div>
+          <div class="field"><label>Entering air DB &nbsp;T₁ (°C)</label><input id="t1" type="number" step="0.5" value="27"></div>
+          <div class="field"><label>Leaving air DB &nbsp;T₂ (°C)</label><input id="t2" type="number" step="0.5" value="13"></div>
+          <div class="field"><label>Entering air enthalpy &nbsp;h₁ (kJ/kg)</label><input id="h1" type="number" step="1" value="70"></div>
+          <div class="field"><label>Leaving air enthalpy &nbsp;h₂ (kJ/kg)</label><input id="h2" type="number" step="1" value="51"></div>
+          <div class="field"><label>Apparatus Dew Point &nbsp;T<sub>ADP</sub> (°C)</label><input id="adp" type="number" step="0.5" value="11"></div>
+          <div class="field"><label>Chilled water EWT &nbsp;T₁<sub>w</sub> (°C)</label><input id="ewt" type="number" step="0.5" value="7"></div>
+          <div class="field"><label>Chilled water LWT &nbsp;T₂<sub>w</sub> (°C)</label><input id="lwt" type="number" step="0.5" value="12"></div>
           <button class="loadex" id="loadEx">↺ Load example values</button>
-          <div class="note" style="margin-top:10px;">Enthalpies h₁, h₂ are read from the psychrometric chart (entering/leaving air states).</div>
+          <div class="note" style="margin-top:10px;">Air ρ = 1.2 kg/m³ · c<sub>p,air</sub> = 1.005 · c<sub>p,water</sub> = 4.186 kJ/kg·K. Enthalpies h₁, h₂ from the psychrometric chart.</div>
         </div>
       </div>
     </section>
@@ -142,15 +139,15 @@
       <div class="body">
         <div class="ex">
           <h6>Given</h6>
-          <span class="mono">CFM = 10,000 · Entering 80°F DB / 67°F WB · Leaving 55°F DB / 54°F WB</span>
-          <span class="mono">Chilled water 44°F (EWT) / 54°F (LWT) · h₁ = 30, h₂ = 22 Btu/lb</span>
+          <span class="mono">V̇ = 17,000 m³/h · Entering 27 °C DB · Leaving 13 °C DB</span>
+          <span class="mono">Chilled water 7 °C (EWT) / 12 °C (LWT) · h₁ = 70, h₂ = 51 kJ/kg</span>
           <h6 style="margin-top:8px;">Total capacity</h6>
-          <span class="mono">Q = 4.5 × 10,000 × (30 − 22) = 360,000 Btu/hr = 30 TR (105.5 kW)</span>
+          <span class="mono">Q = 1.2 × (17000/3600) × (70 − 51) = 1.2 × 4.72 × 19 = 107.7 kW (30.6 TR)</span>
           <h6 style="margin-top:8px;">Water flow</h6>
-          <span class="mono">GPM = 360,000 / (500 × 10) = 72 GPM &nbsp;(2.4 GPM/ton)</span>
-          <div class="res">Q ≈ 30 tons · 72 GPM</div>
+          <span class="mono">V̇<sub>w</sub> = 107.7 / (4.186 × 5) = 5.15 L/s = 18.5 m³/h</span>
+          <div class="res">Q ≈ 108 kW · 18.5 m³/h</div>
         </div>
-        <div class="note">The original sheet uses 1.08 instead of 4.5, giving Q = 86,400 Btu/hr and GPM = 12.96 — both far too low for a 10,000 CFM coil. The values above use the correct constants.</div>
+        <div class="note">Total capacity uses the <b>enthalpy</b> difference (Q = ρ·V̇·Δh). The original imperial sheet mistakenly used the sensible constant 1.08 in the total-capacity formula; this SI tool uses the correct enthalpy-based total heat.</div>
       </div>
     </section>
 
@@ -162,10 +159,10 @@
     <section class="card">
       <h3><span class="num">4</span> TOTAL CAPACITY (Q) <span class="ico">❄️</span></h3>
       <div class="body">
-        <div class="formula">Q = 4.5 × CFM × (h₁ − h₂)</div>
+        <div class="formula">Q = 1.2 × V̇ × (h₁ − h₂)</div>
         <div class="val" id="o_q"></div>
         <div class="rv" id="o_qr"></div>
-        <div class="note">The source sheet writes <b>1.08</b> here, but 1.08 is the <b>sensible</b> (temperature) constant. For an <b>enthalpy</b> difference the correct air-side constant is <b>4.5</b> — this tool uses 4.5 so the result is realistic.</div>
+        <div class="muted" style="font-size:11px;margin-top:6px;">V̇ in m³/s = (m³/h)/3600 · ρ<sub>air</sub> = 1.2 kg/m³ · Δh in kJ/kg → kW</div>
       </div>
     </section>
 
@@ -173,7 +170,7 @@
     <section class="card">
       <h3><span class="num">5</span> SENSIBLE CAPACITY (Q<sub>s</sub>) <span class="ico">🌡️</span></h3>
       <div class="body">
-        <div class="formula">Q<sub>s</sub> = 1.08 × CFM × (T₁ − T₂)</div>
+        <div class="formula">Q<sub>s</sub> = 1.2 × 1.005 × V̇ × (T₁ − T₂)</div>
         <div class="val" id="o_qs"></div>
         <div class="rv" id="o_qsr"></div>
       </div>
@@ -204,10 +201,10 @@
     <section class="card">
       <h3><span class="num">7</span> WATER FLOW RATE <span class="ico">🚰</span></h3>
       <div class="body">
-        <div class="formula">GPM = Q / (500 × ΔT<sub>w</sub>)</div>
+        <div class="formula">V̇<sub>w</sub> = Q / (4.186 × ΔT<sub>w</sub>)</div>
         <div class="val" id="o_gpm"></div>
         <div class="rv" id="o_gpmr"></div>
-        <div class="note">Uses <b>total</b> Q (the water removes sensible + latent heat). ΔT<sub>w</sub> = LWT − EWT.</div>
+        <div class="note">Uses <b>total</b> Q (water removes sensible + latent heat). ΔT<sub>w</sub> = LWT − EWT (°C); 1 L water ≈ 1 kg.</div>
       </div>
     </section>
 
@@ -217,8 +214,8 @@
       <div class="body">
         <div class="bigbox">
           <div class="lab">TOTAL CAPACITY</div>
-          <div class="big" id="o_tr">0 TR</div>
-          <div class="sub" id="o_kw">0 kW · 0 Btu/hr</div>
+          <div class="big" id="o_capkw">0 kW</div>
+          <div class="sub" id="o_capsub">0 TR</div>
         </div>
         <div class="rv" id="o_flow" style="margin-top:10px;"></div>
       </div>
@@ -263,8 +260,8 @@
       <h3>PRESSURE DROP &amp; SYSTEM FACTOR <span class="ico">📉</span></h3>
       <div class="body">
         <ul class="tight">
-          <li>Air-side pressure drop: <b>≤ 5 in.wg</b></li>
-          <li>Water-side pressure drop: <b>≤ 10 ft.wg</b></li>
+          <li>Air-side pressure drop: <b>≤ 1.25 kPa</b> <span class="muted">(5 in.wg)</span></li>
+          <li>Water-side pressure drop: <b>≤ 30 kPa</b> <span class="muted">(≈3 m wg, 10 ft.wg)</span></li>
         </ul>
         <div class="note" style="margin-top:8px;">If pressure drop is too high, select the next coil size. Apply a <b>system factor</b> on selection — air side ≈ 1.0–2.0, water-side performance ≈ 1.05–1.15 — based on manufacturer data, fouling factor &amp; location constraints.</div>
       </div>
@@ -272,7 +269,7 @@
 
   </div>
 
-  <footer>Interactive coil-selection calculator built from the source sheet · imperial units · preliminary selection only — confirm with manufacturer coil-rating software.</footer>
+  <footer>Interactive coil-selection calculator built from the source sheet · SI units · preliminary selection only — confirm with manufacturer coil-rating software.</footer>
 </div>
 
 <script>
@@ -281,49 +278,48 @@
   const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
 
   function recalc(){
-    const cfm=n($("cfm").value), t1=n($("t1").value), t2=n($("t2").value),
+    const vair=n($("vair").value), t1=n($("t1").value), t2=n($("t2").value),
           h1=n($("h1").value), h2=n($("h2").value), adp=n($("adp").value),
           ewt=n($("ewt").value), lwt=n($("lwt").value);
 
-    const Q=4.5*cfm*(h1-h2);                 // Btu/hr total
-    const TR=Q/12000;
-    const kW=Q/3412.142;
-    const Qs=1.08*cfm*(t1-t2);               // Btu/hr sensible
+    const Vs=vair/3600;                       // m³/s
+    const Q=1.2*Vs*(h1-h2);                   // kW total
+    const Qs=1.2*1.005*Vs*(t1-t2);           // kW sensible
     const Ql=Q-Qs;
     const SHR=Q!==0 ? Qs/Q : 0;
     const denom=(t1-adp);
     const BPF=denom!==0 ? (t2-adp)/denom : 0;
     const dTw=lwt-ewt;
-    const gpm=dTw!==0 ? Q/(500*dTw) : 0;
-    const Lps=gpm*0.0630902;
-    const gpmTon=TR!==0 ? gpm/TR : 0;
+    const Lps=dTw!==0 ? Q/(4.186*dTw) : 0;    // L/s
+    const m3h=Lps*3.6;
+    const TR=Q/3.51685;                        // refrigeration tons (reference)
 
-    $("o_q").innerHTML=`= 4.5 × ${f(cfm)} × (${f(h1,1)} − ${f(h2,1)}) = 4.5 × ${f(cfm)} × ${f(h1-h2,1)}`;
-    $("o_qr").innerHTML=`Q = <b>${f(Q)} Btu/hr</b>`;
+    $("o_q").innerHTML=`= 1.2 × ${f(Vs,3)} × (${f(h1,1)} − ${f(h2,1)}) &nbsp;<span class="muted">V̇=${f(vair)}/3600</span>`;
+    $("o_qr").innerHTML=`Q = <b>${f(Q,1)} kW</b>`;
 
-    $("o_qs").innerHTML=`= 1.08 × ${f(cfm)} × (${f(t1)} − ${f(t2)}) = 1.08 × ${f(cfm)} × ${f(t1-t2)}`;
-    $("o_qsr").innerHTML=`Q<sub>s</sub> = <b>${f(Qs)} Btu/hr</b>`;
+    $("o_qs").innerHTML=`= 1.2 × 1.005 × ${f(Vs,3)} × (${f(t1,1)} − ${f(t2,1)})`;
+    $("o_qsr").innerHTML=`Q<sub>s</sub> = <b>${f(Qs,1)} kW</b>`;
 
-    $("o_lat").innerHTML=`= ${f(Q)} − ${f(Qs)} = ${f(Ql)} Btu/hr`;
-    $("o_shr").innerHTML=`Latent = <b>${f(Ql)} Btu/hr</b> · SHR = <b>${f(SHR,2)}</b>`;
+    $("o_lat").innerHTML=`= ${f(Q,1)} − ${f(Qs,1)} = ${f(Ql,1)} kW`;
+    $("o_shr").innerHTML=`Latent = <b>${f(Ql,1)} kW</b> · SHR = <b>${f(SHR,2)}</b>`;
 
-    $("o_bpf").innerHTML=`= (${f(t2)} − ${f(adp)}) / (${f(t1)} − ${f(adp)}) = ${f(t2-adp)} / ${f(t1-adp)}`;
+    $("o_bpf").innerHTML=`= (${f(t2,1)} − ${f(adp,1)}) / (${f(t1,1)} − ${f(adp,1)})`;
     $("o_bpfr").innerHTML=`BPF = <b>${f(BPF,3)}</b> · contact factor = <b>${f(1-BPF,3)}</b>`;
 
-    $("o_gpm").innerHTML=`= ${f(Q)} / (500 × ${f(dTw)}) `;
-    $("o_gpmr").innerHTML=`GPM = <b>${f(gpm,1)}</b> &nbsp;(${f(Lps,2)} L/s)`;
+    $("o_gpm").innerHTML=`= ${f(Q,1)} / (4.186 × ${f(dTw,1)})`;
+    $("o_gpmr").innerHTML=`V̇<sub>w</sub> = <b>${f(Lps,2)} L/s</b> &nbsp;(${f(m3h,1)} m³/h)`;
 
-    $("o_tr").textContent=`${f(TR,1)} TR`;
-    $("o_kw").textContent=`${f(kW,1)} kW · ${f(Q)} Btu/hr`;
-    $("o_flow").innerHTML=`Water flow <b>${f(gpm,1)} GPM</b> · <b>${f(gpmTon,2)} GPM/ton</b> · ΔT<sub>w</sub> = ${f(dTw)} °F`;
+    $("o_capkw").textContent=`${f(Q,1)} kW`;
+    $("o_capsub").textContent=`${f(TR,1)} TR · ${f(Q*1000,0)} W`;
+    $("o_flow").innerHTML=`Water flow <b>${f(m3h,1)} m³/h</b> (${f(Lps,2)} L/s) · ΔT<sub>w</sub> = ${f(dTw,1)} °C`;
   }
 
   $("loadEx").addEventListener("click",()=>{
-    $("cfm").value=10000; $("t1").value=80; $("t2").value=55; $("h1").value=30; $("h2").value=22;
-    $("adp").value=52; $("ewt").value=44; $("lwt").value=54; recalc();
+    $("vair").value=17000; $("t1").value=27; $("t2").value=13; $("h1").value=70; $("h2").value=51;
+    $("adp").value=11; $("ewt").value=7; $("lwt").value=12; recalc();
   });
   document.addEventListener("input",e=>{
-    if(["cfm","t1","t2","h1","h2","adp","ewt","lwt"].includes(e.target.id)) recalc();
+    if(["vair","t1","t2","h1","h2","adp","ewt","lwt"].includes(e.target.id)) recalc();
   });
   recalc();
 </script>
