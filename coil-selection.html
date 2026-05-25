@@ -114,57 +114,8 @@
     </div>
   </header>
 
-  <div class="duo">
-
-    <!-- DIAGRAM + TYPES -->
-    <section class="card">
-      <h3>FINNED-TUBE COIL &amp; TYPES <span class="ico">🧊</span></h3>
-      <div class="body">
-        <svg viewBox="0 0 480 250" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto 8px" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">
-          <defs>
-            <marker id="aB" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2b8fd6"/></marker>
-            <marker id="aR" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e23b2e"/></marker>
-          </defs>
-          <!-- coil block with fins -->
-          <rect x="150" y="50" width="180" height="150" rx="4" fill="#eef2f6" stroke="#7f8993" stroke-width="2"/>
-          <g stroke="#c4cdd7" stroke-width="2">
-            <line x1="162" y1="52" x2="162" y2="198"/><line x1="174" y1="52" x2="174" y2="198"/>
-            <line x1="186" y1="52" x2="186" y2="198"/><line x1="198" y1="52" x2="198" y2="198"/>
-            <line x1="210" y1="52" x2="210" y2="198"/><line x1="222" y1="52" x2="222" y2="198"/>
-            <line x1="234" y1="52" x2="234" y2="198"/><line x1="246" y1="52" x2="246" y2="198"/>
-            <line x1="258" y1="52" x2="258" y2="198"/><line x1="270" y1="52" x2="270" y2="198"/>
-            <line x1="282" y1="52" x2="282" y2="198"/><line x1="294" y1="52" x2="294" y2="198"/>
-            <line x1="306" y1="52" x2="306" y2="198"/><line x1="318" y1="52" x2="318" y2="198"/>
-          </g>
-          <!-- tubes -->
-          <g fill="#b08d57" stroke="#8a6d3b" stroke-width="1">
-            <circle cx="150" cy="78" r="7"/><circle cx="150" cy="110" r="7"/><circle cx="150" cy="142" r="7"/><circle cx="150" cy="174" r="7"/>
-            <circle cx="330" cy="94" r="7"/><circle cx="330" cy="126" r="7"/><circle cx="330" cy="158" r="7"/>
-          </g>
-          <text x="240" y="32" text-anchor="middle" font-size="12" fill="#5a6b7b">Fins &amp; tubes</text>
-          <!-- water in/out -->
-          <line x1="92" y1="78" x2="143" y2="78" stroke="#2b8fd6" stroke-width="4" marker-end="url(#aB)"/>
-          <text x="88" y="74" text-anchor="end" font-size="12" font-weight="700" fill="#173a5e">Water In</text>
-          <line x1="143" y1="174" x2="92" y2="174" stroke="#2b8fd6" stroke-width="4" marker-end="url(#aB)"/>
-          <text x="88" y="178" text-anchor="end" font-size="12" font-weight="700" fill="#173a5e">Water Out</text>
-          <!-- air flow -->
-          <g>
-            <line x1="345" y1="90" x2="420" y2="90" stroke="#e23b2e" stroke-width="3" marker-end="url(#aR)"/>
-            <line x1="345" y1="125" x2="420" y2="125" stroke="#e23b2e" stroke-width="3" marker-end="url(#aR)"/>
-            <line x1="345" y1="160" x2="420" y2="160" stroke="#e23b2e" stroke-width="3" marker-end="url(#aR)"/>
-          </g>
-          <text x="382" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#173a5e">Air Flow</text>
-        </svg>
-        <ul class="types">
-          <li><b>Cooling</b> — chilled water / DX</li>
-          <li><b>Heating / Reheat</b> — hot water / steam</li>
-          <li><b>Condenser &amp; Evaporator</b> — refrigerant</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- INPUTS -->
-    <section class="card">
+  <!-- INPUTS -->
+  <section class="card" style="max-width:560px;margin:0 auto 16px;">
       <h3>INPUT PARAMETERS <span class="ico">📝</span></h3>
       <div class="body">
         <div class="calc">
@@ -181,9 +132,7 @@
           <div class="note" style="margin-top:10px;">Enthalpies h₁, h₂ are read from the psychrometric chart (entering/leaving air states).</div>
         </div>
       </div>
-    </section>
-
-  </div>
+  </section>
 
   <div class="grid">
 
