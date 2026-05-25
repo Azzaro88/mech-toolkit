@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coil Selection — Interactive Calculator</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:34px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 16px; border-radius:8px; font-size:26px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:2px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:260px; max-width:340px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);}
+  .printbtn:active{transform:translateY(1px);}
+  .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:26px;} .pill{font-size:20px;} }
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; align-items:stretch;}
+  @media(max-width:820px){ .duo{grid-template-columns:1fr;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:1 / -1;}
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.4px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:24px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:14px; flex:1;}
+
+  .define{background:#eef6ef; border:1px solid #bcdcc0; border-radius:9px; padding:10px 12px; font-size:13px; color:#234a2c;}
+
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:9px 11px; font-size:13px; color:var(--navy); text-align:center; margin:2px 0 6px;}
+  .muted{color:var(--muted);} .mono{font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:12px;}
+  .calc h5{margin:0 0 10px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:9px;}
+  .field label{flex:1 1 auto; font-size:12.5px;}
+  .field input{flex:0 0 auto; width:120px; padding:7px 9px; border:1px solid #b9c7d6; border-radius:7px; font-size:13px; background:#fff;}
+  .field input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .loadex{background:var(--navy-2); color:#fff; border:none; border-radius:7px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; margin-top:2px;}
+  .loadex:hover{background:var(--navy);}
+
+  .val{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; color:var(--text); margin:4px 0;}
+  .rv{margin-top:8px; background:#eef6ef; border:1px solid #bcdcc0; border-radius:8px; padding:9px 10px; font-weight:800; color:#234a2c; text-align:center; font-size:14px;}
+  .rv b{color:var(--navy);}
+
+  .bigbox{background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:12px; padding:14px; text-align:center;}
+  .bigbox .lab{font-size:11.5px; letter-spacing:1px; opacity:.85;}
+  .bigbox .big{font-size:30px; font-weight:800; margin-top:2px; line-height:1.05;}
+  .bigbox .sub{font-size:13px; margin-top:6px; opacity:.92; font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  ul.tight{margin:4px 0; padding-left:18px; font-size:13px;} ul.tight li{margin:5px 0;}
+  ol.steps{margin:4px 0; padding-left:20px; font-size:13px;} ol.steps li{margin:5px 0;}
+  .chk{list-style:none; margin:4px 0; padding:0; font-size:13px;} .chk li{margin:6px 0; padding-left:22px; position:relative;}
+  .chk li::before{content:"✓"; position:absolute; left:0; color:var(--good); font-weight:800;}
+  .types{list-style:none; margin:0; padding:0; font-size:13px;}
+  .types li{padding:6px 0; border-bottom:1px dashed #d8e1ec;} .types li:last-child{border-bottom:none;}
+  .types b{color:var(--navy-2);}
+
+  .note{background:#fff7e0; border:1px solid #e9cf8a; border-radius:8px; padding:9px 11px; font-size:12px; color:#7a5a10; margin-top:10px;}
+  .ex{background:#eef6ef; border:1px solid #bcdcc0; border-radius:9px; padding:10px 12px; font-size:12.5px;}
+  .ex h6{margin:0 0 6px; color:#234a2c; font-size:12.5px;} .ex .mono{display:block; margin:3px 0;}
+  .ex .res{margin-top:8px; background:#fff7e0; border:1px solid #e9cf8a; border-radius:8px; padding:8px 10px; font-weight:800; color:#7a5a10; text-align:center;}
+
+  footer{margin-top:14px; text-align:center; font-size:11.5px; color:var(--muted);}
+
+  @media print{
+    @page{ size:A4 portrait; margin:9mm; }
+    html,body{ background:#fff; padding:0; }
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:10.5px; }
+    .wrap{ max-width:none; } .no-print{ display:none !important; }
+    .card,.calc{ break-inside:avoid; page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>COIL <span class="pill">SELECTION</span></h1>
+      <div class="sub">CAPACITY · SENSIBLE · BY-PASS FACTOR · WATER FLOW</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>WHAT IS A COIL?</h4>
+      <p>A heat-transfer device in an AHU/FCU that heats or cools air by exchanging heat with a fluid — chilled/hot water, steam or refrigerant.</p>
+    </div>
+  </header>
+
+  <div class="duo">
+
+    <!-- DIAGRAM + TYPES -->
+    <section class="card">
+      <h3>FINNED-TUBE COIL &amp; TYPES <span class="ico">🧊</span></h3>
+      <div class="body">
+        <svg viewBox="0 0 480 250" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto 8px" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">
+          <defs>
+            <marker id="aB" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2b8fd6"/></marker>
+            <marker id="aR" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#e23b2e"/></marker>
+          </defs>
+          <!-- coil block with fins -->
+          <rect x="150" y="50" width="180" height="150" rx="4" fill="#eef2f6" stroke="#7f8993" stroke-width="2"/>
+          <g stroke="#c4cdd7" stroke-width="2">
+            <line x1="162" y1="52" x2="162" y2="198"/><line x1="174" y1="52" x2="174" y2="198"/>
+            <line x1="186" y1="52" x2="186" y2="198"/><line x1="198" y1="52" x2="198" y2="198"/>
+            <line x1="210" y1="52" x2="210" y2="198"/><line x1="222" y1="52" x2="222" y2="198"/>
+            <line x1="234" y1="52" x2="234" y2="198"/><line x1="246" y1="52" x2="246" y2="198"/>
+            <line x1="258" y1="52" x2="258" y2="198"/><line x1="270" y1="52" x2="270" y2="198"/>
+            <line x1="282" y1="52" x2="282" y2="198"/><line x1="294" y1="52" x2="294" y2="198"/>
+            <line x1="306" y1="52" x2="306" y2="198"/><line x1="318" y1="52" x2="318" y2="198"/>
+          </g>
+          <!-- tubes -->
+          <g fill="#b08d57" stroke="#8a6d3b" stroke-width="1">
+            <circle cx="150" cy="78" r="7"/><circle cx="150" cy="110" r="7"/><circle cx="150" cy="142" r="7"/><circle cx="150" cy="174" r="7"/>
+            <circle cx="330" cy="94" r="7"/><circle cx="330" cy="126" r="7"/><circle cx="330" cy="158" r="7"/>
+          </g>
+          <text x="240" y="32" text-anchor="middle" font-size="12" fill="#5a6b7b">Fins &amp; tubes</text>
+          <!-- water in/out -->
+          <line x1="92" y1="78" x2="143" y2="78" stroke="#2b8fd6" stroke-width="4" marker-end="url(#aB)"/>
+          <text x="88" y="74" text-anchor="end" font-size="12" font-weight="700" fill="#173a5e">Water In</text>
+          <line x1="143" y1="174" x2="92" y2="174" stroke="#2b8fd6" stroke-width="4" marker-end="url(#aB)"/>
+          <text x="88" y="178" text-anchor="end" font-size="12" font-weight="700" fill="#173a5e">Water Out</text>
+          <!-- air flow -->
+          <g>
+            <line x1="345" y1="90" x2="420" y2="90" stroke="#e23b2e" stroke-width="3" marker-end="url(#aR)"/>
+            <line x1="345" y1="125" x2="420" y2="125" stroke="#e23b2e" stroke-width="3" marker-end="url(#aR)"/>
+            <line x1="345" y1="160" x2="420" y2="160" stroke="#e23b2e" stroke-width="3" marker-end="url(#aR)"/>
+          </g>
+          <text x="382" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#173a5e">Air Flow</text>
+        </svg>
+        <ul class="types">
+          <li><b>Cooling</b> — chilled water / DX</li>
+          <li><b>Heating / Reheat</b> — hot water / steam</li>
+          <li><b>Condenser &amp; Evaporator</b> — refrigerant</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- INPUTS -->
+    <section class="card">
+      <h3>INPUT PARAMETERS <span class="ico">📝</span></h3>
+      <div class="body">
+        <div class="calc">
+          <h5>Cooling coil — edit any value</h5>
+          <div class="field"><label>Air flow rate (CFM)</label><input id="cfm" type="number" step="100" value="10000"></div>
+          <div class="field"><label>Entering air DB &nbsp;T₁ (°F)</label><input id="t1" type="number" step="1" value="80"></div>
+          <div class="field"><label>Leaving air DB &nbsp;T₂ (°F)</label><input id="t2" type="number" step="1" value="55"></div>
+          <div class="field"><label>Entering air enthalpy &nbsp;h₁ (Btu/lb)</label><input id="h1" type="number" step="0.5" value="30"></div>
+          <div class="field"><label>Leaving air enthalpy &nbsp;h₂ (Btu/lb)</label><input id="h2" type="number" step="0.5" value="22"></div>
+          <div class="field"><label>Apparatus Dew Point &nbsp;T<sub>ADP</sub> (°F)</label><input id="adp" type="number" step="1" value="52"></div>
+          <div class="field"><label>Chilled water EWT &nbsp;T₁<sub>w</sub> (°F)</label><input id="ewt" type="number" step="1" value="44"></div>
+          <div class="field"><label>Chilled water LWT &nbsp;T₂<sub>w</sub> (°F)</label><input id="lwt" type="number" step="1" value="54"></div>
+          <button class="loadex" id="loadEx">↺ Load example values</button>
+          <div class="note" style="margin-top:10px;">Enthalpies h₁, h₂ are read from the psychrometric chart (entering/leaving air states).</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="grid">
+
+    <!-- Total Capacity -->
+    <section class="card">
+      <h3><span class="num">4</span> TOTAL CAPACITY (Q) <span class="ico">❄️</span></h3>
+      <div class="body">
+        <div class="formula">Q = 4.5 × CFM × (h₁ − h₂)</div>
+        <div class="val" id="o_q"></div>
+        <div class="rv" id="o_qr"></div>
+        <div class="note">The source sheet writes <b>1.08</b> here, but 1.08 is the <b>sensible</b> (temperature) constant. For an <b>enthalpy</b> difference the correct air-side constant is <b>4.5</b> — this tool uses 4.5 so the result is realistic.</div>
+      </div>
+    </section>
+
+    <!-- Sensible Capacity -->
+    <section class="card">
+      <h3><span class="num">5</span> SENSIBLE CAPACITY (Q<sub>s</sub>) <span class="ico">🌡️</span></h3>
+      <div class="body">
+        <div class="formula">Q<sub>s</sub> = 1.08 × CFM × (T₁ − T₂)</div>
+        <div class="val" id="o_qs"></div>
+        <div class="rv" id="o_qsr"></div>
+      </div>
+    </section>
+
+    <!-- Latent + SHR -->
+    <section class="card">
+      <h3><span class="num">5b</span> LATENT &amp; SHR <span class="ico">💦</span></h3>
+      <div class="body">
+        <div class="formula">Q<sub>L</sub> = Q − Q<sub>s</sub> &nbsp;·&nbsp; SHR = Q<sub>s</sub> / Q</div>
+        <div class="val" id="o_lat"></div>
+        <div class="rv" id="o_shr"></div>
+      </div>
+    </section>
+
+    <!-- BPF -->
+    <section class="card">
+      <h3><span class="num">6</span> COIL BY-PASS FACTOR <span class="ico">🔁</span></h3>
+      <div class="body">
+        <div class="formula">BPF = (T₂ − T<sub>ADP</sub>) / (T₁ − T<sub>ADP</sub>)</div>
+        <div class="val" id="o_bpf"></div>
+        <div class="rv" id="o_bpfr"></div>
+        <div class="muted" style="font-size:11px;margin-top:6px;">Lower BPF = better coil. Contact factor = 1 − BPF.</div>
+      </div>
+    </section>
+
+    <!-- Water Flow -->
+    <section class="card">
+      <h3><span class="num">7</span> WATER FLOW RATE <span class="ico">🚰</span></h3>
+      <div class="body">
+        <div class="formula">GPM = Q / (500 × ΔT<sub>w</sub>)</div>
+        <div class="val" id="o_gpm"></div>
+        <div class="rv" id="o_gpmr"></div>
+        <div class="note">Uses <b>total</b> Q (the water removes sensible + latent heat). ΔT<sub>w</sub> = LWT − EWT.</div>
+      </div>
+    </section>
+
+    <!-- Summary tile -->
+    <section class="card">
+      <h3><span class="num">★</span> CAPACITY SUMMARY <span class="ico">📊</span></h3>
+      <div class="body">
+        <div class="bigbox">
+          <div class="lab">TOTAL CAPACITY</div>
+          <div class="big" id="o_tr">0 TR</div>
+          <div class="sub" id="o_kw">0 kW · 0 Btu/hr</div>
+        </div>
+        <div class="rv" id="o_flow" style="margin-top:10px;"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="grid">
+
+    <!-- Selection steps -->
+    <section class="card">
+      <h3>BASIC SELECTION STEPS <span class="ico">🧭</span></h3>
+      <div class="body">
+        <ol class="steps">
+          <li>Determine air-side entering / leaving condition</li>
+          <li>Select coil type (CW / HW / DX / steam)</li>
+          <li>Decide entering &amp; leaving fluid temperatures</li>
+          <li>Select coil face area (reference / trial)</li>
+          <li>Check air-side &amp; water-side pressure drop</li>
+          <li>Check capacity</li>
+          <li>Finalize selection</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Selection criteria -->
+    <section class="card">
+      <h3>SELECTION CRITERIA <span class="ico">✅</span></h3>
+      <div class="body">
+        <ul class="chk">
+          <li>Meets required capacity</li>
+          <li>Leaves air at the desired condition</li>
+          <li>Air-side pressure drop within limit</li>
+          <li>Water-side pressure drop within limit</li>
+          <li>System factor is acceptable</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Pressure drop + system factor -->
+    <section class="card">
+      <h3>PRESSURE DROP &amp; SYSTEM FACTOR <span class="ico">📉</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>Air-side pressure drop: <b>≤ 5 in.wg</b></li>
+          <li>Water-side pressure drop: <b>≤ 10 ft.wg</b></li>
+        </ul>
+        <div class="note" style="margin-top:8px;">If pressure drop is too high, select the next coil size. Apply a <b>system factor</b> on selection — air side ≈ 1.0–2.0, water-side performance ≈ 1.05–1.15 — based on manufacturer data, fouling factor &amp; location constraints.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- EXAMPLE -->
+  <section class="card wide">
+    <h3><span class="num">10</span> WORKED EXAMPLE — COOLING COIL <span class="ico">🧮</span></h3>
+    <div class="body">
+      <div class="ex">
+        <h6>Given</h6>
+        <span class="mono">CFM = 10,000 · Entering 80°F DB / 67°F WB · Leaving 55°F DB / 54°F WB</span>
+        <span class="mono">Chilled water 44°F (EWT) / 54°F (LWT) · h₁ = 30, h₂ = 22 Btu/lb</span>
+        <h6 style="margin-top:8px;">Total capacity</h6>
+        <span class="mono">Q = 4.5 × 10,000 × (30 − 22) = 360,000 Btu/hr = 30 TR (105.5 kW)</span>
+        <h6 style="margin-top:8px;">Water flow</h6>
+        <span class="mono">GPM = 360,000 / (500 × 10) = 72 GPM &nbsp;(2.4 GPM/ton)</span>
+        <div class="res">Q ≈ 30 tons · 72 GPM</div>
+      </div>
+      <div class="note">The original sheet uses 1.08 instead of 4.5, giving Q = 86,400 Btu/hr and GPM = 12.96 — both far too low for a 10,000 CFM coil. The values above use the correct constants.</div>
+    </div>
+  </section>
+
+  <footer>Interactive coil-selection calculator built from the source sheet · imperial units · preliminary selection only — confirm with manufacturer coil-rating software.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
+
+  function recalc(){
+    const cfm=n($("cfm").value), t1=n($("t1").value), t2=n($("t2").value),
+          h1=n($("h1").value), h2=n($("h2").value), adp=n($("adp").value),
+          ewt=n($("ewt").value), lwt=n($("lwt").value);
+
+    const Q=4.5*cfm*(h1-h2);                 // Btu/hr total
+    const TR=Q/12000;
+    const kW=Q/3412.142;
+    const Qs=1.08*cfm*(t1-t2);               // Btu/hr sensible
+    const Ql=Q-Qs;
+    const SHR=Q!==0 ? Qs/Q : 0;
+    const denom=(t1-adp);
+    const BPF=denom!==0 ? (t2-adp)/denom : 0;
+    const dTw=lwt-ewt;
+    const gpm=dTw!==0 ? Q/(500*dTw) : 0;
+    const Lps=gpm*0.0630902;
+    const gpmTon=TR!==0 ? gpm/TR : 0;
+
+    $("o_q").innerHTML=`= 4.5 × ${f(cfm)} × (${f(h1,1)} − ${f(h2,1)}) = 4.5 × ${f(cfm)} × ${f(h1-h2,1)}`;
+    $("o_qr").innerHTML=`Q = <b>${f(Q)} Btu/hr</b>`;
+
+    $("o_qs").innerHTML=`= 1.08 × ${f(cfm)} × (${f(t1)} − ${f(t2)}) = 1.08 × ${f(cfm)} × ${f(t1-t2)}`;
+    $("o_qsr").innerHTML=`Q<sub>s</sub> = <b>${f(Qs)} Btu/hr</b>`;
+
+    $("o_lat").innerHTML=`= ${f(Q)} − ${f(Qs)} = ${f(Ql)} Btu/hr`;
+    $("o_shr").innerHTML=`Latent = <b>${f(Ql)} Btu/hr</b> · SHR = <b>${f(SHR,2)}</b>`;
+
+    $("o_bpf").innerHTML=`= (${f(t2)} − ${f(adp)}) / (${f(t1)} − ${f(adp)}) = ${f(t2-adp)} / ${f(t1-adp)}`;
+    $("o_bpfr").innerHTML=`BPF = <b>${f(BPF,3)}</b> · contact factor = <b>${f(1-BPF,3)}</b>`;
+
+    $("o_gpm").innerHTML=`= ${f(Q)} / (500 × ${f(dTw)}) `;
+    $("o_gpmr").innerHTML=`GPM = <b>${f(gpm,1)}</b> &nbsp;(${f(Lps,2)} L/s)`;
+
+    $("o_tr").textContent=`${f(TR,1)} TR`;
+    $("o_kw").textContent=`${f(kW,1)} kW · ${f(Q)} Btu/hr`;
+    $("o_flow").innerHTML=`Water flow <b>${f(gpm,1)} GPM</b> · <b>${f(gpmTon,2)} GPM/ton</b> · ΔT<sub>w</sub> = ${f(dTw)} °F`;
+  }
+
+  $("loadEx").addEventListener("click",()=>{
+    $("cfm").value=10000; $("t1").value=80; $("t2").value=55; $("h1").value=30; $("h2").value=22;
+    $("adp").value=52; $("ewt").value=44; $("lwt").value=54; recalc();
+  });
+  document.addEventListener("input",e=>{
+    if(["cfm","t1","t2","h1","h2","adp","ewt","lwt"].includes(e.target.id)) recalc();
+  });
+  recalc();
+</script>
+</body>
+</html>
