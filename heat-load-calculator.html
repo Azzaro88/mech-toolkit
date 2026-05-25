@@ -281,15 +281,15 @@
     <section class="card">
       <h3><span class="num">1.3.3</span> VENTILATION — Q<sub style="color:#fff">vent</sub> <span class="ico">💨</span></h3>
       <div class="body">
-        <div class="formula">Q<sub>vent</sub> = 1.2 × CFM × ΔT &nbsp;(W)</div>
-        <div class="where"><b>CFM</b> outdoor air flow (ft³/min) · <b>ΔT</b> temp diff (°C) · <b>1.2</b> air density factor (W/(CFM·°C))</div>
+        <div class="formula">Q<sub>vent</sub> = 1.2 × V̇ × ΔT &nbsp;(W)</div>
+        <div class="where"><b>V̇</b> outdoor air flow (L/s) · <b>ΔT</b> temp diff (°C) · <b>1.2</b> = air ρ·c<sub>p</sub> (W per L/s per °C)</div>
         <div class="calc">
           <h5>Ventilation Calculator</h5>
-          <div class="field"><label>Outdoor air flow (CFM)</label><input id="v_cfm" type="number" step="10" value="200"></div>
+          <div class="field"><label>Outdoor air flow (L/s)</label><input id="v_cfm" type="number" step="5" value="200"></div>
           <div class="field"><label>ΔT (°C)</label><input id="v_dt" type="number" step="1" value="16"></div>
           <div class="result" id="v_out"></div>
         </div>
-        <div class="note">Tip: 1 L/s = 2.12 CFM &nbsp;·&nbsp; 1 m³/h = 0.589 CFM</div>
+        <div class="note">Tip: 1 L/s = 3.6 m³/h &nbsp;·&nbsp; 1 m³/h = 0.278 L/s</div>
       </div>
     </section>
 
@@ -448,7 +448,7 @@ function recalc(){
 
   // VENT
   const qVent=1.2*n($("v_cfm").value)*n($("v_dt").value);
-  $("v_out").innerHTML=`<span class="tag">1.2 × CFM × ΔT</span><span class="big">${W(qVent)}</span><small>= 1.2 × ${f(n($("v_cfm").value))} × ${f(n($("v_dt").value),1)}</small>`;
+  $("v_out").innerHTML=`<span class="tag">1.2 × V̇(L/s) × ΔT</span><span class="big">${W(qVent)}</span><small>= 1.2 × ${f(n($("v_cfm").value))} × ${f(n($("v_dt").value),1)}</small>`;
 
   // INTERNAL
   const ip=n($("i_people").value)*75, il=n($("i_light").value)*15, io=n($("i_office").value)*150, ix=n($("i_other").value)*350, im=n($("i_misc").value);
