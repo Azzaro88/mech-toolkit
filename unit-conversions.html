@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HVAC Unit Conversions — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.4; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:34px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 16px; border-radius:8px; font-size:26px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:2px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:260px; max-width:340px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:26px;} .pill{font-size:20px;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card.wide{grid-column:1 / -1;}
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.4px; display:flex; align-items:center; gap:10px;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:12px 14px; flex:1; display:flex; flex-direction:column;}
+
+  ul.ref{list-style:none; margin:0 0 10px; padding:0; font-size:12.5px;}
+  ul.ref li{padding:4px 0; border-bottom:1px dashed #d8e1ec; display:flex; justify-content:space-between; gap:8px;}
+  ul.ref li:last-child{border-bottom:none;}
+  ul.ref .k{color:var(--muted);} ul.ref .v{color:var(--navy); font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:700;}
+
+  .conv-rows{display:grid; gap:5px; background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:8px; padding:9px;}
+  .conv-row{display:flex; align-items:center; gap:8px;}
+  .conv-row input{flex:0 0 auto; width:130px; padding:5px 8px; border:1px solid #b9c7d6; border-radius:6px; font-size:12.5px; text-align:right; background:#fff;}
+  .conv-row input:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+  .conv-row .u{flex:1 1 auto; font-size:12px; color:var(--text); font-weight:600;}
+
+  .use{margin-top:auto; font-size:11px; color:var(--muted); padding-top:8px;}
+  .note{background:#fff7e0; border:1px solid #e9cf8a; border-radius:7px; padding:7px 9px; font-size:11.5px; color:#7a5a10; margin-top:8px;}
+  .fact{background:#eef6ef; border:1px solid #bcdcc0; border-radius:8px; padding:8px 10px; font-size:12.5px; color:#234a2c; margin-top:8px;}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  ul.tips{list-style:none; margin:0; padding:0;}
+  ul.tips li{padding:7px 0; border-bottom:1px dashed #d8e1ec; font-size:13px; display:flex; align-items:flex-start; gap:8px;}
+  ul.tips li:last-child{border-bottom:none;}
+  ul.tips .e{font-size:18px; flex:0 0 auto;}
+
+  footer{margin-top:14px; text-align:center; font-size:11.5px; color:var(--muted);}
+
+  @media print{
+    @page{ size:A4 landscape; margin:9mm; }
+    html,body{ background:#fff; padding:0; }
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:10.5px; }
+    .wrap{ max-width:none; } .no-print{ display:none !important; }
+    .card,.conv-rows{ break-inside:avoid; page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>UNIT <span class="pill">CONVERSIONS</span></h1>
+      <div class="sub">FOR HVAC ENGINEERS · LIVE TWO-WAY CONVERTERS</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>WHY UNITS MATTER</h4>
+      <p>Accurate calculations need consistent units. Edit any field in a card — all others update instantly. SI primary, imperial included where common in HVAC.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- LENGTH -->
+    <section class="card">
+      <h3>LENGTH <span class="ico">📏</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">1 m</span><span class="v">3.2808 ft</span></li>
+          <li><span class="k">1 ft</span><span class="v">12 in = 0.3048 m</span></li>
+          <li><span class="k">1 in</span><span class="v">25.4 mm</span></li>
+        </ul>
+        <div class="conv-rows">
+          <div class="conv-row"><input id="c_len_m" type="number" step="0.01"><span class="u">m</span></div>
+          <div class="conv-row"><input id="c_len_ft" type="number" step="0.01"><span class="u">ft</span></div>
+          <div class="conv-row"><input id="c_len_in" type="number" step="0.1"><span class="u">in</span></div>
+          <div class="conv-row"><input id="c_len_mm" type="number" step="1"><span class="u">mm</span></div>
+        </div>
+        <div class="use">Use in: duct sizing · pipe routing · spacing · equipment layout</div>
+      </div>
+    </section>
+
+    <!-- VOLUME -->
+    <section class="card">
+      <h3>VOLUME <span class="ico">🧊</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">1 m³</span><span class="v">1000 L = 35.315 ft³</span></li>
+          <li><span class="k">1 US gal</span><span class="v">3.7854 L</span></li>
+          <li><span class="k">1 UK gal</span><span class="v">4.5461 L</span></li>
+        </ul>
+        <div class="conv-rows">
+          <div class="conv-row"><input id="c_vol_m3" type="number" step="0.1"><span class="u">m³</span></div>
+          <div class="conv-row"><input id="c_vol_L" type="number" step="1"><span class="u">L</span></div>
+          <div class="conv-row"><input id="c_vol_ft3" type="number" step="0.1"><span class="u">ft³</span></div>
+          <div class="conv-row"><input id="c_vol_usgal" type="number" step="1"><span class="u">US gal</span></div>
+          <div class="conv-row"><input id="c_vol_ukgal" type="number" step="1"><span class="u">UK gal</span></div>
+        </div>
+        <div class="use">Use in: tank sizing · system volume · water storage · air volume</div>
+      </div>
+    </section>
+
+    <!-- TEMPERATURE -->
+    <section class="card">
+      <h3>TEMPERATURE <span class="ico">🌡️</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">K</span><span class="v">°C + 273.15</span></li>
+          <li><span class="k">°F</span><span class="v">(°C × 1.8) + 32</span></li>
+          <li><span class="k">°C</span><span class="v">(°F − 32) / 1.8</span></li>
+        </ul>
+        <div class="fact">Quick: 0 °C = 32 °F · 20 °C = 68 °F · 25 °C = 77 °F · 30 °C = 86 °F · 40 °C = 104 °F</div>
+        <div class="conv-rows" style="margin-top:8px;">
+          <div class="conv-row"><input id="c_t_C" type="number" step="0.5"><span class="u">°C</span></div>
+          <div class="conv-row"><input id="c_t_F" type="number" step="0.5"><span class="u">°F</span></div>
+          <div class="conv-row"><input id="c_t_K" type="number" step="0.5"><span class="u">K</span></div>
+        </div>
+        <div class="note">Sheet wrote “°C = °K + 273.15” (reversed) and “0 °C = 68 °F” (should be <b>20 °C = 68 °F</b>) — corrected here.</div>
+        <div class="use">Use in: load calculations · psychrometrics · chilled-water temperatures</div>
+      </div>
+    </section>
+
+    <!-- COOLING LOAD -->
+    <section class="card">
+      <h3>COOLING LOAD <span class="ico">❄️</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">1 kW</span><span class="v">3 412.14 Btu/hr</span></li>
+          <li><span class="k">1 TR (RT)</span><span class="v">3.5168 kW = 12 000 Btu/hr</span></li>
+          <li><span class="k">1 MBH</span><span class="v">1 000 Btu/hr = 0.293 kW</span></li>
+        </ul>
+        <div class="conv-rows">
+          <div class="conv-row"><input id="c_cl_kw" type="number" step="0.1"><span class="u">kW</span></div>
+          <div class="conv-row"><input id="c_cl_w" type="number" step="10"><span class="u">W</span></div>
+          <div class="conv-row"><input id="c_cl_btu" type="number" step="100"><span class="u">Btu/hr</span></div>
+          <div class="conv-row"><input id="c_cl_tr" type="number" step="0.1"><span class="u">TR (tons)</span></div>
+          <div class="conv-row"><input id="c_cl_mbh" type="number" step="0.1"><span class="u">MBH</span></div>
+        </div>
+        <div class="use">Use in: HVAC load calculations · chiller sizing · energy analysis</div>
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section class="card">
+      <h3>FLOW (VOLUMETRIC) <span class="ico">💨</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">1 L/s</span><span class="v">3.6 m³/h</span></li>
+          <li><span class="k">1 L/s</span><span class="v">2.1189 cfm</span></li>
+          <li><span class="k">1 L/s</span><span class="v">15.8503 US gpm</span></li>
+        </ul>
+        <div class="conv-rows">
+          <div class="conv-row"><input id="c_q_lps" type="number" step="0.1"><span class="u">L/s</span></div>
+          <div class="conv-row"><input id="c_q_m3h" type="number" step="1"><span class="u">m³/h</span></div>
+          <div class="conv-row"><input id="c_q_m3s" type="number" step="0.01"><span class="u">m³/s</span></div>
+          <div class="conv-row"><input id="c_q_cfm" type="number" step="1"><span class="u">cfm</span></div>
+          <div class="conv-row"><input id="c_q_gpm" type="number" step="1"><span class="u">US gpm</span></div>
+        </div>
+        <div class="use">Use in: airflow · pump sizing · chilled-water · ventilation</div>
+      </div>
+    </section>
+
+    <!-- PRESSURE -->
+    <section class="card">
+      <h3>PRESSURE <span class="ico">🎛️</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">1 bar</span><span class="v">10⁵ Pa = 14.504 psi</span></li>
+          <li><span class="k">1 bar</span><span class="v">10.197 m wg = 750.06 mm Hg</span></li>
+          <li><span class="k">1 in.wg</span><span class="v">249.089 Pa</span></li>
+        </ul>
+        <div class="conv-rows">
+          <div class="conv-row"><input id="c_p_pa" type="number" step="100"><span class="u">Pa</span></div>
+          <div class="conv-row"><input id="c_p_kpa" type="number" step="0.1"><span class="u">kPa</span></div>
+          <div class="conv-row"><input id="c_p_bar" type="number" step="0.01"><span class="u">bar</span></div>
+          <div class="conv-row"><input id="c_p_psi" type="number" step="0.1"><span class="u">psi</span></div>
+          <div class="conv-row"><input id="c_p_mwg" type="number" step="0.1"><span class="u">m H₂O</span></div>
+          <div class="conv-row"><input id="c_p_mmhg" type="number" step="1"><span class="u">mm Hg</span></div>
+          <div class="conv-row"><input id="c_p_inwg" type="number" step="0.1"><span class="u">in.wg</span></div>
+        </div>
+        <div class="use">Use in: fan static pressure · pump head · pressure drop · control valves</div>
+      </div>
+    </section>
+
+    <!-- MASS -->
+    <section class="card">
+      <h3>MASS (WEIGHT) <span class="ico">⚖️</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">1 kg</span><span class="v">2.2046 lb = 35.274 oz</span></li>
+          <li><span class="k">1 kg</span><span class="v">15 432 gr (grains)</span></li>
+          <li><span class="k">1 tonne</span><span class="v">1000 kg</span></li>
+        </ul>
+        <div class="conv-rows">
+          <div class="conv-row"><input id="c_m_kg" type="number" step="0.1"><span class="u">kg</span></div>
+          <div class="conv-row"><input id="c_m_g" type="number" step="1"><span class="u">g</span></div>
+          <div class="conv-row"><input id="c_m_lb" type="number" step="0.1"><span class="u">lb</span></div>
+          <div class="conv-row"><input id="c_m_oz" type="number" step="1"><span class="u">oz</span></div>
+          <div class="conv-row"><input id="c_m_gr" type="number" step="100"><span class="u">gr (grains)</span></div>
+          <div class="conv-row"><input id="c_m_tonne" type="number" step="0.001"><span class="u">tonne</span></div>
+        </div>
+        <div class="use">Use in: equipment weight · refrigerant charge · structural loads</div>
+        <div class="note"><b>gr</b> = grains (psychrometrics: humidity ratio, gr/lb dry air).</div>
+      </div>
+    </section>
+
+    <!-- HVAC ESSENTIALS -->
+    <section class="card">
+      <h3>HVAC ESSENTIALS — CONSTANTS <span class="ico">🔧</span></h3>
+      <div class="body">
+        <ul class="ref">
+          <li><span class="k">Air ρ (20 °C, sea level)</span><span class="v">1.20 kg/m³</span></li>
+          <li><span class="k">Water ρ (20 °C)</span><span class="v">998 kg/m³</span></li>
+          <li><span class="k">Air c<sub>p</sub></span><span class="v">1.005 kJ/kg·K</span></li>
+          <li><span class="k">Water c<sub>p</sub></span><span class="v">4.186 kJ/kg·K</span></li>
+        </ul>
+        <div class="fact">
+          <b>Continuity:</b> Q = A × V &nbsp;<span class="muted">Q (m³/s) · A (m²) · V (m/s)</span><br>
+          <b>System volume:</b> V = A × L &nbsp;<span class="muted">V (m³) · A (m²) · L (m)</span>
+        </div>
+        <div class="use">Use in: heat-balance calcs · duct/pipe sizing · capacity equations</div>
+      </div>
+    </section>
+
+    <!-- QUICK REFERENCE / TIPS -->
+    <section class="card">
+      <h3>QUICK REFERENCE <span class="ico">⭐</span></h3>
+      <div class="body">
+        <ul class="tips">
+          <li><span class="e">💧</span><span><b>1 litre</b> = volume of a cube 10 cm × 10 cm × 10 cm</span></li>
+          <li><span class="e">🌀</span><span><b>1 CFM</b> = flow to move 1 ft³ of air per minute</span></li>
+          <li><span class="e">📊</span><span><b>1 in.wg</b> ≈ pressure of 0.036 in (≈ 0.91 mm) of water column</span></li>
+          <li><span class="e">🌡️</span><span><b>ΔT</b> = Temperature Difference (°C or K — same magnitude)</span></li>
+          <li><span class="e">✅</span><span><b>Check units before every calculation!</b></span></li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>Important HVAC unit conversions · interactive two-way converters · precision · accurate calculations, efficient systems, reliable performance.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const fmt=(x,d=4)=>{
+    if(!isFinite(x))return "";
+    const abs=Math.abs(x);
+    let dec=d;
+    if(abs>=1000) dec=Math.max(0,d-3);
+    else if(abs>=100) dec=Math.max(0,d-2);
+    else if(abs>=10) dec=Math.max(1,d-1);
+    return x.toLocaleString(undefined,{maximumFractionDigits:dec,minimumFractionDigits:0});
+  };
+
+  // ===== Linear converters: factor[unit] = how many "unit" in 1 base.
+  const cats = {
+    len: { base:"m", id:"len", defaults:{m:1},
+      f:{m:1, ft:3.28083989501, in:39.3700787402, mm:1000} },
+    vol: { base:"m³", id:"vol", defaults:{m3:1},
+      f:{m3:1, L:1000, ft3:35.3146667, usgal:264.172052, ukgal:219.969157} },
+    cl:  { base:"kW", id:"cl", defaults:{kw:1},
+      f:{kw:1, w:1000, btu:3412.14163, tr:1/3.5168525, mbh:3.41214163} },
+    q:   { base:"L/s", id:"q", defaults:{lps:1},
+      f:{lps:1, m3h:3.6, m3s:0.001, cfm:2.11888, gpm:15.8503231} },
+    p:   { base:"Pa", id:"p", defaults:{pa:101325},
+      f:{pa:1, kpa:0.001, bar:0.00001, psi:0.000145037738, mwg:1/9806.65, mmhg:1/133.322387, inwg:1/249.0889} },
+    m:   { base:"kg", id:"m", defaults:{kg:1},
+      f:{kg:1, g:1000, lb:2.20462262, oz:35.2739619, gr:15432.3584, tonne:0.001} }
+  };
+
+  function bindCat(cat){
+    const ids = Object.keys(cat.f);
+    ids.forEach(u=>{
+      const el = $("c_"+cat.id+"_"+u);
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const v = n(el.value);
+        const base = v / cat.f[u];   // base in base-unit
+        ids.forEach(u2=>{
+          if(u2===u) return;
+          const out = base * cat.f[u2];
+          const tgt = $("c_"+cat.id+"_"+u2);
+          if(tgt) tgt.value = fmt(out);
+        });
+      });
+    });
+    // initial: set defaults then trigger update from one field
+    const seedUnit = Object.keys(cat.defaults)[0];
+    const seedVal = cat.defaults[seedUnit];
+    const seedEl = $("c_"+cat.id+"_"+seedUnit);
+    seedEl.value = seedVal;
+    seedEl.dispatchEvent(new Event("input"));
+  }
+  Object.values(cats).forEach(bindCat);
+
+  // ===== Temperature (offset) =====
+  function tFromC(c, unit){ if(unit==="C")return c; if(unit==="F")return c*1.8+32; if(unit==="K")return c+273.15; }
+  function cFrom(v, unit){ if(unit==="C")return v; if(unit==="F")return (v-32)/1.8; if(unit==="K")return v-273.15; }
+  ["C","F","K"].forEach(u=>{
+    $("c_t_"+u).addEventListener("input", ()=>{
+      const v=n($("c_t_"+u).value), c=cFrom(v,u);
+      ["C","F","K"].forEach(u2=>{ if(u2!==u) $("c_t_"+u2).value = fmt(tFromC(c,u2),2); });
+    });
+  });
+  // seed temperature: 25 °C
+  $("c_t_C").value = 25; $("c_t_C").dispatchEvent(new Event("input"));
+</script>
+</body>
+</html>
