@@ -205,10 +205,10 @@
       <h3><span class="num">3</span> AIRFLOW THUMB RULE <span class="ico">🌀</span></h3>
       <div class="body">
         <table>
-          <thead><tr><th>Space</th><th class="num-col">L/s·m²</th><th class="num-col">CFM/ft²</th></tr></thead>
+          <thead><tr><th>Space</th><th class="num-col">L/s·m²</th></tr></thead>
           <tbody id="airTable"></tbody>
         </table>
-        <div class="note">Airflow (L/s) = Area (m²) × value · &nbsp; CFM = L/s × 2.12</div>
+        <div class="note">Airflow (L/s) = Area (m²) × value &nbsp;·&nbsp; m³/h = L/s × 3.6</div>
 
         <div class="calc">
           <h5>Airflow Calculator</h5>
@@ -322,12 +322,12 @@
         <table>
           <thead><tr><th>Equipment</th><th>Rule of Thumb</th></tr></thead>
           <tbody>
-            <tr><td>Air Cooled Chiller</td><td>400 – 600 TR / unit</td></tr>
-            <tr><td>Water Cooled Chiller</td><td>700 – 1500 TR / unit</td></tr>
+            <tr><td>Air Cooled Chiller</td><td>≈ 1400 – 2100 kW / unit</td></tr>
+            <tr><td>Water Cooled Chiller</td><td>≈ 2500 – 5300 kW / unit</td></tr>
             <tr><td>Cooling Tower</td><td>1.25 × Chiller Capacity</td></tr>
             <tr><td>AHU</td><td>Airflow from Section 3</td></tr>
-            <tr><td>FCU</td><td>400 – 800 CFM / unit</td></tr>
-            <tr><td>VAV Box</td><td>200 – 1200 CFM / unit</td></tr>
+            <tr><td>FCU</td><td>≈ 190 – 380 L/s / unit</td></tr>
+            <tr><td>VAV Box</td><td>≈ 95 – 570 L/s / unit</td></tr>
             <tr><td>Exhaust Fan (Toilet)</td><td>150 – 300 m³/h</td></tr>
             <tr><td>Pressurization Fan</td><td>0.5 – 1.0 ACH</td></tr>
           </tbody>
@@ -335,7 +335,7 @@
 
         <div class="calc">
           <h5>Cooling Tower — 1.25 × Chiller</h5>
-          <div class="field"><label>Chiller capacity (TR)</label><input id="ct_cap" type="number" min="0" step="10" value="500"></div>
+          <div class="field"><label>Chiller capacity (kW)</label><input id="ct_cap" type="number" min="0" step="10" value="1750"></div>
           <div class="result" id="ct_out"></div>
         </div>
       </div>
@@ -346,10 +346,10 @@
       <h3><span class="num">9</span> ELECTRICAL LOAD THUMB RULE <span class="ico">⚡</span></h3>
       <div class="body">
         <ul class="tight">
-          <li>HVAC Electrical Load ≈ 1.0 – 1.5 W/ft²</li>
-          <li>Chiller Power ≈ Capacity (TR) × 0.8 – 1.2 kW/TR</li>
-          <li>Pump Power ≈ (Flow L/s × Head m) / (75 × η), η≈0.7</li>
-          <li>Fan Power ≈ (Airflow m³/s × SP Pa) / η, η≈0.6</li>
+          <li>HVAC Electrical Load ≈ <b>11 – 16 W/m²</b></li>
+          <li>Chiller Power ≈ Capacity (kW) × 0.23 – 0.34 &nbsp;(≈ 1/COP, COP 3 – 4)</li>
+          <li>Pump Power ≈ Q(L/s) × H(m) / (102 × η) &nbsp;[kW], η ≈ 0.7</li>
+          <li>Fan Power ≈ V̇(m³/s) × Δp(Pa) / η &nbsp;[W], η ≈ 0.6</li>
           <li>Add 15 – 20 % for future / diversity</li>
         </ul>
 
@@ -473,7 +473,7 @@ function fillSelect(sel,keys){ keys.forEach(k=>{ const o=document.createElement(
   $("coolTable").innerHTML=h;
 
   h="";
-  for(const k in airflow) h+=`<tr><td>${k}</td><td class="num-col">${airflow[k][0].toFixed(1)} – ${airflow[k][1].toFixed(1)}</td><td class="num-col">${airflowCFM[k][0].toFixed(2)} – ${airflowCFM[k][1].toFixed(2)}</td></tr>`;
+  for(const k in airflow) h+=`<tr><td>${k}</td><td class="num-col">${airflow[k][0].toFixed(1)} – ${airflow[k][1].toFixed(1)}</td></tr>`;
   $("airTable").innerHTML=h;
 
   h="";
@@ -502,7 +502,7 @@ function calcAir(){
   const lo=r[0]*a, hi=r[1]*a;
   $("af_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} L/s·m²</span>
     <span class="big">${f(lo)} – ${f(hi)} L/s</span>
-    <small>= ${f(lo*2.12)} – ${f(hi*2.12)} CFM  ·  ${f(lo*3.6)} – ${f(hi*3.6)} m³/h</small>`;
+    <small>= ${f(lo*3.6)} – ${f(hi*3.6)} m³/h</small>`;
 }
 
 // 4 — Outdoor air
@@ -514,12 +514,12 @@ function calcOA(){
     const lo=r[0]*v/3.6, hi=r[1]*v/3.6;  // ACH × Vol(m³) → m³/h → L/s (÷3.6)
     $("oa_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} ACH</span>
       <span class="big">${f(r[0]*v)} – ${f(r[1]*v)} m³/h</span>
-      <small>= ${f(lo)} – ${f(hi)} L/s  ·  ${f(lo*2.12)} – ${f(hi*2.12)} CFM</small>`;
+      <small>= ${f(lo)} – ${f(hi)} L/s</small>`;
   } else {
     const lo=r[0]*v, hi=r[1]*v;
     $("oa_out").innerHTML=`<span class="tag">${r[0]}–${r[1]} L/s·person</span>
       <span class="big">${f(lo)} – ${f(hi)} L/s</span>
-      <small>= ${f(lo*2.12)} – ${f(hi*2.12)} CFM  ·  ${f(lo*3.6)} – ${f(hi*3.6)} m³/h</small>`;
+      <small>= ${f(lo*3.6)} – ${f(hi*3.6)} m³/h</small>`;
   }
 }
 
@@ -566,25 +566,24 @@ function calcCHW(){
   const q=load/(4.18*dt); // L/s  (kW / (kJ/kg·K × ΔT))
   $("cw_out").innerHTML=`<span class="tag">ΔT ${dt} °C</span>
     <span class="big">${f(q,2)} L/s</span>
-    <small>= ${f(q*3.6,1)} m³/h  ·  ${f(q*2.12,1)} CFM-equiv (water)</small>`;
+    <small>= ${f(q*3.6,1)} m³/h</small>`;
 }
 
 // 8 — Cooling tower = 1.25 × chiller
 function calcTower(){
   const c=n($("ct_cap").value);
   $("ct_out").innerHTML=`<span class="tag">1.25 ×</span>
-    <span class="big">${f(c*1.25)} TR</span>
-    <small>heat rejection ≈ ${f(c*1.25*3.517)} kW</small>`;
+    <span class="big">${f(c*1.25)} kW</span>
+    <small>≈ ${f(c*1.25/3.517,1)} TR (heat rejected by tower)</small>`;
 }
 
 // 9 — Pump power = (Q×H)/(75η) metric HP
 function calcPump(){
   const q=n($("pp_q").value), hh=n($("pp_h").value), e=n($("pp_e").value)||0.7;
-  const hp=(q*hh)/(75*e);          // metric HP
-  const kw=hp*0.7355;
+  const kw=(q*hh)/(102*e);
   $("pp_out").innerHTML=`<span class="tag">η ${e}</span>
     <span class="big">${f(kw,2)} kW</span>
-    <small>= ${f(hp,2)} HP (metric) · +15–20% diversity → ${f(kw*1.15,2)}–${f(kw*1.2,2)} kW</small>`;
+    <small>= Q × H / (102 × η) · +15–20% diversity → ${f(kw*1.15,2)}–${f(kw*1.2,2)} kW</small>`;
 }
 // 9b — Fan power = (Q×SP)/η  W
 function calcFan(){
@@ -596,11 +595,11 @@ function calcFan(){
 }
 // 9c — Electrical load 1.0–1.5 W/ft²
 function calcElec(){
-  const a=n($("el_area").value), aft=a*10.7639;
-  const lo=aft*1.0, hi=aft*1.5;
-  $("el_out").innerHTML=`<span class="tag">1.0–1.5 W/ft²</span>
+  const a=n($("el_area").value);
+  const lo=a*11, hi=a*16;
+  $("el_out").innerHTML=`<span class="tag">11–16 W/m²</span>
     <span class="big">${f(lo/1000,1)} – ${f(hi/1000,1)} kW</span>
-    <small>floor ${f(a)} m² = ${f(aft)} ft² · +15–20% → ${f(hi/1000*1.2,1)} kW</small>`;
+    <small>floor ${f(a)} m² · +15–20% → ${f(hi/1000*1.2,1)} kW</small>`;
 }
 
 /* ===================== UNIT CONVERTERS ===================== */
