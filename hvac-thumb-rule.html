@@ -593,7 +593,7 @@ function calcFan(){
     <span class="big">${f(w/1000,2)} kW</span>
     <small>= ${f(w)} W · +15–20% → ${f(w/1000*1.15,2)}–${f(w/1000*1.2,2)} kW</small>`;
 }
-// 9c — Electrical load 1.0–1.5 W/ft²
+// 9c — Electrical load 11–16 W/m²
 function calcElec(){
   const a=n($("el_area").value);
   const lo=a*11, hi=a*16;
