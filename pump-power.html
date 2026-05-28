@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pump Power Calculation — Interactive</title>
+<style>
+  :root{
+    --navy:#173a5e; --navy-2:#1d4e89; --navy-dark:#12304e;
+    --bg:#e7ebf0; --card:#fff; --line:#d4dae2; --row-alt:#f4f7fa; --calc-bg:#eaf2fb;
+    --good:#1f7a4d; --warn:#b4690e; --text:#1c2733; --muted:#5a6b7b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.45; padding:18px;}
+  .wrap{max-width:1240px; margin:0 auto;}
+
+  header.top{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px;}
+  .titleblock h1{margin:0; font-size:32px; font-weight:800; letter-spacing:-1px; color:var(--navy); display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .pill{background:var(--navy-2); color:#fff; padding:4px 16px; border-radius:8px; font-size:24px; font-weight:800;}
+  .titleblock .sub{margin:6px 2px 0; color:var(--navy); font-weight:600; letter-spacing:2px; font-size:13px;}
+  .basis{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 16px; min-width:260px; max-width:340px;}
+  .basis h4{margin:0 0 6px; color:var(--navy); font-size:13px; letter-spacing:1px;}
+  .basis p{margin:0; font-size:13px; color:var(--muted);}
+
+  .printbtn{display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    background:var(--navy-2); color:#fff; border:none; border-radius:9px; padding:10px 16px;
+    font-size:13px; font-weight:700; letter-spacing:.4px; box-shadow:0 2px 6px rgba(23,58,94,.25); transition:background .15s, transform .05s;}
+  .printbtn:hover{background:var(--navy);} .printbtn:active{transform:translateY(1px);} .printbtn .e{font-size:16px;}
+  .btnrow{display:flex; gap:10px; margin-top:12px;}
+  a.printbtn{text-decoration:none;}
+  .homebtn{background:#fff; color:var(--navy-2); border:1px solid var(--navy-2); box-shadow:none;}
+  .homebtn:hover{background:var(--navy-2); color:#fff;}
+
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px;}
+  @media(max-width:980px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media(max-width:660px){ .grid{grid-template-columns:1fr;} .titleblock h1{font-size:24px;} .pill{font-size:20px;} }
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; align-items:stretch;}
+  @media(max-width:820px){ .duo{grid-template-columns:1fr;} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; display:flex; flex-direction:column;}
+  .card h3{margin:0; background:var(--navy); color:#fff; padding:11px 14px; font-size:14px; letter-spacing:.4px; display:flex; align-items:center; gap:10px;}
+  .num{background:#fff; color:var(--navy); min-width:24px; height:24px; padding:0 6px; border-radius:6px; font-weight:800; font-size:13px; display:inline-flex; align-items:center; justify-content:center;}
+  .ico{margin-left:auto; font-size:18px; opacity:.9;}
+  .body{padding:13px; flex:1;}
+
+  .formula{font-family:ui-monospace,Menlo,Consolas,monospace; background:#fff; border:1px dashed #9db8d6; border-radius:8px; padding:10px 11px; font-size:14px; color:var(--navy); text-align:center; margin:4px 0 8px;}
+  .formula.sm{font-size:12.5px; padding:8px 10px;}
+  .frac{display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; margin:0 6px;}
+  .frac .t{padding:0 8px 3px;} .frac .b{border-top:2px solid var(--navy); padding:3px 8px 0;}
+  .muted{color:var(--muted);} .mono{font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  .calc{background:var(--calc-bg); border:1px solid #cfe0f3; border-radius:10px; padding:11px;}
+  .calc h5{margin:0 0 9px; font-size:12px; letter-spacing:.5px; color:var(--navy-2); text-transform:uppercase; display:flex; align-items:center; gap:6px;}
+  .calc h5::before{content:"⚙"; font-size:13px;}
+  .field{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .field label{flex:1 1 auto; font-size:12.5px;}
+  .field input,.field select{flex:0 0 auto; width:140px; padding:6px 9px; border:1px solid #b9c7d6; border-radius:7px; font-size:12.5px; background:#fff;}
+  .field input:focus,.field select:focus{outline:2px solid var(--navy-2); border-color:var(--navy-2);}
+
+  .results{display:grid; gap:6px;}
+  .row{display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:7px 10px; background:#fff; border:1px solid #cfe0f3; border-radius:8px; font-size:13px;}
+  .row .lab{color:var(--muted);} .row .v{font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:700; color:var(--navy);}
+
+  .bigbox{background:linear-gradient(135deg,var(--navy-2),var(--navy-dark)); color:#fff; border-radius:12px; padding:16px; text-align:center; margin-top:8px;}
+  .bigbox .lab{font-size:11.5px; letter-spacing:1px; opacity:.85;}
+  .bigbox .big{font-size:34px; font-weight:800; margin-top:2px; line-height:1.05;}
+  .bigbox .sub{font-size:13px; margin-top:6px; opacity:.92; font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th,td{text-align:left; padding:6px 9px; border-bottom:1px solid var(--line);}
+  thead th{background:#dbe7f3; color:var(--navy); font-weight:700; border-bottom:2px solid var(--line);}
+  tbody tr:nth-child(even){background:var(--row-alt);}
+  td.c,th.c{text-align:center; white-space:nowrap;}
+  tbody tr.sel{background:#e7f4ec;}
+
+  ol.steps{margin:4px 0; padding-left:22px; font-size:13px;} ol.steps li{margin:5px 0;}
+  ul.tight{margin:4px 0; padding-left:18px; font-size:12.5px;} ul.tight li{margin:5px 0;}
+  .note{background:#fff7e0; border:1px solid #e9cf8a; border-radius:8px; padding:8px 11px; font-size:12px; color:#7a5a10; margin-top:8px;}
+
+  footer{margin-top:8px; text-align:center; font-size:11.5px; color:var(--muted);}
+
+  @media print{
+    @page{ size:A4 landscape; margin:9mm; }
+    html,body{ background:#fff; padding:0; }
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:10.5px; }
+    .wrap{ max-width:none; } .no-print{ display:none !important; }
+    .card,.calc{ break-inside:avoid; page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="titleblock">
+      <h1>PUMP <span class="pill">POWER</span></h1>
+      <div class="sub">P = ρ·g·Q·H / η · TOTAL HEAD · EFFICIENCY</div>
+      <div class="btnrow no-print">
+        <a class="printbtn homebtn" href="index.html"><span class="e">🏠</span> Home</a>
+        <button class="printbtn" onclick="window.print()"><span class="e">🖨️</span> Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="basis">
+      <h4>DEFINITION</h4>
+      <p>The power a pump needs to lift liquid from a lower to a higher level and to overcome friction &amp; fitting losses in the piping.</p>
+    </div>
+  </header>
+
+  <div class="duo">
+
+    <!-- INPUTS -->
+    <section class="card">
+      <h3>INPUTS <span class="ico">📝</span></h3>
+      <div class="body">
+        <div class="calc">
+          <h5>Edit any value — everything updates live</h5>
+          <div class="field"><label>Flow rate &nbsp;Q (L/s)</label><input id="Q" type="number" step="0.5" value="20"></div>
+          <div class="field"><label>Density &nbsp;ρ (kg/m³)</label><input id="rho" type="number" step="10" value="1000"></div>
+          <div class="field"><label>Static head &nbsp;H<sub>z</sub> (m)</label><input id="Hz" type="number" step="0.5" value="25"></div>
+          <div class="field"><label>Friction head &nbsp;H<sub>f</sub> (m)</label><input id="Hf" type="number" step="0.5" value="0"></div>
+          <div class="field"><label>Minor losses &nbsp;H<sub>m</sub> (m)</label><input id="Hm" type="number" step="0.5" value="0"></div>
+          <div class="field"><label>Pump type</label>
+            <select id="ptype">
+              <option value="0.75">Custom / set η →</option>
+              <option value="0.725">Centrifugal (0.60–0.85)</option>
+              <option value="0.625">Reciprocating (0.50–0.75)</option>
+              <option value="0.80">Axial flow (0.70–0.90)</option>
+              <option value="0.65">Submersible (0.50–0.80)</option>
+            </select>
+          </div>
+          <div class="field"><label>Overall efficiency &nbsp;η<sub>p</sub></label><input id="eta" type="number" step="0.01" min="0.05" max="1" value="0.75"></div>
+          <button class="printbtn" id="loadEx" style="margin-top:4px; padding:7px 12px; font-size:12px;">↺ Load example (20 L/s · 25 m · 0.75)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card">
+      <h3>RESULTS <span class="ico">📊</span></h3>
+      <div class="body">
+        <div class="results">
+          <div class="row"><span class="lab">Total head &nbsp;H = H<sub>z</sub>+H<sub>f</sub>+H<sub>m</sub></span><span class="v" id="o_H"></span></div>
+          <div class="row"><span class="lab">Flow Q</span><span class="v" id="o_Q"></span></div>
+          <div class="row"><span class="lab">Hydraulic power &nbsp;ρgQH</span><span class="v" id="o_Ph"></span></div>
+          <div class="row"><span class="lab">Efficiency η</span><span class="v" id="o_eta"></span></div>
+        </div>
+        <div class="bigbox">
+          <div class="lab">PUMP SHAFT POWER</div>
+          <div class="big" id="o_PkW">0 kW</div>
+          <div class="sub" id="o_Psub">0 W · 0 HP</div>
+        </div>
+        <div class="note" id="o_break"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="grid">
+
+    <!-- Formula -->
+    <section class="card">
+      <h3><span class="num">2</span> POWER FORMULA <span class="ico">🧮</span></h3>
+      <div class="body">
+        <div class="formula">P = <span class="frac"><span class="t">ρ · g · Q · H</span><span class="b">η<sub>p</sub></span></span> (W)</div>
+        <div class="muted" style="font-size:11.5px; margin-bottom:8px;">Q m³/s · H m · ρ kg/m³ · g 9.81 m/s² · η decimal → W</div>
+        <div class="muted" style="font-size:12px; margin:6px 0 4px;"><b>Alternative forms (kW):</b></div>
+        <div class="formula sm">P = ρ·g·Q(L/s)·H / (1000 × 1000 × η)</div>
+        <div class="formula sm">P = ρ·g·Q(m³/h)·H / (3600 × 1000 × η)</div>
+        <div class="note">For water: P(kW) = <b>0.00981</b> · Q(L/s) · H / η = <b>0.002725</b> · Q(m³/h) · H / η. <span class="muted">(The source sheet's L/s coefficient 0.0981 is a 10× typo — corrected here.)</span></div>
+      </div>
+    </section>
+
+    <!-- Total head -->
+    <section class="card">
+      <h3><span class="num">3</span> TOTAL HEAD (H) <span class="ico">📏</span></h3>
+      <div class="body">
+        <div class="formula">H = H<sub>z</sub> + H<sub>f</sub> + H<sub>m</sub> &nbsp;(m)</div>
+        <ul class="tight">
+          <li><b>H<sub>z</sub></b> static head — elevation difference between delivery &amp; suction levels</li>
+          <li><b>H<sub>f</sub></b> friction head loss in suction &amp; delivery pipes</li>
+          <li><b>H<sub>m</sub></b> minor losses in fittings &amp; valves</li>
+        </ul>
+        <div class="note">Always include <b>all</b> losses in total head; use the Pipeline Sizing tool to get H<sub>f</sub> from Darcy–Weisbach.</div>
+      </div>
+    </section>
+
+    <!-- Efficiencies -->
+    <section class="card">
+      <h3><span class="num">6</span> TYPICAL EFFICIENCIES <span class="ico">⚙️</span></h3>
+      <div class="body">
+        <table id="effTable">
+          <thead><tr><th>Pump type</th><th class="c">η (typical)</th></tr></thead>
+          <tbody>
+            <tr data-eta="0.725"><td>Centrifugal</td><td class="c">0.60 – 0.85</td></tr>
+            <tr data-eta="0.625"><td>Reciprocating</td><td class="c">0.50 – 0.75</td></tr>
+            <tr data-eta="0.80"><td>Axial flow</td><td class="c">0.70 – 0.90</td></tr>
+            <tr data-eta="0.65"><td>Submersible</td><td class="c">0.50 – 0.80</td></tr>
+          </tbody>
+        </table>
+        <div class="note">Click a row to load its mid-range η. Higher efficiency = less power.</div>
+      </div>
+    </section>
+
+    <!-- Minor losses -->
+    <section class="card">
+      <h3><span class="num">5</span> COMMON MINOR LOSSES <span class="ico">🔩</span></h3>
+      <div class="body">
+        <div class="formula sm">H<sub>m</sub> = Σ K · V² / (2g)</div>
+        <table>
+          <thead><tr><th>Fitting (open)</th><th class="c">K</th></tr></thead>
+          <tbody>
+            <tr><td>Entrance (sharp)</td><td class="c">0.5</td></tr>
+            <tr><td>Exit</td><td class="c">1.0</td></tr>
+            <tr><td>Bend 90° (standard)</td><td class="c">0.3 – 0.9</td></tr>
+            <tr><td>Elbow 45°</td><td class="c">0.4</td></tr>
+            <tr><td>Globe valve</td><td class="c">≈ 10</td></tr>
+            <tr><td>Gate valve</td><td class="c">0.15 – 0.2</td></tr>
+            <tr><td>Sudden contraction</td><td class="c">(1/C<sub>c</sub> − 1)²</td></tr>
+            <tr><td>Sudden enlargement</td><td class="c">(1 − A₁/A₂)²</td></tr>
+          </tbody>
+        </table>
+        <div class="note">V = velocity in the pipe (m/s) · loss expressed as velocity heads V²/2g.</div>
+      </div>
+    </section>
+
+    <!-- Important points -->
+    <section class="card">
+      <h3><span class="num">7</span> IMPORTANT POINTS <span class="ico">⭐</span></h3>
+      <div class="body">
+        <ul class="tight">
+          <li>Higher-efficiency pumps need less power.</li>
+          <li>Power rises with both discharge (Q) and head (H).</li>
+          <li>Always include all losses in total head.</li>
+          <li>Select so the pump runs at its Best Efficiency Point (BEP).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Summary steps -->
+    <section class="card">
+      <h3><span class="num">8</span> STEPS SUMMARY <span class="ico">🧭</span></h3>
+      <div class="body">
+        <ol class="steps">
+          <li>Find discharge Q.</li>
+          <li>Calculate all head: static + friction + minor losses.</li>
+          <li>Find total pump efficiency.</li>
+          <li>Add heads → total head H.</li>
+          <li>Substitute into the power formula → P.</li>
+        </ol>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>Pump-power interactive calculator built from the source sheet · SI units · preliminary sizing only — verify with pump curves &amp; the operating Best Efficiency Point.</footer>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const n=v=>{v=parseFloat(v);return isFinite(v)?v:0;};
+  const f=(x,d=0)=>isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:0}):"0";
+
+  function recalc(){
+    const Qls=n($("Q").value), rho=n($("rho").value),
+          Hz=n($("Hz").value), Hf=n($("Hf").value), Hm=n($("Hm").value),
+          eta=n($("eta").value);
+    const Q=Qls/1000;          // m³/s
+    const H=Hz+Hf+Hm;          // m
+    const Ph=rho*9.81*Q*H;     // W hydraulic
+    const P = eta>0 ? Ph/eta : 0;   // W shaft
+    const PkW=P/1000;
+    const HPm=PkW/0.7355;      // metric HP
+
+    $("o_H").innerHTML  = `<b>${f(H,2)} m</b>`;
+    $("o_Q").innerHTML  = `${f(Qls,2)} L/s &nbsp;(${f(Q,4)} m³/s · ${f(Qls*3.6,1)} m³/h)`;
+    $("o_Ph").innerHTML = `${f(Ph,0)} W &nbsp;(${f(Ph/1000,2)} kW)`;
+    $("o_eta").innerHTML= `${f(eta,2)}`;
+    $("o_PkW").textContent = `${f(PkW,2)} kW`;
+    $("o_Psub").textContent = `${f(P,0)} W · ${f(HPm,2)} HP (metric)`;
+    $("o_break").innerHTML = `P = (${f(rho)} × 9.81 × ${f(Q,4)} × ${f(H,2)}) / ${f(eta,2)} = ${f(Ph,0)} / ${f(eta,2)} = <b>${f(P,0)} W</b>`;
+  }
+
+  // pump-type dropdown sets eta
+  $("ptype").addEventListener("change", ()=>{
+    const v=$("ptype").value; if(v!=="0.75"||true){ $("eta").value=v; } recalc();
+  });
+  // clickable efficiency table rows
+  document.querySelectorAll("#effTable tbody tr").forEach(tr=>{
+    tr.style.cursor="pointer";
+    tr.addEventListener("click", ()=>{
+      document.querySelectorAll("#effTable tbody tr").forEach(r=>r.classList.remove("sel"));
+      tr.classList.add("sel");
+      $("eta").value=tr.getAttribute("data-eta"); recalc();
+    });
+  });
+  $("loadEx").addEventListener("click", ()=>{
+    $("Q").value=20; $("rho").value=1000; $("Hz").value=25; $("Hf").value=0; $("Hm").value=0; $("eta").value=0.75; recalc();
+  });
+  document.addEventListener("input",e=>{
+    if(["Q","rho","Hz","Hf","Hm","eta"].includes(e.target.id)) recalc();
+  });
+  recalc();
+</script>
+</body>
+</html>
